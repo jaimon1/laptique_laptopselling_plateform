@@ -143,6 +143,42 @@ h1 {
     margin-bottom: 20px;
 }
 
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .form-control {
+    padding-right: 45px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #999999;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.toggle-password:hover {
+    color: #1e3c72;
+}
+
+.toggle-password.active {
+    color: #1e3c72;
+}
+
+.eye-icon {
+    pointer-events: none;
+}
+
 label {
     display: block;
     margin-bottom: 8px;

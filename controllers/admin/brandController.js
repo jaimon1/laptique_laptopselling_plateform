@@ -7,7 +7,7 @@ import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/i
 const loadBrand = async (req, res) => {
     try {
         const page = Number(req.query.page) || 1;
-        const limit = 3;
+        const limit = 4;
         const skip = (page - 1) * limit;
         const search = req.query.search || '';
         const brandData = await Brand.find({

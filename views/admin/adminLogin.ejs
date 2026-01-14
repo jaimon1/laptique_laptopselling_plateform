@@ -58,8 +58,16 @@
 
               <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" class="form-control" name="password" id="password"
-                  placeholder="Enter your password" required>
+                <div class="password-input-wrapper">
+                  <input type="password" class="form-control" name="password" id="password"
+                    placeholder="Enter your password" required>
+                  <span class="toggle-password" id="togglePassword">
+                    <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </div>
                 <div class="error-message" id="err2"></div>
               </div>
 
@@ -115,6 +123,14 @@
 
     adminEmail.addEventListener('blur', validateEmail);
     adminPassword.addEventListener('blur', validatePassword);
+
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    togglePassword.addEventListener('click', function() {
+      const type = adminPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+      adminPassword.setAttribute('type', type);
+      this.classList.toggle('active');
+    });
   </script>
 </body>
 

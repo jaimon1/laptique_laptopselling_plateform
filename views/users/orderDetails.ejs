@@ -152,7 +152,8 @@
                                             statusIcon = 'check-circle';
                                         } else if (order.status === 'Returned') {
                                             statusIcon = 'undo';
-                                        } else if (order.status === 'Return Requested') {
+                                        } else if (order.status === 'Return Request') {
+                                            displayStatus = 'Return Requested';
                                             statusIcon = 'undo';
                                         } else if (order.status === 'Failed') {
                                             statusIcon = 'exclamation-circle';
@@ -343,7 +344,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                <% } else if (order.status === 'Returned' || order.status === 'Return Requested' || order.returnStatus === 'Rejected') { %>
+                                <% } else if (order.status === 'Returned' || order.status === 'Return Request' || order.returnStatus === 'Rejected') { %>
                                     <!-- Return Timeline -->
                                     <div class="order-timeline">
                                         <div class="timeline-item active">
@@ -421,7 +422,7 @@
                                                     <small>Your return request was not approved</small>
                                                 </div>
                                             </div>
-                                        <% } else if (order.status === 'Return Requested') { %>
+                                        <% } else if (order.status === 'Return Request') { %>
                                             <div class="timeline-item active">
                                                 <div class="timeline-icon" style="background: #f59e0b; color: white; box-shadow: 0 0 0 4px #fef3c7, 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                                                     <i class="fas fa-undo"></i>
