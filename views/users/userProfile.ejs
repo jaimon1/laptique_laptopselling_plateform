@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - LapTique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/userProfile.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-laptop"></i> LapTique
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Shop</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown">
+
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-shopping-bag me-2"></i>Orders</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <%-include("../../views/parsuals/user/header")%>
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center text-md-start">
+                        <img src="<%= user.profileImage ? user.profileImage : 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJ4AqAMBIgACEQEDEQH/xAAXAAEBAQEAAAAAAAAAAAAAAAAAAQIH/8QAFhABAQEAAAAAAAAAAAAAAAAAAAEx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AO4gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM2tICgAAAAAAAAAAAAAlUAAAASArLQAAAAAAAAAAAAACUFAAAAAAAAAAAAAAAAAAAAAAAAEigAAAAAAAAAAAAAAAAAAJVAAAEmqkBQAAAf//Z' %>"
+                            alt="Profile" class="profile-img" id="profileImage">
+                    </div>
+                    <div class="col-md-6 text-center text-md-start mt-3 mt-md-0">
+                        <h2 class="mb-1" id="displayName">
+                            <%= user.name %>
+                        </h2>
+                        <p class="mb-1" id="displayEmail">
+                            <%= user.email %>
+                        </p>
+                        <p class="mb-0">Member since <%= new Date(user.createdOn).toLocaleString('default', {
+                                month: 'long' , year: 'numeric' }) %>
+                        </p>
+                    </div>
+                    <div class="col-md-3 text-center text-md-end mt-3 mt-md-0">
+                        <a href="/editProfile" class="btn btn-light" onclick="toggleEditMode()">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+
+            <div class="row">
+                <!-- Left Column -->
+                <div class="col-lg-4">
+                    <!-- Profile Details -->
+                    <div class="profile-card">
+                        <h5><i class="fas fa-user me-2"></i>Profile Details</h5>
+
+                        <div id="viewMode">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Full Name</label>
+                                <p class="mb-0" id="viewName">
+                                    <%= user.name %>
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Email</label>
+                                <p class="mb-0" id="viewEmail">
+                                    <%= user.email %>
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Phone</label>
+                                <p class="mb-0" id="viewPhone">+91 <%= user.phone %>
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Date of Birth</label>
+                                <p class="mb-0" id="viewDob">
+                                    <%= user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : '' %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Quick Access -->
+                    <div class="profile-card" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1"><i class="fas fa-wallet me-2"></i>My Wallet</h5>
+                                <p class="mb-0 opacity-75">Manage your wallet balance</p>
+                            </div>
+                            <a href="/wallet" class="btn btn-light">
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Referral Program -->
+                    <div class="profile-card" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
+                        <h5 class="mb-3"><i class="fas fa-gift me-2"></i>Refer & Earn</h5>
+                        <p class="mb-3 opacity-90">Invite friends and earn ₹100 wallet cash when they make their first purchase!</p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label opacity-75 small">Your Referral Code</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="referralCodeDisplay" readonly style="background: rgba(255,255,255,0.2); border: none; color: white; font-weight: bold; font-size: 1.1rem;">
+                                <button class="btn btn-light" onclick="copyReferralCode()" title="Copy Code">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label opacity-75 small">Share Referral Link</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="referralLinkDisplay" readonly style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 0.85rem;">
+                                <button class="btn btn-light" onclick="copyReferralLink()" title="Copy Link">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-0" id="totalReferralsCount">0</h3>
+                                <small class="opacity-75">Total Referrals</small>
+                            </div>
+                            <a href="/referral-history" class="btn btn-light">
+                                <i class="fas fa-history me-2"></i>View History
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Address Management -->
+                    <div class="profile-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5><i class="fas fa-map-marker-alt me-2"></i>Shipping Addresses</h5>
+                            <button class="btn btn-outline-primary btn-sm" onclick="showAddAddressModal()">
+                                <i class="fas fa-plus me-2"></i>Add Address
+                            </button>
+                        </div>
+
+                        <div id="addressesList">
+                            <% if (addresses && addresses.length> 0) { %>
+                                <% addresses.forEach((address, index)=> { %>
+                                    <div class="address-item mb-3 p-3 border rounded"
+                                        data-address-id="<%= address._id %>">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <p class="mb-1"><strong>
+                                                        <%= address.addressType %>
+                                                    </strong></p>
+                                                <p class="mb-1">
+                                                    <%= address.name %>
+                                                </p>
+                                                <p class="mb-1">
+                                                    <%= address.landmark %>, <%= address.city %>
+                                                </p>
+                                                <p class="mb-1">
+                                                    <%= address.state %>
+                                                </p>
+                                                <p class="mb-1">Phone: <%= address.phone %>
+                                                </p>
+                                                <% if (address.altPhone && address.altPhone !==address.phone) { %>
+                                                    <p class="mb-1">Alt Phone: <%= address.altPhone %>
+                                                    </p>
+                                                    <% } %>
+                                            </div>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                    type="button" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="#"
+                                                            onclick="editAddressModal('<%= address._id %>')">
+                                                            <i class="fas fa-edit me-2"></i>Edit
+                                                        </a></li>
+                                                    <li><a class="dropdown-item text-danger" href="#"
+                                                            onclick="deleteAddress('<%= address._id %>')">
+                                                            <i class="fas fa-trash me-2"></i>Delete
+                                                        </a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <div class="text-center py-4">
+                                                <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                                                <p class="text-muted">No addresses added yet</p>
+                                                <button class="btn btn-primary" onclick="showAddAddressModal()">
+                                                    <i class="fas fa-plus me-2"></i>Add Your First Address
+                                                </button>
+                                            </div>
+                                        <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="profile-card">
+                        <h5><i class="fas fa-cog me-2"></i>Account Settings</h5>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" onclick="changePassword()">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-lg-8">
+                    <!-- Recent Orders -->
+                    <div class="profile-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5><i class="fas fa-shopping-bag me-2"></i>Recent Orders</h5>
+                            <a href="/orders" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-2"></i>View All
+                            </a>
+                        </div>
+
+                        <% if (orders && orders.length> 0) { %>
+                            <% orders.forEach(order=> { %>
+                                <% if (order.orderItems && order.orderItems.length > 0 && order.orderItems[0].product) { %>
+                                <div class="order-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-2 col-3">
+                                            <% if (order.orderItems[0].product.ProductImages && order.orderItems[0].product.ProductImages.length > 0) { %>
+                                                <img src="/uploads/re-images/<%= order.orderItems[0].product.ProductImages[0] %>"
+                                                    alt="<%= order.orderItems[0].product.productName %>"
+                                                    class="product-img"
+                                                    onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                                            <% } else { %>
+                                                <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E"
+                                                    alt="No Image"
+                                                    class="product-img">
+                                            <% } %>
+                                        </div>
+                                        <div class="col-md-6 col-9">
+                                            <h6 class="mb-1">
+                                                <%= order.orderItems[0].product.productName || 'Product Unavailable' %>
+                                            </h6>
+                                            <p class="text-muted mb-1">
+                                                Order #<%= order.orderId %>
+                                                <!-- Return Rejected Badge -->
+                                                <% if (order.returnStatus === 'Rejected') { %>
+                                                    <span class="badge bg-danger ms-2" style="font-size: 0.7rem;">
+                                                        <i class="fas fa-times-circle me-1"></i>Return Rejected
+                                                    </span>
+                                                <% } %>
+                                            </p>
+                                            <small class="text-muted">Ordered on
+                                                <%= new Date(order.createdOn).toLocaleDateString('en-IN', {
+                                                    year: 'numeric' , month: 'short' , day: 'numeric' }) %>
+                                            </small>
+                                        </div>
+                                        <div class="col-md-2 col-6 mt-2 mt-md-0">
+                                            <span
+                                                class="status-badge <%= order.status === 'Delivered' ? 'status-delivered' : (['Pending','Processing','Shipped','Out for Delivery'].includes(order.status) ? 'status-pending' : 'status-cancelled') %>">
+                                                <%= order.status %>
+                                            </span>
+                                        </div>
+                                        <div class="col-md-2 col-6 mt-2 mt-md-0 text-end">
+                                            <p class="mb-2 fw-bold">₹<%= parseInt(order.finalAmount).toLocaleString() %>
+                                            </p>
+                                            <div class="d-grid gap-2">
+                                                <a href="/order/<%= order._id %>"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    Details
+                                                </a>
+                                                <% if (['Pending','Processing'].includes(order.status)) { %>
+                                                    <button class="btn btn-sm btn-outline-danger"
+                                                        onclick="cancelOrder('<%= order._id %>')">
+                                                        Cancel
+                                                    </button>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% } %>
+                                <% }) %>
+                                    <% } else { %>
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                            <p class="text-muted">No recent orders</p>
+                                            <a href="/shop" class="btn btn-primary btn-sm"><i
+                                                    class="fas fa-shopping-bag me-2"></i>Start Shopping</a>
+                                        </div>
+                                        <% } %>
+                    </div>
+
+                    <!-- Order History -->
+                    <div class="profile-card">
+                        <h5><i class="fas fa-history me-2"></i>Order History</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Items</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (orders && orders.length> 0) { %>
+                                        <% orders.forEach(order=> { %>
+                                            <tr>
+                                                <td>
+                                                    #<%= order.orderId %>
+                                                    <!-- Return Rejected Badge -->
+                                                    <% if (order.returnStatus === 'Rejected') { %>
+                                                        <br>
+                                                        <span class="badge bg-danger mt-1" style="font-size: 0.7rem;">
+                                                            <i class="fas fa-times-circle me-1"></i>Return Rejected
+                                                        </span>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <%= new Date(order.createdOn).toLocaleDateString('en-IN', {
+                                                        year: 'numeric' , month: 'short' , day: 'numeric' }) %>
+                                                </td>
+                                                <td>
+                                                    <%= order.orderItems.reduce((total, item)=> total + item.quantity,
+                                                        0) %> items
+                                                </td>
+                                                <td>₹<%= parseInt(order.finalAmount).toLocaleString() %>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="status-badge <%= order.status === 'Delivered' ? 'status-delivered' : (['Pending','Processing','Shipped','Out for Delivery'].includes(order.status) ? 'status-pending' : 'status-cancelled') %>">
+                                                        <%= order.status %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a class="btn btn-sm btn-outline-primary"
+                                                        href="/order/<%= order._id %>">View</a>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-muted">No recent orders
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <!-- Change Password Modal -->
+        <div class="modal fade" id="changePasswordModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-key me-2"></i>Change Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="passwordForm" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label">Current Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="currentPassword" required minlength="6">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('currentPassword', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">Please enter your current password</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="newPassword" required 
+                                           minlength="8" maxlength="50">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('newPassword', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">
+                                    Password must be 8-50 characters with at least one uppercase, lowercase, number, and special character
+                                </small>
+                                <div class="invalid-feedback" id="newPasswordFeedback">Please enter a valid password</div>
+                                <!-- Password strength indicator -->
+                                <div class="mt-2" id="passwordStrength" style="display: none;">
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar" id="strengthBar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <small id="strengthText" class="text-muted"></small>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="confirmPassword" required 
+                                           minlength="8" maxlength="50">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('confirmPassword', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">Passwords must match</div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="updatePassword()">
+                            <i class="fas fa-save me-2"></i>Update Password
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cancel Order Modal -->
+        <div class="modal fade" id="cancelOrderModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cancel Order</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to cancel order <strong id="cancelOrderId"></strong>?</p>
+                        <div class="mb-3">
+                            <label class="form-label">Reason for cancellation:</label>
+                            <select class="form-control" id="cancelReason">
+                                <option value="">Select a reason</option>
+                                <option value="changed_mind">Changed my mind</option>
+                                <option value="found_better_price">Found better price elsewhere</option>
+                                <option value="delivery_delay">Delivery taking too long</option>
+                                <option value="ordered_by_mistake">Ordered by mistake</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Order</button>
+                        <button type="button" class="btn btn-danger" onclick="confirmCancelOrder()">Cancel
+                            Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Address Modal -->
+        <div class="modal fade" id="addAddressModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Address</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addAddressForm" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label">Address Type <span class="text-danger">*</span></label>
+                                <select class="form-control" id="addAddressType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Home">Home</option>
+                                    <option value="Work">Work</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="invalid-feedback">Please select an address type</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="addName" required 
+                                       minlength="3" maxlength="50" pattern="^[a-zA-Z\s]+$">
+                                <div class="invalid-feedback">Name must be 3-50 characters and contain only letters</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Landmark/House No./Building <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="addLandmark" required 
+                                       minlength="3" maxlength="100">
+                                <div class="invalid-feedback">Landmark must be 3-100 characters</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">City <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="addCity" required 
+                                       minlength="2" maxlength="50" pattern="^[a-zA-Z\s]+$">
+                                <div class="invalid-feedback">City must be 2-50 characters and contain only letters</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">State <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="addState" required 
+                                       minlength="2" maxlength="50" pattern="^[a-zA-Z\s]+$">
+                                <div class="invalid-feedback">State must be 2-50 characters and contain only letters</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="addPhone" required 
+                                       pattern="^[6-9]\d{9}$" maxlength="10">
+                                <small class="text-muted">Enter 10-digit Indian mobile number</small>
+                                <div class="invalid-feedback">Please enter a valid 10-digit Indian mobile number</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Alternative Phone (Optional)</label>
+                                <input type="tel" class="form-control" id="addAltPhone" 
+                                       pattern="^[6-9]\d{9}$" maxlength="10">
+                                <small class="text-muted">Enter 10-digit Indian mobile number</small>
+                                <div class="invalid-feedback">Please enter a valid 10-digit Indian mobile number</div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveNewAddress()">Add Address</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Address Modal -->
+        <div class="modal fade" id="editAddressModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Address</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editAddressForm" novalidate>
+                            <input type="hidden" id="editAddressId">
+                            <div class="mb-3">
+                                <label class="form-label">Address Type <span class="text-danger">*</span></label>
+                                <select class="form-control" id="editAddressType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Home">Home</option>
+                                    <option value="Work">Work</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="invalid-feedback">Please select an address type</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editName" required 
+                                       minlength="3" maxlength="50" pattern="^[a-zA-Z\s]+$">
+                                <div class="invalid-feedback">Name must be 3-50 characters and contain only letters</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Landmark/House No./Building <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editLandmark" required 
+                                       minlength="3" maxlength="100">
+                                <div class="invalid-feedback">Landmark must be 3-100 characters</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">City <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editCity" required 
+                                       minlength="2" maxlength="50" pattern="^[a-zA-Z\s]+$">
+                                <div class="invalid-feedback">City must be 2-50 characters and contain only letters</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">State <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="editState" required 
+                                       minlength="2" maxlength="50" pattern="^[a-zA-Z\s]+$">
+                                <div class="invalid-feedback">State must be 2-50 characters and contain only letters</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="editPhone" required 
+                                       pattern="^[6-9]\d{9}$" maxlength="10">
+                                <small class="text-muted">Enter 10-digit Indian mobile number</small>
+                                <div class="invalid-feedback">Please enter a valid 10-digit Indian mobile number</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Alternative Phone (Optional)</label>
+                                <input type="tel" class="form-control" id="editAltPhone" 
+                                       pattern="^[6-9]\d{9}$" maxlength="10">
+                                <small class="text-muted">Enter 10-digit Indian mobile number</small>
+                                <div class="invalid-feedback">Please enter a valid 10-digit Indian mobile number</div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveEditedAddress()">Update
+                            Address</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Verification Modal -->
+        <div class="modal fade" id="emailVerificationModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Verify Email Address</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="emailVerificationStep1">
+                            <p>Enter your new email address to receive a verification code:</p>
+                            <div class="mb-3">
+                                <label class="form-label">New Email Address</label>
+                                <input type="email" class="form-control" id="newEmailAddress" required>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="sendEmailOTP()">Send Verification
+                                Code</button>
+                        </div>
+                        <div id="emailVerificationStep2" style="display: none;">
+                            <p>Enter the 6-digit verification code sent to your email:</p>
+                            <div class="mb-3">
+                                <label class="form-label">Verification Code</label>
+                                <input type="text" class="form-control" id="emailOTP" maxlength="6" required>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="verifyEmailOTP()">Verify
+                                Email</button>
+                            <button type="button" class="btn btn-outline-secondary ms-2"
+                                onclick="resendEmailOTP()">Resend Code</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            let editingProfile = false;
+            let editingAddress = false;
+            let currentCancelOrderId = null;
+
+            function toggleEditMode() {
+                editingProfile = !editingProfile;
+                const viewMode = document.getElementById('viewMode');
+                const editMode = document.getElementById('editMode');
+
+                if (editingProfile) {
+                    viewMode.style.display = 'none';
+                    editMode.style.display = 'block';
+                } else {
+                    viewMode.style.display = 'block';
+                    editMode.style.display = 'none';
+                }
+            }
+
+            function saveProfile() {
+                const name = document.getElementById('editName').value;
+                const email = document.getElementById('editEmail').value;
+                const phone = document.getElementById('editPhone').value;
+                const dob = document.getElementById('editDob').value;
+
+                // Update display values
+                document.getElementById('viewName').textContent = name;
+                document.getElementById('viewEmail').textContent = email;
+                document.getElementById('viewPhone').textContent = phone;
+                document.getElementById('viewDob').textContent = new Date(dob).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                // Update header
+                document.getElementById('displayName').textContent = name;
+                document.getElementById('displayEmail').textContent = email;
+
+                toggleEditMode();
+                showAlert('Profile updated successfully!', 'success');
+            }
+
+            function cancelEdit() {
+                // Reset form values
+                document.getElementById('editName').value = document.getElementById('viewName').textContent;
+                document.getElementById('editEmail').value = document.getElementById('viewEmail').textContent;
+                document.getElementById('editPhone').value = document.getElementById('viewPhone').textContent;
+
+                toggleEditMode();
+            }
+
+            function editAddress() {
+                editingAddress = !editingAddress;
+                const addressView = document.getElementById('addressView');
+                const addressEdit = document.getElementById('addressEdit');
+
+                if (editingAddress) {
+                    addressView.style.display = 'none';
+                    addressEdit.style.display = 'block';
+                } else {
+                    addressView.style.display = 'block';
+                    addressEdit.style.display = 'none';
+                }
+            }
+
+            function saveAddress() {
+                const address1 = document.getElementById('address1').value;
+                const city = document.getElementById('city').value;
+                const state = document.getElementById('state').value;
+                const pincode = document.getElementById('pincode').value;
+
+                editAddress();
+                showAlert('Address updated successfully!', 'success');
+            }
+
+            function cancelAddressEdit() {
+                editAddress();
+            }
+
+            function changePassword() {
+                const modal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+                modal.show();
+            }
+
+            // Toggle password visibility
+            function togglePasswordVisibility(inputId, button) {
+                const input = document.getElementById(inputId);
+                const icon = button.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+
+            // Password strength checker
+            function checkPasswordStrength(password) {
+                let strength = 0;
+                const strengthBar = document.getElementById('strengthBar');
+                const strengthText = document.getElementById('strengthText');
+                const strengthContainer = document.getElementById('passwordStrength');
+                
+                if (!password) {
+                    strengthContainer.style.display = 'none';
+                    return;
+                }
+                
+                strengthContainer.style.display = 'block';
+                
+                // Length check
+                if (password.length >= 8) strength += 20;
+                if (password.length >= 12) strength += 10;
+                
+                // Character variety checks
+                if (/[a-z]/.test(password)) strength += 20;
+                if (/[A-Z]/.test(password)) strength += 20;
+                if (/[0-9]/.test(password)) strength += 15;
+                if (/[^a-zA-Z0-9]/.test(password)) strength += 15;
+                
+                // Update progress bar
+                strengthBar.style.width = strength + '%';
+                
+                if (strength < 40) {
+                    strengthBar.className = 'progress-bar bg-danger';
+                    strengthText.textContent = 'Weak password';
+                    strengthText.className = 'text-danger';
+                } else if (strength < 70) {
+                    strengthBar.className = 'progress-bar bg-warning';
+                    strengthText.textContent = 'Medium strength';
+                    strengthText.className = 'text-warning';
+                } else {
+                    strengthBar.className = 'progress-bar bg-success';
+                    strengthText.textContent = 'Strong password';
+                    strengthText.className = 'text-success';
+                }
+            }
+
+            // Add event listener for password strength
+            document.addEventListener('DOMContentLoaded', function() {
+                const newPasswordInput = document.getElementById('newPassword');
+                if (newPasswordInput) {
+                    newPasswordInput.addEventListener('input', function() {
+                        checkPasswordStrength(this.value);
+                    });
+                }
+            });
+
+            function updatePassword() {
+                const form = document.getElementById('passwordForm');
+                form.classList.remove('was-validated');
+                
+                const current = document.getElementById('currentPassword').value.trim();
+                const newPass = document.getElementById('newPassword').value.trim();
+                const confirm = document.getElementById('confirmPassword').value.trim();
+
+                // Comprehensive validation
+                let errors = [];
+
+                // Current password validation
+                if (!current) {
+                    errors.push('Current password is required');
+                } else if (current.length < 6) {
+                    errors.push('Current password must be at least 6 characters');
+                }
+
+                // New password validation
+                if (!newPass) {
+                    errors.push('New password is required');
+                } else {
+                    if (newPass.length < 8) {
+                        errors.push('New password must be at least 8 characters long');
+                    }
+                    if (newPass.length > 50) {
+                        errors.push('New password must not exceed 50 characters');
+                    }
+                    if (!/[a-z]/.test(newPass)) {
+                        errors.push('New password must contain at least one lowercase letter');
+                    }
+                    if (!/[A-Z]/.test(newPass)) {
+                        errors.push('New password must contain at least one uppercase letter');
+                    }
+                    if (!/[0-9]/.test(newPass)) {
+                        errors.push('New password must contain at least one number');
+                    }
+                    if (!/[^a-zA-Z0-9]/.test(newPass)) {
+                        errors.push('New password must contain at least one special character');
+                    }
+                }
+
+                // Confirm password validation
+                if (!confirm) {
+                    errors.push('Please confirm your new password');
+                } else if (newPass !== confirm) {
+                    errors.push('New passwords do not match');
+                }
+
+                // Check if new password is same as current
+                if (current && newPass && current === newPass) {
+                    errors.push('New password must be different from current password');
+                }
+
+                // Show errors if any
+                if (errors.length > 0) {
+                    form.classList.add('was-validated');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        html: errors.map(err => `• ${err}`).join('<br>'),
+                        confirmButtonColor: '#dc3545'
+                    });
+                    return;
+                }
+
+                // Show loading
+                Swal.fire({
+                    title: 'Updating Password...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Send request to server
+                fetch('/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        currentPassword: current,
+                        newPassword: newPass
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Password updated successfully',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            document.getElementById('passwordForm').reset();
+                            document.getElementById('passwordStrength').style.display = 'none';
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: data.message || 'Failed to update password',
+                                confirmButtonColor: '#dc3545'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'An error occurred while updating password',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    });
+            }
+
+            function trackOrder(orderId) {
+                showAlert(`Tracking information for order ${orderId} will be displayed here.`, 'info');
+            }
+
+            function cancelOrder(orderId) {
+                currentCancelOrderId = orderId;
+                document.getElementById('cancelOrderId').textContent = orderId;
+                const modal = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
+                modal.show();
+            }
+
+            async function confirmCancelOrder() {
+                const reason = document.getElementById('cancelReason').value;
+
+                if (!reason) {
+                    showAlert('Please select a reason for cancellation', 'danger');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/order/${currentCancelOrderId}/cancel`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ reason })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('cancelOrderModal')).hide();
+                        showAlert('Order cancelled successfully', 'success');
+                        setTimeout(() => { location.reload(); }, 1500);
+                    } else {
+                        showAlert(data.message || 'Failed to cancel order', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error cancelling order:', error);
+                    showAlert('Failed to cancel order', 'danger');
+                } finally {
+                    document.getElementById('cancelReason').value = '';
+                    currentCancelOrderId = null;
+                }
+            }
+
+            // Alert system
+            function showAlert(message, type) {
+                // Remove existing alerts
+                const existingAlert = document.querySelector('.alert');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+
+                const alertHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${getAlertIcon(type)} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+                // Insert alert at the top of the container
+                const container = document.querySelector('.container');
+                container.insertAdjacentHTML('afterbegin', alertHTML);
+
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    const alert = document.querySelector('.alert');
+                    if (alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            }
+
+            function getAlertIcon(type) {
+                switch (type) {
+                    case 'success': return 'check-circle';
+                    case 'danger': return 'exclamation-triangle';
+                    case 'warning': return 'exclamation-circle';
+                    case 'info': return 'info-circle';
+                    default: return 'info-circle';
+                }
+            }
+
+            // Additional functionality for enhanced user experience
+            document.addEventListener('DOMContentLoaded', function () {
+                // Initialize tooltips if any
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+
+                // Add click handlers for navigation
+                document.querySelector('.navbar-brand').addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.location.href = 'index.html';
+                });
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function (e) {
+                // Escape key to close modals
+                if (e.key === 'Escape') {
+                    const openModal = document.querySelector('.modal.show');
+                    if (openModal) {
+                        const modalInstance = bootstrap.Modal.getInstance(openModal);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                    }
+                }
+            });
+
+            // Form validation helpers
+            function validateEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            function validatePhone(phone) {
+                const phoneRegex = /^\+91\s[0-9]{10}$/;
+                return phoneRegex.test(phone);
+            }
+
+            // Enhanced profile editing with validation
+            function saveProfileWithValidation() {
+                const name = document.getElementById('editName').value.trim();
+                const email = document.getElementById('editEmail').value.trim();
+                const phone = document.getElementById('editPhone').value.trim();
+
+                // Validation
+                if (!name) {
+                    showAlert('Please enter a valid name', 'danger');
+                    return;
+                }
+
+                if (!validateEmail(email)) {
+                    showAlert('Please enter a valid email address', 'danger');
+                    return;
+                }
+
+                if (!validatePhone(phone)) {
+                    showAlert('Please enter a valid phone number (+91 followed by 10 digits)', 'danger');
+                    return;
+                }
+
+                saveProfile();
+            }
+
+            // Order management functions
+            function viewOrderDetails(orderId) {
+                showAlert(`Viewing details for order ${orderId}`, 'info');
+                // In a real application, this would navigate to order details page
+            }
+
+            function reorderItem(orderId) {
+                if (confirm('Add this item to cart again?')) {
+                    showAlert(`Items from order ${orderId} added to cart!`, 'success');
+                }
+            }
+
+            function downloadInvoice(orderId) {
+                showAlert(`Downloading invoice for order ${orderId}...`, 'info');
+                // In a real application, this would trigger file download
+            }
+
+            // Search functionality for orders
+            function searchOrders() {
+                const searchTerm = prompt('Enter order ID or product name to search:');
+                if (searchTerm) {
+                    showAlert(`Searching for: ${searchTerm}`, 'info');
+                    // In a real application, this would filter the orders
+                }
+            }
+
+            // Export order history
+            function exportOrderHistory() {
+                if (confirm('Export order history as CSV?')) {
+                    showAlert('Order history exported successfully!', 'success');
+                    // In a real application, this would generate and download CSV
+                }
+            }
+
+            // Address Management Functions
+            function showAddAddressModal() {
+                const modal = new bootstrap.Modal(document.getElementById('addAddressModal'));
+                modal.show();
+            }
+
+            function saveNewAddress() {
+                const form = document.getElementById('addAddressForm');
+                
+                // Reset validation states
+                form.classList.remove('was-validated');
+                
+                const addressType = document.getElementById('addAddressType').value.trim();
+                const name = document.getElementById('addName').value.trim();
+                const landmark = document.getElementById('addLandmark').value.trim();
+                const city = document.getElementById('addCity').value.trim();
+                const state = document.getElementById('addState').value.trim();
+                const phone = document.getElementById('addPhone').value.trim();
+                const altPhone = document.getElementById('addAltPhone').value.trim();
+
+                // Comprehensive validation
+                let errors = [];
+
+                // Address Type validation
+                if (!addressType) {
+                    errors.push('Please select an address type');
+                }
+
+                // Name validation
+                if (!name) {
+                    errors.push('Name is required');
+                } else if (name.length < 3 || name.length > 50) {
+                    errors.push('Name must be between 3 and 50 characters');
+                } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+                    errors.push('Name must contain only letters and spaces');
+                }
+
+                // Landmark validation
+                if (!landmark) {
+                    errors.push('Landmark/Address is required');
+                } else if (landmark.length < 3 || landmark.length > 100) {
+                    errors.push('Landmark must be between 3 and 100 characters');
+                }
+
+                // City validation
+                if (!city) {
+                    errors.push('City is required');
+                } else if (city.length < 2 || city.length > 50) {
+                    errors.push('City must be between 2 and 50 characters');
+                } else if (!/^[a-zA-Z\s]+$/.test(city)) {
+                    errors.push('City must contain only letters and spaces');
+                }
+
+                // State validation
+                if (!state) {
+                    errors.push('State is required');
+                } else if (state.length < 2 || state.length > 50) {
+                    errors.push('State must be between 2 and 50 characters');
+                } else if (!/^[a-zA-Z\s]+$/.test(state)) {
+                    errors.push('State must contain only letters and spaces');
+                }
+
+                // Phone validation
+                if (!phone) {
+                    errors.push('Phone number is required');
+                } else if (!/^[6-9]\d{9}$/.test(phone)) {
+                    errors.push('Please enter a valid 10-digit Indian mobile number starting with 6-9');
+                }
+
+                // Alternative phone validation (optional)
+                if (altPhone && !/^[6-9]\d{9}$/.test(altPhone)) {
+                    errors.push('Alternative phone must be a valid 10-digit Indian mobile number starting with 6-9');
+                }
+
+                // Check if phone and altPhone are the same
+                if (altPhone && phone === altPhone) {
+                    errors.push('Alternative phone number must be different from primary phone number');
+                }
+
+                // Show errors if any
+                if (errors.length > 0) {
+                    form.classList.add('was-validated');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        html: errors.map(err => `• ${err}`).join('<br>'),
+                        confirmButtonColor: '#dc3545'
+                    });
+                    return;
+                }
+
+                // Show loading
+                Swal.fire({
+                    title: 'Adding Address...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch('/addresses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        addressType,
+                        name,
+                        landmark,
+                        city,
+                        state,
+                        phone,
+                        altPhone: altPhone || phone
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('addAddressModal')).hide();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Address added successfully',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            document.getElementById('addAddressForm').reset();
+                            // Reload page to show new address
+                            setTimeout(() => location.reload(), 2000);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: data.message || 'Failed to add address',
+                                confirmButtonColor: '#dc3545'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'An error occurred while adding address',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    });
+            }
+
+            function editAddressModal(addressId) {
+                // Find the address data from the DOM
+                const addressElement = document.querySelector(`[data-address-id="${addressId}"]`);
+                if (!addressElement) return;
+
+                const addressData = {
+                    id: addressId,
+                    type: addressElement.querySelector('strong').textContent,
+                    name: addressElement.querySelectorAll('p')[1].textContent,
+                    landmark: addressElement.querySelectorAll('p')[2].textContent.split(',')[0],
+                    city: addressElement.querySelectorAll('p')[2].textContent.split(',')[1].trim(),
+                    state: addressElement.querySelectorAll('p')[3].textContent,
+                    phone: addressElement.querySelectorAll('p')[4].textContent.replace('Phone: ', ''),
+                    altPhone: addressElement.querySelectorAll('p')[5] ?
+                        addressElement.querySelectorAll('p')[5].textContent.replace('Alt Phone: ', '') : ''
+                };
+
+                // Populate edit form
+                document.getElementById('editAddressId').value = addressData.id;
+                document.getElementById('editAddressType').value = addressData.type;
+                document.getElementById('editName').value = addressData.name;
+                document.getElementById('editLandmark').value = addressData.landmark;
+                document.getElementById('editCity').value = addressData.city;
+                document.getElementById('editState').value = addressData.state;
+                document.getElementById('editPhone').value = addressData.phone;
+                document.getElementById('editAltPhone').value = addressData.altPhone;
+
+                const modal = new bootstrap.Modal(document.getElementById('editAddressModal'));
+                modal.show();
+            }
+
+            function saveEditedAddress() {
+                const form = document.getElementById('editAddressForm');
+                
+                // Reset validation states
+                form.classList.remove('was-validated');
+                
+                const addressId = document.getElementById('editAddressId').value;
+                const addressType = document.getElementById('editAddressType').value.trim();
+                const name = document.getElementById('editName').value.trim();
+                const landmark = document.getElementById('editLandmark').value.trim();
+                const city = document.getElementById('editCity').value.trim();
+                const state = document.getElementById('editState').value.trim();
+                const phone = document.getElementById('editPhone').value.trim();
+                const altPhone = document.getElementById('editAltPhone').value.trim();
+
+                // Comprehensive validation
+                let errors = [];
+
+                // Address Type validation
+                if (!addressType) {
+                    errors.push('Please select an address type');
+                }
+
+                // Name validation
+                if (!name) {
+                    errors.push('Name is required');
+                } else if (name.length < 3 || name.length > 50) {
+                    errors.push('Name must be between 3 and 50 characters');
+                } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+                    errors.push('Name must contain only letters and spaces');
+                }
+
+                // Landmark validation
+                if (!landmark) {
+                    errors.push('Landmark/Address is required');
+                } else if (landmark.length < 3 || landmark.length > 100) {
+                    errors.push('Landmark must be between 3 and 100 characters');
+                }
+
+                // City validation
+                if (!city) {
+                    errors.push('City is required');
+                } else if (city.length < 2 || city.length > 50) {
+                    errors.push('City must be between 2 and 50 characters');
+                } else if (!/^[a-zA-Z\s]+$/.test(city)) {
+                    errors.push('City must contain only letters and spaces');
+                }
+
+                // State validation
+                if (!state) {
+                    errors.push('State is required');
+                } else if (state.length < 2 || state.length > 50) {
+                    errors.push('State must be between 2 and 50 characters');
+                } else if (!/^[a-zA-Z\s]+$/.test(state)) {
+                    errors.push('State must contain only letters and spaces');
+                }
+
+                // Phone validation
+                if (!phone) {
+                    errors.push('Phone number is required');
+                } else if (!/^[6-9]\d{9}$/.test(phone)) {
+                    errors.push('Please enter a valid 10-digit Indian mobile number starting with 6-9');
+                }
+
+                // Alternative phone validation (optional)
+                if (altPhone && !/^[6-9]\d{9}$/.test(altPhone)) {
+                    errors.push('Alternative phone must be a valid 10-digit Indian mobile number starting with 6-9');
+                }
+
+                // Check if phone and altPhone are the same
+                if (altPhone && phone === altPhone) {
+                    errors.push('Alternative phone number must be different from primary phone number');
+                }
+
+                // Show errors if any
+                if (errors.length > 0) {
+                    form.classList.add('was-validated');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        html: errors.map(err => `• ${err}`).join('<br>'),
+                        confirmButtonColor: '#dc3545'
+                    });
+                    return;
+                }
+
+                // Show loading
+                Swal.fire({
+                    title: 'Updating Address...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch(`/addresses/${addressId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        addressType,
+                        name,
+                        landmark,
+                        city,
+                        state,
+                        phone,
+                        altPhone: altPhone || phone
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('editAddressModal')).hide();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Address updated successfully',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            // Reload page to show updated address
+                            setTimeout(() => location.reload(), 2000);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: data.message || 'Failed to update address',
+                                confirmButtonColor: '#dc3545'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'An error occurred while updating address',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    });
+            }
+
+            // drop-in SweetAlert2 version (works with your inline onclick)
+            async function deleteAddress(addressId) {
+                // 1) confirm with SweetAlert2
+                console.log("this is alert")
+                const result = await Swal.fire({
+                    title: 'Delete this address?',
+                    text: "This action cannot be undone.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it',
+                    cancelButtonText: 'Cancel',
+                    focusCancel: true
+                });
+
+                if (!result.isConfirmed) return; // user cancelled
+
+                // 2) show loading overlay
+                Swal.fire({
+                    title: 'Deleting...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                try {
+                    const res = await fetch(`/addresses/${addressId}`, {
+                        method: 'DELETE',
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    // optional: check http status
+                    if (!res.ok) {
+                        const text = await res.text();
+                        throw new Error(text || `Network error: ${res.status}`);
+                    }
+
+                    const data = await res.json();
+                    Swal.close(); // close loading
+
+                    if (data.success) {
+                        // success toast
+                        await Swal.fire('Deleted!', 'Address deleted successfully.', 'success');
+
+                        // remove DOM node (make sure wrapper has data-address-id)
+                        const addressElement = document.querySelector(`[data-address-id="${addressId}"]`);
+                        if (addressElement) addressElement.remove();
+                    } else {
+                        Swal.fire('Error', data.message || 'Failed to delete address', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error deleting address:', error);
+                    Swal.close();
+                    Swal.fire('Error', 'An error occurred while deleting address', 'error');
+                }
+            }
+
+
+            // Email Verification Functions
+            function showEmailVerificationModal() {
+                const modal = new bootstrap.Modal(document.getElementById('emailVerificationModal'));
+                modal.show();
+            }
+
+            function sendEmailOTP() {
+                const email = document.getElementById('newEmailAddress').value;
+
+                if (!validateEmail(email)) {
+                    showAlert('Please enter a valid email address', 'danger');
+                    return;
+                }
+
+                fetch('/send-email-verification-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('emailVerificationStep1').style.display = 'none';
+                            document.getElementById('emailVerificationStep2').style.display = 'block';
+                            showAlert('Verification code sent to your email!', 'success');
+                        } else {
+                            showAlert(data.message || 'Failed to send verification code', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('An error occurred while sending verification code', 'danger');
+                    });
+            }
+
+            function verifyEmailOTP() {
+                const email = document.getElementById('newEmailAddress').value;
+                const otp = document.getElementById('emailOTP').value;
+
+                if (!otp || otp.length !== 6) {
+                    showAlert('Please enter a valid 6-digit code', 'danger');
+                    return;
+                }
+
+                fetch('/verify-email-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, otp })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('emailVerificationModal')).hide();
+                            showAlert('Email verified and updated successfully!', 'success');
+                            // Update email display
+                            document.getElementById('viewEmail').textContent = email;
+                            document.getElementById('displayEmail').textContent = email;
+                            // Reset modal
+                            document.getElementById('emailVerificationStep1').style.display = 'block';
+                            document.getElementById('emailVerificationStep2').style.display = 'none';
+                            document.getElementById('newEmailAddress').value = '';
+                            document.getElementById('emailOTP').value = '';
+                        } else {
+                            showAlert(data.message || 'Failed to verify email', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('An error occurred while verifying email', 'danger');
+                    });
+            }
+
+            function resendEmailOTP() {
+                const email = document.getElementById('newEmailAddress').value;
+
+                fetch('/send-email-verification-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showAlert('New verification code sent!', 'success');
+                        } else {
+                            showAlert(data.message || 'Failed to resend code', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('An error occurred while resending code', 'danger');
+                    });
+            }
+
+            // Referral Functions
+            function loadReferralData() {
+                fetch('/referral/data')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('referralCodeDisplay').value = data.referralCode;
+                            document.getElementById('referralLinkDisplay').value = data.referralLink;
+                            document.getElementById('totalReferralsCount').textContent = data.totalReferrals;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading referral data:', error);
+                    });
+            }
+
+            function copyReferralCode() {
+                const codeInput = document.getElementById('referralCodeDisplay');
+                codeInput.select();
+                codeInput.setSelectionRange(0, 99999); // For mobile devices
+                
+                navigator.clipboard.writeText(codeInput.value).then(() => {
+                    showAlert('Referral code copied to clipboard!', 'success');
+                }).catch(err => {
+                    // Fallback for older browsers
+                    document.execCommand('copy');
+                    showAlert('Referral code copied to clipboard!', 'success');
+                });
+            }
+
+            function copyReferralLink() {
+                const linkInput = document.getElementById('referralLinkDisplay');
+                linkInput.select();
+                linkInput.setSelectionRange(0, 99999); // For mobile devices
+                
+                navigator.clipboard.writeText(linkInput.value).then(() => {
+                    showAlert('Referral link copied to clipboard!', 'success');
+                }).catch(err => {
+                    // Fallback for older browsers
+                    document.execCommand('copy');
+                    showAlert('Referral link copied to clipboard!', 'success');
+                });
+            }
+
+            // Load referral data on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                loadReferralData();
+            });
+        </script>
+        <%-include("../../views/parsuals/user/footer")%>

@@ -1,0 +1,625 @@
+<%-include("../../views/parsuals/admin/header")%>
+<link rel="stylesheet" href="/adminCss/dashboard.css">
+
+<!-- Main Content -->
+<div class="col-md-10 p-0">
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h2><i class="fas fa-chart-line me-2"></i>Dashboard Overview</h2>
+            <p class="text-muted">Monitor your store performance and analytics</p>
+        </div>
+    </div>
+
+    <div class="p-4">
+        <!-- Filters Section -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="row align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Period</label>
+                        <select class="form-select" id="periodFilter">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly" selected>Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Year</label>
+                        <select class="form-select" id="yearFilter">
+                            <!-- Populated by JavaScript -->
+                        </select>
+                    </div>
+                    <div class="col-md-3" id="monthFilterContainer">
+                        <label class="form-label fw-bold">Month</label>
+                        <select class="form-select" id="monthFilter">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" id="applyFilters">
+                            <i class="fas fa-filter me-2"></i>Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card stat-card-users">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h6>Total Users</h6>
+                        <h3 id="totalUsers">-</h3>
+                        <small class="text-muted">Registered users</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card stat-card-orders">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h6>Total Orders</h6>
+                        <h3 id="totalOrders">-</h3>
+                        <small class="text-muted">All orders</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card stat-card-delivered">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h6>Delivered Orders</h6>
+                        <h3 id="deliveredOrders">-</h3>
+                        <small class="text-muted">Successfully delivered</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card stat-card-sales">
+                    <div class="stat-icon">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h6>Total Sales</h6>
+                        <h3 id="totalSales">-</h3>
+                        <small class="text-muted">Revenue generated</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">
+                            <i class="fas fa-chart-area me-2 text-primary"></i>Sales Overview
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">
+                            <i class="fas fa-chart-bar me-2 text-success"></i>Orders Overview
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="ordersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 10 Lists -->
+        <div class="row g-4 mb-4">
+            <!-- Top Products -->
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Best Selling Products (Top 10)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="topProductsList">
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Categories -->
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Best Selling Categories (Top 10)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="topCategoriesList">
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Brands -->
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="fas fa-award me-2"></i>Best Selling Brands (Top 10)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="topBrandsList">
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-warning" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="/admin/addProduct" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Product
+                    </a>
+                    <a href="/admin/orders" class="btn btn-success">
+                        <i class="fas fa-receipt me-2"></i>View Orders
+                    </a>
+                    <a href="/admin/users" class="btn btn-info">
+                        <i class="fas fa-users me-2"></i>Manage Users
+                    </a>
+                    <a href="/admin/loadCoupon" class="btn btn-warning">
+                        <i class="fas fa-tags me-2"></i>Create Coupon
+                    </a>
+                    <a href="/admin/salesReport" class="btn btn-secondary">
+                        <i class="fas fa-file-alt me-2"></i>Sales Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    let salesChart, ordersChart;
+    
+    // Initialize year filter
+    function initializeYearFilter() {
+        const yearSelect = document.getElementById('yearFilter');
+        const currentYear = new Date().getFullYear();
+        
+        for (let year = currentYear; year >= currentYear - 5; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            if (year === currentYear) option.selected = true;
+            yearSelect.appendChild(option);
+        }
+    }
+
+    // Set current month
+    function setCurrentMonth() {
+        const monthSelect = document.getElementById('monthFilter');
+        const currentMonth = new Date().getMonth();
+        monthSelect.value = currentMonth;
+    }
+
+    // Toggle month filter visibility
+    function toggleMonthFilter() {
+        const period = document.getElementById('periodFilter').value;
+        const monthContainer = document.getElementById('monthFilterContainer');
+        
+        if (period === 'monthly') {
+            monthContainer.style.display = 'block';
+        } else {
+            monthContainer.style.display = 'none';
+        }
+    }
+
+    document.getElementById('periodFilter').addEventListener('change', toggleMonthFilter);
+
+    // Fetch dashboard stats
+    async function fetchStats() {
+        try {
+            const period = document.getElementById('periodFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            const month = document.getElementById('monthFilter').value;
+            
+            let url = `/admin/api/dashboard/stats?period=${period}&year=${year}`;
+            if (period === 'monthly') {
+                url += `&month=${month}`;
+            }
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('totalUsers').textContent = data.stats.totalUsers.toLocaleString();
+                document.getElementById('totalOrders').textContent = data.stats.totalOrders.toLocaleString();
+                document.getElementById('deliveredOrders').textContent = data.stats.deliveredOrders.toLocaleString();
+                document.getElementById('totalSales').textContent = '₹' + parseFloat(data.stats.totalSales).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+            }
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+        }
+    }
+
+    // Fetch chart data
+    async function fetchChartData() {
+        try {
+            const period = document.getElementById('periodFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            const month = document.getElementById('monthFilter').value;
+            
+            let url = `/admin/api/dashboard/chart?period=${period}&year=${year}`;
+            if (period === 'monthly') {
+                url += `&month=${month}`;
+            }
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+                updateCharts(data.chartData);
+            }
+        } catch (error) {
+            console.error('Error fetching chart data:', error);
+        }
+    }
+
+    // Update charts
+    function updateCharts(chartData) {
+        // Destroy existing charts
+        if (salesChart) salesChart.destroy();
+        if (ordersChart) ordersChart.destroy();
+        
+        // Sales Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels.length > 0 ? chartData.labels : ['No Data'],
+                datasets: [{
+                    label: 'Sales Amount (₹)',
+                    data: chartData.sales.length > 0 ? chartData.sales : [0],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        callbacks: {
+                            label: function(context) {
+                                return 'Sales: ₹' + context.parsed.y.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grace: '5%',
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value.toLocaleString('en-IN');
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Orders Chart
+        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        ordersChart = new Chart(ordersCtx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels.length > 0 ? chartData.labels : ['No Data'],
+                datasets: [{
+                    label: 'Orders Count',
+                    data: chartData.orders.length > 0 ? chartData.orders : [0],
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: 'rgb(34, 197, 94)',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        callbacks: {
+                            label: function(context) {
+                                return 'Orders: ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grace: '5%',
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Fetch top products
+    async function fetchTopProducts() {
+        try {
+            const period = document.getElementById('periodFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            const month = document.getElementById('monthFilter').value;
+            
+            let url = `/admin/api/dashboard/top-products?period=${period}&year=${year}`;
+            if (period === 'monthly') {
+                url += `&month=${month}`;
+            }
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+                displayTopProducts(data.topProducts);
+            }
+        } catch (error) {
+            console.error('Error fetching top products:', error);
+        }
+    }
+
+    // Display top products
+    function displayTopProducts(products) {
+        const container = document.getElementById('topProductsList');
+        
+        if (products.length === 0) {
+            container.innerHTML = '<div class="text-center py-4 text-muted">No data available</div>';
+            return;
+        }
+        
+        container.innerHTML = products.map(product => `
+            <div class="list-group-item">
+                <div class="d-flex align-items-center">
+                    <div class="rank-badge rank-${product.rank <= 3 ? product.rank : 'other'}">
+                        ${product.rank}
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">${product.productName || 'Unknown Product'}</h6>
+                        <small class="text-muted">${product.brand || 'Unknown Brand'}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-success fw-bold">${product.totalSold} sold</div>
+                        <small class="text-muted">₹${parseFloat(product.totalRevenue).toLocaleString('en-IN')}</small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Fetch top categories
+    async function fetchTopCategories() {
+        try {
+            const period = document.getElementById('periodFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            const month = document.getElementById('monthFilter').value;
+            
+            let url = `/admin/api/dashboard/top-categories?period=${period}&year=${year}`;
+            if (period === 'monthly') {
+                url += `&month=${month}`;
+            }
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+                displayTopCategories(data.topCategories);
+            }
+        } catch (error) {
+            console.error('Error fetching top categories:', error);
+        }
+    }
+
+    // Display top categories
+    function displayTopCategories(categories) {
+        const container = document.getElementById('topCategoriesList');
+        
+        if (categories.length === 0) {
+            container.innerHTML = '<div class="text-center py-4 text-muted">No data available</div>';
+            return;
+        }
+        
+        container.innerHTML = categories.map(category => `
+            <div class="list-group-item">
+                <div class="d-flex align-items-center">
+                    <div class="rank-badge rank-${category.rank <= 3 ? category.rank : 'other'}">
+                        ${category.rank}
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">${category.categoryName}</h6>
+                        <small class="text-muted">Category</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-success fw-bold">${category.totalSold} sold</div>
+                        <small class="text-muted">₹${parseFloat(category.totalRevenue).toLocaleString('en-IN')}</small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Fetch top brands
+    async function fetchTopBrands() {
+        try {
+            const period = document.getElementById('periodFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            const month = document.getElementById('monthFilter').value;
+            
+            let url = `/admin/api/dashboard/top-brands?period=${period}&year=${year}`;
+            if (period === 'monthly') {
+                url += `&month=${month}`;
+            }
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success) {
+                displayTopBrands(data.topBrands);
+            }
+        } catch (error) {
+            console.error('Error fetching top brands:', error);
+        }
+    }
+
+    // Display top brands
+    function displayTopBrands(brands) {
+        const container = document.getElementById('topBrandsList');
+        
+        if (brands.length === 0) {
+            container.innerHTML = '<div class="text-center py-4 text-muted">No data available</div>';
+            return;
+        }
+        
+        container.innerHTML = brands.map(brand => `
+            <div class="list-group-item">
+                <div class="d-flex align-items-center">
+                    <div class="rank-badge rank-${brand.rank <= 3 ? brand.rank : 'other'}">
+                        ${brand.rank}
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">${brand.brandName || 'Unknown Brand'}</h6>
+                        <small class="text-muted">Brand</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-success fw-bold">${brand.totalSold} items sold</div>
+                        <small class="text-muted">₹${parseFloat(brand.totalRevenue).toLocaleString('en-IN')}</small>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Load all data
+    function loadDashboardData() {
+        fetchStats();
+        fetchChartData();
+        fetchTopProducts();
+        fetchTopCategories();
+        fetchTopBrands();
+    }
+
+    // Apply filters button
+    document.getElementById('applyFilters').addEventListener('click', loadDashboardData);
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeYearFilter();
+        setCurrentMonth();
+        toggleMonthFilter();
+        loadDashboardData();
+    });
+</script>
+
+<%-include("../../views/parsuals/admin/footer")%>

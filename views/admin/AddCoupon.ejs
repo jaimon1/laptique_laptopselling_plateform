@@ -1,0 +1,298 @@
+<%-include("../../views/parsuals/admin/header")%>
+
+    <div class="col-md-10 p-0">
+        <div class="topbar">
+            <h4>Create New Coupon</h4>
+        </div>
+
+        <div class="p-4">
+            <div class="card p-4">
+                <h5 class="mb-4"><i class="fas fa-ticket-alt me-2"></i>Coupon Information</h5>
+
+                <form id="couponForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Coupon Code *</label>
+                            <input type="text" class="form-control" name="name" id="couponName" placeholder="WELCOME10" 
+                                   maxlength="20" pattern="[A-Z0-9]+"  />
+                            <small class="text-muted">Max 20 characters. Use uppercase letters and numbers only</small>
+                            <div class="invalid-feedback">Coupon code must be 1-20 characters, uppercase letters and numbers only</div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Expiry Date *</label>
+                            <input type="date" class="form-control" name="expireOn" id="expireOn"  />
+                            <small class="text-muted">Must be a future date</small>
+                            <div class="invalid-feedback">Expiry date must be in the future</div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Discount Type *</label>
+                            <select class="form-select" name="discountType" >
+                                <option value="">Select Type</option>
+                                <option value="percentage">Percentage</option>
+                                <option value="fixed">Fixed Amount</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Discount Value *</label>
+                            <input type="number" class="form-control" name="discountValue" id="discountValue" 
+                                   placeholder="10" min="0.01" step="0.01" max="999999"  />
+                            <small class="text-muted">For percentage: 1-100. For fixed: any positive amount</small>
+                            <div class="invalid-feedback">Please enter a valid discount value</div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Minimum Purchase Amount *</label>
+                            <input type="number" class="form-control" name="minimumPrice" id="minimumPrice" 
+                                   placeholder="1000" min="0" step="0.01" max="999999"  />
+                            <small class="text-muted">Minimum cart value to apply coupon (₹0 for no minimum)</small>
+                            <div class="invalid-feedback">Please enter a valid minimum price</div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Usage Limit *</label>
+                            <input type="number" class="form-control" name="usageLimit" id="usageLimit" 
+                                   placeholder="100" min="1" max="999999" value="100"  />
+                            <small class="text-muted">Maximum number of users who can use this coupon</small>
+                            <div class="invalid-feedback">Usage limit must be at least 1</div>
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="description" id="description" rows="4" 
+                                      maxlength="500" placeholder="Enter coupon description..."></textarea>
+                            <small class="text-muted"><span id="descCharCount">0</span>/500 characters</small>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex gap-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Create Coupon
+                                </button>
+                                <a href="/admin/loadCoupon" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to List
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="errorBox" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Character counter for description
+        const descriptionField = document.getElementById('description');
+        const charCount = document.getElementById('descCharCount');
+        
+        descriptionField.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+
+        // Auto-uppercase coupon code
+        const couponNameField = document.getElementById('couponName');
+        couponNameField.addEventListener('input', function() {
+            this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        });
+
+        // Set minimum date for expiry
+        const expireOnField = document.getElementById('expireOn');
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        expireOnField.min = tomorrow.toISOString().split('T')[0];
+
+        // Dynamic validation for discount value based on type
+        const discountTypeField = document.querySelector('select[name="discountType"]');
+        const discountValueField = document.getElementById('discountValue');
+        
+        discountTypeField.addEventListener('change', function() {
+            if (this.value === 'percentage') {
+                discountValueField.max = 100;
+                discountValueField.placeholder = '10 (1-100%)';
+            } else if (this.value === 'fixed') {
+                discountValueField.max = 999999;
+                discountValueField.placeholder = '100 (Fixed amount in ₹)';
+            }
+        });
+
+        document.getElementById("couponForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const form = e.target;
+
+            // Collect form data
+            const couponData = {
+                name: form.querySelector('input[name="name"]').value.trim().toUpperCase(),
+                expireOn: form.querySelector('input[name="expireOn"]').value,
+                discountType: form.querySelector('select[name="discountType"]').value,
+                discountValue: parseFloat(form.querySelector('input[name="discountValue"]').value),
+                minimumPrice: parseFloat(form.querySelector('input[name="minimumPrice"]').value),
+                usageLimit: parseInt(form.querySelector('input[name="usageLimit"]').value) || 100,
+                description: form.querySelector('textarea[name="description"]').value.trim()
+            };
+
+            // Comprehensive Validation
+            
+            // 1. Coupon Code Validation
+            if (!couponData.name) {
+                showError("Coupon code is required.");
+                return;
+            }
+            
+            if (couponData.name.length > 20) {
+                showError("Coupon code must not exceed 20 characters.");
+                return;
+            }
+            
+            if (!/^[A-Z0-9]+$/.test(couponData.name)) {
+                showError("Coupon code must contain only uppercase letters and numbers.");
+                return;
+            }
+
+            // 2. Expiry Date Validation
+            const expireDate = new Date(couponData.expireOn);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (!couponData.expireOn) {
+                showError("Expiry date is required.");
+                return;
+            }
+
+            if (expireDate <= today) {
+                showError("Expiry date must be in the future.");
+                return;
+            }
+
+            // 3. Discount Type Validation
+            if (!couponData.discountType) {
+                showError("Please select a discount type.");
+                return;
+            }
+
+            if (!['percentage', 'fixed'].includes(couponData.discountType)) {
+                showError("Invalid discount type selected.");
+                return;
+            }
+
+            // 4. Discount Value Validation
+            if (isNaN(couponData.discountValue) || couponData.discountValue <= 0) {
+                showError("Discount value must be greater than zero.");
+                return;
+            }
+
+            if (couponData.discountType === 'percentage' && couponData.discountValue > 100) {
+                showError("Percentage discount cannot exceed 100%.");
+                return;
+            }
+
+            if (couponData.discountValue > 999999) {
+                showError("Discount value is too large.");
+                return;
+            }
+
+            // 5. Minimum Price Validation
+            if (isNaN(couponData.minimumPrice) || couponData.minimumPrice < 0) {
+                showError("Minimum price must be zero or greater.");
+                return;
+            }
+
+            if (couponData.minimumPrice > 999999) {
+                showError("Minimum price is too large.");
+                return;
+            }
+
+            // 6. Usage Limit Validation
+            if (isNaN(couponData.usageLimit) || couponData.usageLimit < 1) {
+                showError("Usage limit must be at least 1.");
+                return;
+            }
+
+            if (couponData.usageLimit > 999999) {
+                showError("Usage limit is too large.");
+                return;
+            }
+
+            // 7. Description Validation
+            if (couponData.description.length > 500) {
+                showError("Description must not exceed 500 characters.");
+                return;
+            }
+
+            // Show loading
+            Swal.fire({
+                title: 'Creating Coupon...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                // Send AJAX request
+                const response = await fetch('/admin/createCoupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(couponData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: result.message || 'Coupon created successfully',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    // Reset form
+                    form.reset();
+                    document.getElementById("errorBox").innerHTML = '';
+
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/admin/loadCoupon';
+                    }, 2000);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: result.message || 'Failed to create coupon',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            } catch (error) {
+                console.error('Error creating coupon:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred while creating the coupon. Please try again.',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        });
+
+        function showError(msg) {
+            const box = document.getElementById("errorBox");
+            box.innerHTML = `<div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i>${msg}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>`;
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    </script>
+
+    <%-include("../../views/parsuals/admin/footer")%>

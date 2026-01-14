@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/adminCss/adminOrderDetails.css">
+</head>
+<body>
+    <div class="header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-0"><i class="fas fa-receipt me-2"></i>Order Details</h1>
+                <p class="mb-0 opacity-75">View and manage order</p>
+            </div>
+            <div>
+                <a href="/admin/orders" class="btn btn-light"><i class="fas fa-arrow-left me-2"></i>Back to Orders</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Order Information -->
+        <div class="card-custom">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Order Info</h5>
+                    <p class="mb-1">Order ID: <span class="order-id">#<%= order.orderId %></span></p>
+                    <p class="mb-1">Date: <%= new Date(order.createdOn).toLocaleString('en-IN') %></p>
+                    <p class="mb-1">
+                        Status: 
+                        <span class="status-badge status-<%= order.status.toLowerCase().replace(/\s+/g, '-') %>"><%= order.status %></span>
+                    </p>
+                    <% if (order.returnStatus === 'Requested') { %>
+                        <div class="alert alert-warning mt-2 mb-0">
+                            <strong><i class="fas fa-undo me-2"></i>Return Requested</strong>
+                            <% if (order.returnReason) { %>
+                                <p class="mb-0 mt-2"><strong>Reason:</strong> <%= order.returnReason %></p>
+                            <% } %>
+                        </div>
+                    <% } else if (order.returnStatus === 'Approved') { %>
+                        <div class="alert alert-success mt-2 mb-0">
+                            <strong><i class="fas fa-check-circle me-2"></i>Return Approved</strong>
+                        </div>
+                    <% } else if (order.returnStatus === 'Rejected') { %>
+                        <div class="alert alert-danger mt-2 mb-0">
+                            <strong><i class="fas fa-times-circle me-2"></i>Return Rejected</strong>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="col-md-6">
+                    <h5>Customer</h5>
+                    <p class="mb-1"><strong><%= order.userId.name %></strong></p>
+                    <p class="mb-1"><i class="fas fa-envelope me-1"></i> <%= order.userId.email %></p>
+                    <p class="mb-0"><i class="fas fa-phone me-1"></i> <%= order.address.phone %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Information -->
+        <div class="card-custom">
+            <h5>Delivery Address</h5>
+            <p class="mb-1"><strong><%= order.address.name %></strong></p>
+            <p class="mb-1"><%= order.address.landmark %></p>
+            <p class="mb-1"><%= order.address.city %>, <%= order.address.state %></p>
+            <p class="mb-0"><i class="fas fa-phone me-1"></i> <%= order.address.phone %></p>
+        </div>
+
+        <!-- Products -->
+        <div class="card-custom">
+            <h5>Ordered Items</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Variant</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% 
+                        let activeItemsTotal = 0;
+                        let cancelledItemsTotal = 0;
+                        
+                        order.orderItems.forEach(item => { 
+                            const itemTotal = item.price * item.quantity;
+                            if (item.status === 'Cancelled') {
+                                cancelledItemsTotal += itemTotal;
+                            } else {
+                                activeItemsTotal += itemTotal;
+                            }
+                        %>
+                            <tr class="<%= item.status === 'Cancelled' ? 'table-secondary' : '' %>">
+                                <td class="d-flex align-items-center">
+                                    <% if (item.product && item.product.ProductImages && item.product.ProductImages[0]) { %>
+                                        <img src="/uploads/re-images/<%= item.product.ProductImages[0] %>" 
+                                             class="me-2 product-image <%= item.status === 'Cancelled' ? 'opacity-50' : '' %>" />
+                                    <% } else { %>
+                                        <div class="me-2 product-image bg-secondary d-flex align-items-center justify-content-center text-white" 
+                                             style="width: 60px; height: 60px; border-radius: 8px;">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    <% } %>
+                                    <div>
+                                        <div class="fw-bold <%= item.status === 'Cancelled' ? 'text-decoration-line-through text-muted' : '' %>">
+                                            <%= item.product ? item.product.productName : 'Product Unavailable' %>
+                                        </div>
+                                        <% if (!item.product) { %>
+                                            <small class="text-danger">(Product has been deleted)</small>
+                                        <% } %>
+                                        <% if (item.status === 'Cancelled' && item.cancelReason) { %>
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-info-circle me-1"></i>Reason: <%= item.cancelReason %>
+                                            </small>
+                                        <% } %>
+                                    </div>
+                                </td>
+                                <td class="<%= item.status === 'Cancelled' ? 'text-muted' : '' %>">
+                                    <div><%= item.variant?.storage || 'Default' %></div>
+                                </td>
+                                <td class="<%= item.status === 'Cancelled' ? 'text-muted' : '' %>">
+                                    <%= item.quantity %>
+                                </td>
+                                <td class="<%= item.status === 'Cancelled' ? 'text-muted text-decoration-line-through' : '' %>">
+                                    ₹<%= item.price.toLocaleString() %>
+                                </td>
+                                <td class="fw-bold <%= item.status === 'Cancelled' ? 'text-muted text-decoration-line-through' : '' %>">
+                                    ₹<%= itemTotal.toLocaleString() %>
+                                </td>
+                                <td>
+                                    <% if (item.status === 'Cancelled') { %>
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Cancelled
+                                        </span>
+                                    <% } else if (item.status === 'Returned') { %>
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-undo me-1"></i>Returned
+                                        </span>
+                                    <% } else { %>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Active
+                                        </span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            
+            <% if (cancelledItemsTotal > 0) { %>
+                <div class="alert alert-info mt-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-info-circle me-2"></i>Cancelled Items:</strong>
+                            <span class="text-muted">₹<%= cancelledItemsTotal.toLocaleString() %></span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-check-circle me-2"></i>Active Items Total:</strong>
+                            <span class="text-success">₹<%= activeItemsTotal.toLocaleString() %></span>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Payment and Summary -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Payment</h5>
+                    <p class="mb-1">Method: <strong><%= order.paymentMethod %></strong></p>
+                    <p class="mb-0">Status: <span class="badge bg-<%= order.paymentStatus === 'Completed' ? 'success' : order.paymentStatus === 'Pending' ? 'warning' : 'danger' %>"><%= order.paymentStatus %></span></p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card-custom">
+                    <h5>Order Summary</h5>
+                    
+                    <% 
+                    // Calculate active items total
+                    let activeItemsSubtotal = 0;
+                    let cancelledItemsSubtotal = 0;
+                    order.orderItems.forEach(item => {
+                        const itemTotal = item.price * item.quantity;
+                        if (item.status === 'Cancelled') {
+                            cancelledItemsSubtotal += itemTotal;
+                        } else {
+                            activeItemsSubtotal += itemTotal;
+                        }
+                    });
+                    
+                    // Calculate current amounts
+                    const originalTotal = order.totalPrice;
+                    const currentSubtotal = activeItemsSubtotal;
+                    const refundedAmount = order.totalRefunded || 0;
+                    
+                    // Calculate proportional discount for active items
+                    const discountRatio = originalTotal > 0 ? order.discount / originalTotal : 0;
+                    const currentDiscount = Math.round(currentSubtotal * discountRatio);
+                    
+                    // Calculate proportional tax for active items
+                    const taxRatio = originalTotal > 0 ? (order.tax || 0) / originalTotal : 0;
+                    const currentTax = Math.round(currentSubtotal * taxRatio);
+                    
+                    // Calculate proportional coupon discount for active items
+                    let currentCouponDiscount = 0;
+                    if (order.couponApplied && order.couponDetails) {
+                        const couponRatio = originalTotal > 0 ? order.couponDetails.discount / originalTotal : 0;
+                        currentCouponDiscount = Math.round(currentSubtotal * couponRatio);
+                    }
+                    
+                    // Calculate current final amount
+                    const currentFinalAmount = currentSubtotal - currentDiscount - currentCouponDiscount + currentTax + (order.shippingFee || 0);
+                    %>
+                    
+                    <% if (cancelledItemsSubtotal > 0) { %>
+                        <!-- Show original total -->
+                        <div class="alert alert-warning mb-3 p-2">
+                            <small class="d-block mb-1"><strong>Original Order Total:</strong></small>
+                            <small class="text-muted">₹<%= originalTotal.toLocaleString() %></small>
+                            <small class="text-danger d-block mt-1">
+                                <i class="fas fa-minus-circle me-1"></i>Cancelled: ₹<%= cancelledItemsSubtotal.toLocaleString() %>
+                            </small>
+                            <% if (refundedAmount > 0) { %>
+                                <small class="text-info d-block">
+                                    <i class="fas fa-undo me-1"></i>Refunded: ₹<%= refundedAmount.toLocaleString() %>
+                                </small>
+                            <% } %>
+                        </div>
+                        
+                        <div class="mb-2"><strong>Current Order Amount:</strong></div>
+                    <% } %>
+                    
+                    <div class="summary-row">
+                        <span>Subtotal <%= cancelledItemsSubtotal > 0 ? '(Active Items)' : '' %></span>
+                        <span>₹<%= currentSubtotal.toLocaleString() %></span>
+                    </div>
+                    
+                    <% if (currentDiscount > 0) { %>
+                        <div class="summary-row">
+                            <span>Discount <%= cancelledItemsSubtotal > 0 ? '(Proportional)' : '' %></span>
+                            <span>-₹<%= currentDiscount.toLocaleString() %></span>
+                        </div>
+                    <% } %>
+                    
+                    <% if (order.couponApplied && order.couponDetails) { %>
+                        <div class="summary-row">
+                            <span>Coupon (<%= order.couponDetails.code %>) <%= cancelledItemsSubtotal > 0 ? '(Proportional)' : '' %></span>
+                            <span>-₹<%= cancelledItemsSubtotal > 0 ? currentCouponDiscount.toLocaleString() : order.couponDetails.discount.toLocaleString() %></span>
+                        </div>
+                    <% } %>
+                    
+                    <% if ((cancelledItemsSubtotal > 0 ? currentTax : order.tax) > 0) { %>
+                        <div class="summary-row">
+                            <span>Tax (GST) <%= cancelledItemsSubtotal > 0 ? '(Proportional)' : '' %></span>
+                            <span>₹<%= (cancelledItemsSubtotal > 0 ? currentTax : order.tax).toLocaleString() %></span>
+                        </div>
+                    <% } %>
+                    
+                    <% if (order.shippingFee > 0) { %>
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <span>₹<%= order.shippingFee.toLocaleString() %></span>
+                        </div>
+                    <% } else { %>
+                        <div class="summary-row">
+                            <span>Shipping</span>
+                            <span class="text-success">Free</span>
+                        </div>
+                    <% } %>
+                    
+                    <hr class="my-2">
+                    
+                    <div class="summary-row">
+                        <span class="fw-bold">
+                            <%= cancelledItemsSubtotal > 0 ? 'Current Total' : 'Total' %>
+                        </span>
+                        <span class="fw-bold text-primary" style="font-size: 1.2rem;">
+                            ₹<%= cancelledItemsSubtotal > 0 ? currentFinalAmount.toLocaleString() : parseInt(order.finalAmount).toLocaleString() %>
+                        </span>
+                    </div>
+                    
+                    <% if (cancelledItemsSubtotal > 0) { %>
+                        <div class="mt-2 p-2 bg-light rounded">
+                            <small class="text-muted d-block">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Amount reflects only active items
+                            </small>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mb-5">
+            <a href="/admin/orders" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Back</a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

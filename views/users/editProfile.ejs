@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - LapTique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/editProfile.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-laptop"></i> LapTique
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Shop</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>                
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown">
+                            Jaimon
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-shopping-bag me-2"></i>Orders</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <%-include("../../views/parsuals/user/header")%>
+        <!-- Page Header -->
+        <div class="page-header fade-in">
+            <div class="container">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#" class="text-white">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#" class="text-white">Profile</a></li>
+                        <li class="breadcrumb-item active text-white-50">Edit Profile</li>
+                    </ol>
+                </nav>
+                <h1 class="mb-0">Edit Profile</h1>
+                <p class="mb-0 opacity-75">Update your personal information</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Alert Messages -->
+            <div id="alertContainer"></div>
+
+            <div class="row">
+                <!-- Profile Picture Section -->
+                <div class="col-lg-4">
+                    <div class="profile-card text-center slide-in">
+                        <h5><i class="fas fa-camera me-2"></i>Profile Picture</h5>
+                        <div class="profile-image-container mb-3">
+                            <img src="<%= user.profileImage ? user.profileImage : 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJ4AqAMBIgACEQEDEQH/xAAXAAEBAQEAAAAAAAAAAAAAAAAAAQIH/8QAFhABAQEAAAAAAAAAAAAAAAAAAAEx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AO4gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM2tICgAAAAAAAAAAAAAlUAAAASArLQAAAAAAAAAAAAACUFAAAAAAAAAAAAAAAAAAAAAAAAEigAAAAAAAAAAAAAAAAAAJVAAAEmqkBQAAAf//Z' %>"
+                                alt="Profile" class="profile-img" id="profileImage">
+                            <button class="image-upload-btn" onclick="document.getElementById('imageUpload').click()">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <input type="file" id="imageUpload" name="image" accept="image/*" style="display: none;"
+                                onchange="handleImageUpload(event)">
+                        </div>
+                        <p class="text-muted">Click the camera icon to update your profile picture</p>
+                        <small class="text-muted">Recommended: Square image, at least 150x150px</small>
+                    </div>
+                </div>
+
+                <!-- Main Edit Form -->
+                <div class="col-lg-8">
+                    <form id="editProfileForm" method="post" action="/editProfile">
+                        <!-- Personal Information -->
+                        <div class="profile-card fade-in">
+                            <h5><i class="fas fa-user me-2"></i>Personal Information</h5>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-label">Full Name <span class="required">*</span></label>
+                                        <input type="text" class="form-control" name="firstName" id="firstName"
+                                            value="<%= user.name %>"  minlength="3" maxlength="50" 
+                                            pattern="^[a-zA-Z\s]+$">
+                                        <div class="invalid-feedback">Name must be 3-50 characters and contain only letters</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Email Address <span class="required">*</span></label>
+                                        <div class="input-group">
+                                            <input type="email" class="form-control" id="email" name="email"
+                                                value="<%= user.email %>">
+                                            <button type="button" class="btn btn-outline-primary"
+                                                onclick="showEmailVerificationModal()">
+                                                <i class="fas fa-shield-alt me-1"></i>Verify
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Click verify to change your email address</small>
+                                        <div class="invalid-feedback">Please enter a valid email address</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Phone Number <span class="required">*</span></label>
+                                        <input type="tel" class="form-control" id="phone" name="phone"
+                                            value="<%= user.phone %>"  pattern="^[6-9]\d{9}$" maxlength="10">
+                                        <small class="text-muted">Enter 10-digit Indian mobile number</small>
+                                        <div class="invalid-feedback">Please enter a valid 10-digit Indian mobile number</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Date of Birth</label>
+                                        <input type="date" class="form-control" name="dateOfBirth" id="dateOfBirth"
+                                            value="<%= dateOfBirth ? dateOfBirth.toISOString().split('T')[0] : '' %>">
+                                        <div class="invalid-feedback">Please select a valid date</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Gender <span class="required">*</span></label>
+                                        <select class="form-control" id="gender" name="gender" >
+                                            <option value="">Select Gender</option>
+                                            <option value="male" <%=user.gender==='male' ? 'selected' : '' %>>Male</option>
+                                            <option value="female" <%=user.gender==='female' ? 'selected' : '' %>>Female</option>
+                                            <option value="other" <%=user.gender==='other' ? 'selected' : '' %>>Other</option>
+                                            <option value="prefer-not-to-say" <%=user.gender==='prefer-not-to-say' ? 'selected' : '' %>>Prefer not to say</option>
+                                        </select>
+                                        <div class="invalid-feedback">Please select your gender</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="profile-card fade-in">
+                            <div class="d-flex flex-column flex-md-row gap-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                    <i class="fas fa-undo me-2"></i>Reset Form
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="goBackToProfile()">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            // Form validation and submission
+            document.getElementById('editProfileForm').addEventListener('submit', function (e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                } else {
+                    saveProfile();
+                }
+            });
+
+            function validateForm() {
+                const form = document.getElementById('editProfileForm');
+                let isValid = true;
+                let errors = [];
+
+                // Name validation
+                const name = document.getElementById('firstName');
+                const nameValue = name.value.trim();
+                if (!nameValue) {
+                    errors.push('Name is required');
+                    name.classList.add('is-invalid');
+                    isValid = false;
+                } else if (nameValue.length < 3 || nameValue.length > 50) {
+                    errors.push('Name must be between 3 and 50 characters');
+                    name.classList.add('is-invalid');
+                    isValid = false;
+                } else if (!/^[a-zA-Z\s]+$/.test(nameValue)) {
+                    errors.push('Name must contain only letters and spaces');
+                    name.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    name.classList.remove('is-invalid');
+                    name.classList.add('is-valid');
+                }
+
+                // Email validation
+                const email = document.getElementById('email');
+                const emailValue = email.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailValue) {
+                    errors.push('Email is required');
+                    email.classList.add('is-invalid');
+                    isValid = false;
+                } else if (!emailRegex.test(emailValue)) {
+                    errors.push('Please enter a valid email address');
+                    email.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    email.classList.remove('is-invalid');
+                    email.classList.add('is-valid');
+                }
+
+                // Phone validation (Indian mobile number)
+                const phone = document.getElementById('phone');
+                const phoneValue = phone.value.trim();
+                const phoneRegex = /^[6-9]\d{9}$/;
+                if (!phoneValue) {
+                    errors.push('Phone number is required');
+                    phone.classList.add('is-invalid');
+                    isValid = false;
+                } else if (!phoneRegex.test(phoneValue)) {
+                    errors.push('Please enter a valid 10-digit Indian mobile number starting with 6-9');
+                    phone.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    phone.classList.remove('is-invalid');
+                    phone.classList.add('is-valid');
+                }
+
+                // Gender validation
+                const gender = document.getElementById('gender');
+                if (!gender.value) {
+                    errors.push('Please select your gender');
+                    gender.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    gender.classList.remove('is-invalid');
+                    gender.classList.add('is-valid');
+                }
+
+                // Date of Birth validation (optional but if provided, must be valid)
+                const dob = document.getElementById('dateOfBirth');
+                if (dob.value) {
+                    const dobDate = new Date(dob.value);
+                    const today = new Date();
+                    const age = today.getFullYear() - dobDate.getFullYear();
+                    
+                    if (age < 13) {
+                        errors.push('You must be at least 13 years old');
+                        dob.classList.add('is-invalid');
+                        isValid = false;
+                    } else if (age > 120) {
+                        errors.push('Please enter a valid date of birth');
+                        dob.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        dob.classList.remove('is-invalid');
+                        dob.classList.add('is-valid');
+                    }
+                }
+
+                // Show errors if any
+                if (!isValid && errors.length > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        html: errors.map(err => `• ${err}`).join('<br>'),
+                        confirmButtonColor: '#dc3545'
+                    });
+                }
+
+                return isValid;
+            }
+
+            function saveProfile() {
+                // Simulate saving with loading state
+                const submitBtn = document.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+
+
+                setTimeout(() => {
+                    showAlert('Profile updated successfully!', 'success');
+
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+
+                    // Keep validation classes as they show success state
+                }, 1500);
+            }
+
+            // Drop-in SweetAlert2 replacement for resetForm()
+            async function resetForm() {
+                // show SweetAlert2 confirmation modal
+                const result = await Swal.fire({
+                    title: 'Reset changes?',
+                    text: 'Are you sure you want to reset all changes? This cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, reset',
+                    cancelButtonText: 'No, keep changes',
+                    reverseButtons: true,
+                    focusCancel: true
+                });
+
+                // if user cancelled, do nothing
+                if (!result.isConfirmed) return;
+
+                // proceed with the same logic you had
+                const form = document.getElementById('editProfileForm');
+                if (form) {
+                    form.reset();
+                }
+
+                // remove bootstrap validation classes (same as before)
+                document.querySelectorAll('.is-valid, .is-invalid').forEach(field => {
+                    field.classList.remove('is-valid', 'is-invalid');
+                });
+
+                // keep your existing showAlert helper
+                showAlert('Form has been reset', 'info');
+
+                // optional: reset any client-side dirty flag you may have
+                // window.formIsDirty = false;
+            }
+
+
+            async function goBackToProfile() {
+                const result = await Swal.fire({
+                    title: 'Go back to Profile?',
+                    text: 'Any unsaved changes will be lost.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, go back',
+                    cancelButtonText: 'Stay here',
+                    focusCancel: true
+                });
+
+                if (result.isConfirmed) {
+                    window.history.back();
+                }
+            }
+
+            // Image upload handling
+            function handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    // Validate file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        showAlert('File size should not exceed 5MB', 'danger');
+                        return;
+                    }
+
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        showAlert('Please select a valid image file', 'danger');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.getElementById('profileImage');
+                        img.src = e.target.result;
+                        img.style.animation = 'fadeIn 0.5s ease-in';
+                        showAlert('Profile picture updated!', 'success');
+                    };
+                    reader.readAsDataURL(file);
+
+                    const formData = new FormData();
+                    formData.append('image', file);
+
+                    fetch('/uploadImage', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                showAlert('Image Uploaded Successfully', 'success');
+                            } else {
+                                showAlert(data.message || 'upload Failed', 'danger');
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            showAlert('Uploading Failed', 'danger');
+                        })
+                }
+            }
+
+            // Alert system
+            function showAlert(message, type) {
+                const alertContainer = document.getElementById('alertContainer');
+                const alertId = 'alert-' + Date.now();
+
+                const alertHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" id="${alertId}" role="alert">
+                    <i class="fas fa-${getAlertIcon(type)} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+                alertContainer.innerHTML = alertHTML;
+
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    const alert = document.getElementById(alertId);
+                    if (alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            }
+
+            function getAlertIcon(type) {
+                switch (type) {
+                    case 'success': return 'check-circle';
+                    case 'danger': return 'exclamation-triangle';
+                    case 'warning': return 'exclamation-circle';
+                    case 'info': return 'info-circle';
+                    default: return 'info-circle';
+                }
+            }
+
+            // Form field interactions and real-time validation
+            document.addEventListener('DOMContentLoaded', function () {
+                // Phone number validation - only allow digits, max 10
+                const phoneInput = document.getElementById('phone');
+                phoneInput.addEventListener('input', function () {
+                    // Remove all non-digit characters
+                    let value = this.value.replace(/\D/g, '');
+                    // Limit to 10 digits
+                    this.value = value.substring(0, 10);
+                    
+                    // Real-time validation
+                    if (value.length === 10 && /^[6-9]\d{9}$/.test(value)) {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } else if (value.length > 0) {
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                    }
+                });
+
+                // Real-time email validation
+                const emailInput = document.getElementById('email');
+                emailInput.addEventListener('blur', function () {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    const value = this.value.trim();
+                    if (value && !emailRegex.test(value)) {
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                    } else if (value) {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    }
+                });
+
+                // Name validation (no numbers, only letters and spaces)
+                const nameInput = document.getElementById('firstName');
+                nameInput.addEventListener('input', function () {
+                    // Remove numbers and special characters
+                    this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+                    
+                    // Real-time validation
+                    const value = this.value.trim();
+                    if (value.length >= 3 && value.length <= 50) {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } else if (value.length > 0) {
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                    }
+                });
+
+                // Date of Birth validation
+                const dobInput = document.getElementById('dateOfBirth');
+                dobInput.addEventListener('change', function () {
+                    if (this.value) {
+                        const dobDate = new Date(this.value);
+                        const today = new Date();
+                        const age = today.getFullYear() - dobDate.getFullYear();
+                        
+                        if (age >= 13 && age <= 120) {
+                            this.classList.remove('is-invalid');
+                            this.classList.add('is-valid');
+                        } else {
+                            this.classList.add('is-invalid');
+                            this.classList.remove('is-valid');
+                        }
+                    }
+                });
+
+                // Gender validation
+                const genderInput = document.getElementById('gender');
+                genderInput.addEventListener('change', function () {
+                    if (this.value) {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    }
+                });
+
+                // Auto-save indication
+                const formInputs = document.querySelectorAll('#editProfileForm input, #editProfileForm select');
+                let hasChanges = false;
+
+                formInputs.forEach(input => {
+                    input.addEventListener('input', function () {
+                        hasChanges = true;
+                    });
+                });
+
+                // Warn before leaving if there are unsaved changes
+                window.addEventListener('beforeunload', function (e) {
+                    if (hasChanges) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                    }
+                });
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function (e) {
+                // Ctrl+S to save
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    if (validateForm()) {
+                        saveProfile();
+                    }
+                }
+
+                // Escape to go back
+                if (e.key === 'Escape') {
+                    goBackToProfile();
+                }
+            });
+
+            // Initialize tooltips if any
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Email Verification Functions
+            function showEmailVerificationModal() {
+                const modal = new bootstrap.Modal(document.getElementById('emailVerificationModal'));
+                modal.show();
+            }
+
+            function sendEmailOTP() {
+                const email = document.getElementById('newEmailAddress').value;
+
+                if (!validateEmail(email)) {
+                    showAlert('Please enter a valid email address', 'danger');
+                    return;
+                }
+
+                fetch('/send-email-verification-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('emailVerificationStep1').style.display = 'none';
+                            document.getElementById('emailVerificationStep2').style.display = 'block';
+                            showAlert('Verification code sent to your email!', 'success');
+                        } else {
+                            showAlert(data.message || 'Failed to send verification code', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('An error occurred while sending verification code', 'danger');
+                    });
+            }
+
+            function verifyEmailOTP() {
+                const email = document.getElementById('newEmailAddress').value;
+                const otp = document.getElementById('emailOTP').value;
+
+                if (!otp || otp.length !== 6) {
+                    showAlert('Please enter a valid 6-digit code', 'danger');
+                    return;
+                }
+
+                fetch('/verify-email-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, otp })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('emailVerificationModal')).hide();
+                            showAlert('Email verified and updated successfully!', 'success');
+                            // Update email field
+                            document.getElementById('email').value = email;
+                            // Reset modal
+                            document.getElementById('emailVerificationStep1').style.display = 'block';
+                            document.getElementById('emailVerificationStep2').style.display = 'none';
+                            document.getElementById('newEmailAddress').value = '';
+                            document.getElementById('emailOTP').value = '';
+                        } else {
+                            showAlert(data.message || 'Failed to verify email', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('An error occurred while verifying email', 'danger');
+                    });
+            }
+
+            function resendEmailOTP() {
+                const email = document.getElementById('newEmailAddress').value;
+
+                fetch('/send-email-verification-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showAlert('New verification code sent!', 'success');
+                        } else {
+                            showAlert(data.message || 'Failed to resend code', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('An error occurred while resending code', 'danger');
+                    });
+            }
+
+            function validateEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+        </script>
+
+        <!-- Email Verification Modal -->
+        <div class="modal fade" id="emailVerificationModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Verify Email Address</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="emailVerificationStep1">
+                            <p>Enter your new email address to receive a verification code:</p>
+                            <div class="mb-3">
+                                <label class="form-label">New Email Address</label>
+                                <input type="email" class="form-control" id="newEmailAddress" required>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="sendEmailOTP()">Send Verification
+                                Code</button>
+                        </div>
+                        <div id="emailVerificationStep2" style="display: none;">
+                            <p>Enter the 6-digit verification code sent to your email:</p>
+                            <div class="mb-3">
+                                <label class="form-label">Verification Code</label>
+                                <input type="text" class="form-control" id="emailOTP" maxlength="6" required>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="verifyEmailOTP()">Verify
+                                Email</button>
+                            <button type="button" class="btn btn-outline-secondary ms-2"
+                                onclick="resendEmailOTP()">Resend Code</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <%-include("../../views/parsuals/user/footer")%>

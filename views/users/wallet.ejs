@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'My Wallet' %> - LapTique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --dark-color: #1f2937;
+            --light-bg: #f9fafb;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wallet-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            margin-top: 70px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .topup-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .quick-amount-btn {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .quick-amount-btn:hover, .quick-amount-btn.active {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .transaction-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .transaction-item {
+            padding: 1.25rem;
+            border-bottom: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-item:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.03), rgba(118, 75, 162, 0.03));
+            border-radius: 12px;
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .transaction-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover .transaction-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .transaction-icon.credit {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .transaction-icon.debit {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: var(--danger-color);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .amount-credit {
+            color: var(--secondary-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .amount-debit {
+            color: var(--danger-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .empty-state {
+            padding: 2rem;
+        }
+
+        .empty-state i {
+            opacity: 0.3;
+        }
+
+        .topup-btn {
+            background: var(--primary-color);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .topup-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .custom-input {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .custom-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-btn {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .balance-amount {
+                font-size: 2rem;
+            }
+
+            .quick-amount-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include("../../views/parsuals/user/header") %>
+
+    <!-- Wallet Header -->
+    <div class="wallet-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="mb-0">
+                        <i class="fas fa-wallet me-3"></i>My Wallet
+                    </h1>
+                    <p class="mb-0 opacity-75">Manage your wallet balance and transactions</p>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <a href="/profile" class="btn btn-light">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row">
+            <!-- Balance Card -->
+            <div class="col-lg-4 mb-4">
+                <div class="balance-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-wallet fa-2x me-3"></i>
+                        <h5 class="mb-0">Current Balance</h5>
+                    </div>
+                    <div class="balance-amount" id="walletBalance">
+                        ₹<%= wallet?.balance?.toLocaleString() || 0 %>
+                    </div>
+                    <p class="mb-0 opacity-75">
+                        <i class="fas fa-shield-alt me-2"></i>Secure & Protected
+                    </p>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="topup-card">
+                    <h6 class="mb-3"><i class="fas fa-chart-line me-2"></i>Quick Stats</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Transactions:</span>
+                        <strong id="totalTransactions"><%= transactions?.length || 0 %></strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Last Updated:</span>
+                        <strong><%= new Date().toLocaleDateString() %></strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top-up Section -->
+            <div class="col-lg-8 mb-4">
+                <div class="topup-card">
+                    <h5 class="mb-4">
+                        <i class="fas fa-plus-circle me-2"></i>Top-up Wallet
+                    </h5>
+
+                    <!-- Quick Amount Buttons -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Quick Amount:</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="quick-amount-btn" onclick="selectQuickAmount(500)">₹500</button>
+                            <button class="quick-amount-btn" onclick="selectQuickAmount(1000)">₹1,000</button>
+                            <button class="quick-amount-btn" onclick="selectQuickAmount(2000)">₹2,000</button>
+                            <button class="quick-amount-btn" onclick="selectQuickAmount(5000)">₹5,000</button>
+                            <button class="quick-amount-btn" onclick="selectQuickAmount(10000)">₹10,000</button>
+                        </div>
+                    </div>
+
+                    <!-- Custom Amount -->
+                    <form id="topupForm" onsubmit="handleTopup(event)">
+                        <div class="mb-3">
+                            <label for="topupAmount" class="form-label fw-bold">Or Enter Custom Amount:</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" class="form-control custom-input" id="topupAmount" 
+                                       placeholder="Enter amount" min="100" max="50000" required>
+                            </div>
+                            <small class="text-muted">Minimum: ₹100 | Maximum: ₹50,000</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary topup-btn w-100" id="topupBtn">
+                            <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                        </button>
+                    </form>
+
+                    <div id="topupMessage" class="mt-3" style="display: none;"></div>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="transaction-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history me-2"></i>Recent Transactions
+                        </h5>
+                        <a href="/wallet/history" class="btn btn-sm btn-outline-primary">
+                            View All <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+
+                    <div id="transactionsList">
+                        <% if (transactions && transactions.length > 0) { %>
+                            <% transactions.forEach((transaction, index) => { %>
+                                <div class="transaction-item d-flex align-items-center" style="animation-delay: <%= index * 0.1 %>s;">
+                                    <div class="transaction-icon <%= transaction.type.toLowerCase() %> me-3">
+                                        <i class="fas fa-<%= transaction.type === 'Credit' ? 'arrow-down' : 'arrow-up' %>"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1"><%= transaction.description || 'Transaction' %></h6>
+                                        <small class="text-muted">
+                                            <i class="far fa-calendar me-1"></i>
+                                            <%= new Date(transaction.createdAt).toLocaleDateString('en-IN', { 
+                                                day: 'numeric', 
+                                                month: 'short', 
+                                                year: 'numeric'
+                                            }) %>
+                                            <span class="mx-1">•</span>
+                                            <%= new Date(transaction.createdAt).toLocaleTimeString('en-IN', { 
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            }) %>
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="amount-<%= transaction.type.toLowerCase() %> mb-1">
+                                            <%= transaction.type === 'Credit' ? '+' : '-' %>₹<%= transaction.amount.toLocaleString() %>
+                                        </div>
+                                        <small class="badge bg-<%= transaction.status === 'Completed' ? 'success' : transaction.status === 'Pending' ? 'warning' : 'danger' %>">
+                                            <i class="fas fa-<%= transaction.status === 'Completed' ? 'check-circle' : transaction.status === 'Pending' ? 'clock' : 'times-circle' %> me-1"></i>
+                                            <%= transaction.status %>
+                                        </small>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-receipt fa-4x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No transactions yet</h5>
+                                    <p class="text-muted mb-0">Your transaction history will appear here</p>
+                                    <small class="text-muted">Top-up your wallet to get started!</small>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include("../../views/parsuals/user/footer") %>
+
+    
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        // Select quick amount
+        function selectQuickAmount(amount) {
+            document.getElementById('topupAmount').value = amount;
+            
+            // Update active state
+            document.querySelectorAll('.quick-amount-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Handle top-up
+        async function handleTopup(event) {
+            event.preventDefault();
+            
+            const amount = parseInt(document.getElementById('topupAmount').value);
+            const btn = document.getElementById('topupBtn');
+            const messageDiv = document.getElementById('topupMessage');
+            
+            if (amount < 100 || amount > 50000) {
+                showMessage('Please enter amount between ₹100 and ₹50,000', 'danger');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+            try {
+                // Initialize top-up
+                const response = await fetch('/wallet/topup/init', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount })
+                });
+
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Open Razorpay
+                    const options = {
+                        key: data.keyId,
+                        amount: data.amount,
+                        currency: data.currency,
+                        name: 'LapTique',
+                        description: 'Wallet Top-up',
+                        order_id: data.razorpayOrderId,
+                        handler: async function (response) {
+                            await verifyTopup(response);
+                        },
+                        prefill: {
+                            name: '<%= user?.name || "" %>',
+                            email: '<%= user?.email || "" %>',
+                        },
+                        theme: {
+                            color: '#667eea'
+                        },
+                        modal: {
+                            ondismiss: function() {
+                                btn.disabled = false;
+                                btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Proceed to Payment';
+                            }
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    showMessage(data.message || 'Failed to initialize payment', 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Proceed to Payment';
+                }
+            } catch (error) {
+                console.error('Top-up error:', error);
+                showMessage('Failed to process top-up. Please try again.', 'danger');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Proceed to Payment';
+            }
+        }
+
+        // Verify top-up payment
+        async function verifyTopup(paymentData) {
+            const btn = document.getElementById('topupBtn');
+            
+            console.log('Verifying payment with data:', paymentData);
+            
+            try {
+                const response = await fetch('/wallet/topup/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentData)
+                });
+
+                const data = await response.json();
+                console.log('Verification response:', data);
+
+                if (data.success) {
+                    showMessage(data.message || 'Wallet topped up successfully!', 'success');
+                    
+                    // Update balance
+                    if (data.balance) {
+                        document.getElementById('walletBalance').textContent = '₹' + data.balance.toLocaleString();
+                    }
+                    
+                    // Reset form
+                    document.getElementById('topupForm').reset();
+                    document.querySelectorAll('.quick-amount-btn').forEach(btn => btn.classList.remove('active'));
+                    
+                    // Reload transactions after 1 second
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showMessage(data.message || 'Payment verification failed', 'danger');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                showMessage('Failed to verify payment. Please contact support.', 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Proceed to Payment';
+            }
+        }
+
+        // Filter function removed - showing only recent 5 transactions
+
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('topupMessage');
+            messageDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            messageDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

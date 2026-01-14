@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - LapTique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/cart.css">
+</head>
+
+<body class="cart-body">
+
+    <%-include("../../views/parsuals/user/header")%>
+    
+    <div class="cart-content-wrapper">
+        <div style="margin-top: 70px;"></div>
+        <!-- Cart Header -->
+        <div class="cart-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1 class="mb-0">
+                            <i class="fas fa-shopping-cart me-3"></i>Shopping Cart
+                        </h1>
+                        <p class="mb-0 opacity-75">
+                            <% if (totalItems> 0) { %>
+                                <%= totalItems %> item<%= totalItems> 1 ? 's' : '' %> in your cart
+                                        <% } else { %>
+                                            Your cart is empty
+                                            <% } %>
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="/shop" class="btn btn-light">
+                            <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <% if (cartItems && cartItems.length> 0) { %>
+                <div class="row">
+                    <!-- Cart Items -->
+                    <div class="col-lg-8">
+                        <div class="cart-card">
+                            <% cartItems.forEach((item, index)=> { %>
+                                <div class="cart-item d-flex align-items-center <%= !item.inStock ? 'disabled-item' : '' %>"
+                                    data-product-id="<%= item.productId._id %>" data-variant-id="<%= item.variantId %>">
+
+                                    <% if (!item.inStock) { %>
+                                        <div class="disabled-overlay">
+                                            <span><i class="fas fa-exclamation-triangle me-2"></i>Out of Stock</span>
+                                        </div>
+                                        <% } %>
+
+                                            <!-- Product Image -->
+                                            <div class="me-3">
+                                                <a href="/product/<%= item.productId._id %>" class="d-inline-block">
+                                                    <img src="/uploads/re-images/<%= item.productId.ProductImages[0] %>"
+                                                        alt="<%= item.productId.productName %>" class="product-image">
+                                                </a>
+                                            </div>
+
+                                            <!-- Product Details -->
+                                            <div class="flex-grow-1">
+                                                <h5 class="product-title">
+                                                    <a href="/product/<%= item.productId._id %>"
+                                                        class="text-decoration-none text-dark">
+                                                        <%= item.productId.productName %>
+                                                    </a>
+                                                </h5>
+                                                <div class="product-variant">
+                                                    <i class="fas fa-microchip me-1"></i>
+                                                    Storage: <%= item.variant.storage %>
+                                                </div>
+                                                <div class="product-variant">
+                                                    <i class="fas fa-tag me-1"></i>
+                                                    Brand: <%= item.productId.brand.brandName %>
+                                                </div>
+                                                <div class="product-price">
+                                                    ₹<span class="item-price">
+                                                        <%= item.variant.salePrice.toLocaleString() %>
+                                                    </span>
+                                                    <% if (item.variant.regularPrice> item.variant.salePrice) { %>
+                                                        <small class="text-muted text-decoration-line-through ms-2">
+                                                            ₹<%= item.variant.regularPrice.toLocaleString() %>
+                                                        </small>
+                                                        <% } %>
+                                                </div>
+                                                <div class="stock-info">
+                                                    <% if (item.stockLeft===0) { %>
+                                                        <span class="stock-out">
+                                                            <i class="fas fa-times-circle me-1"></i>Out of Stock
+                                                        </span>
+                                                        <% } else if (item.stockLeft <=5) { %>
+                                                            <span class="stock-low">
+                                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                                Only <%= item.stockLeft %> left in stock
+                                                            </span>
+                                                            <% } else { %>
+                                                                <span class="stock-good">
+                                                                    <i class="fas fa-check-circle me-1"></i>In Stock
+                                                                </span>
+                                                                <% } %>
+                                                </div>
+                                            </div>
+
+                                            <!-- Quantity Controls -->
+                                            <div class="me-3">
+                                                <div class="quantity-controls">
+                                                    <button class="quantity-btn decrease-btn" <%=item.quantity <=1 ||
+                                                        !item.inStock ? 'disabled' : '' %>>
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <input type="number" class="quantity-input"
+                                                        value="<%= item.quantity %>" min="1"
+                                                        max="<%= item.maxQuantity %>" <%=!item.inStock ? 'disabled' : ''
+                                                        %>>
+                                                    <button class="quantity-btn increase-btn" <%=item.quantity>=
+                                                        item.maxQuantity || !item.inStock ? 'disabled' : '' %>>
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                                <small class="text-muted d-block text-center mt-1">
+                                                    Max: <%= item.maxQuantity %>
+                                                </small>
+                                            </div>
+
+                                            <!-- Item Total -->
+                                            <div class="me-3 text-end">
+                                                <div class="fw-bold text-primary">
+                                                    ₹<span class="item-total">
+                                                        <%= item.itemTotal.toLocaleString() %>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Remove Button -->
+                                            <div>
+                                                <button class="remove-btn" title="Remove item">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                </div>
+                                <% }) %>
+
+                                    <!-- Clear Cart Button -->
+                                    <div class="text-end mt-3">
+                                        <button class="btn btn-outline-danger" id="clearCartBtn">
+                                            <i class="fas fa-trash me-2"></i>Clear Cart
+                                        </button>
+                                    </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Summary -->
+                    <div class="col-lg-4">
+                        <div class="cart-summary">
+                            <h4 class="mb-3">
+                                <i class="fas fa-receipt me-2"></i>Order Summary
+                            </h4>
+
+                            <div class="summary-row">
+                                <span>Subtotal (<%= totalItems %> items):</span>
+                                <span>₹<span id="cartSubtotal">
+                                        <%= cartTotal.toLocaleString() %>
+                                    </span></span>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Shipping:</span>
+                                <span class="text-success">Free</span>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Tax:</span>
+                                <span>₹<span id="cartTax">
+                                        <%= Math.round(cartTotal * 0.18).toLocaleString() %>
+                                    </span></span>
+                            </div>
+
+                            <div class="summary-row total">
+                                <span>Total:</span>
+                                <span>₹<span id="cartTotal">
+                                        <%= Math.round(cartTotal * 1.18).toLocaleString() %>
+                                    </span></span>
+                            </div>
+
+                            <button class="checkout-btn mt-3" id="checkoutBtn" <%=cartItems.some(item=> !item.inStock) ?
+                                'disabled' : '' %>>
+                                <% if (cartItems.some(item=> !item.inStock)) { %>
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Remove Out of Stock Items
+                                    <% } else { %>
+                                        <i class="fas fa-credit-card me-2"></i>
+                                        Proceed to Checkout
+                                        <% } %>
+                            </button>
+
+                            <div class="mt-3 text-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    Secure checkout with SSL encryption
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } else { %>
+                    <!-- Empty Cart -->
+                    <div class="cart-card">
+                        <div class="empty-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3 class="mb-3">Your cart is empty</h3>
+                            <p class="text-muted mb-4">
+                                Looks like you haven't added any items to your cart yet.
+                                Start shopping to fill it up!
+                            </p>
+                            <a href="/shop" class="continue-shopping">
+                                <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+                            </a>
+                        </div>
+                    </div>
+                    <% } %>
+        </div>
+    </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Quantity controls
+                document.querySelectorAll('.cart-item').forEach(item => {
+                    const productId = item.dataset.productId;
+                    const variantId = item.dataset.variantId;
+                    const decreaseBtn = item.querySelector('.decrease-btn');
+                    const increaseBtn = item.querySelector('.increase-btn');
+                    const quantityInput = item.querySelector('.quantity-input');
+                    const removeBtn = item.querySelector('.remove-btn');
+
+                    // Decrease quantity
+                    decreaseBtn?.addEventListener('click', () => {
+                        const currentQuantity = parseInt(quantityInput.value);
+                        if (currentQuantity > 1) {
+                            updateQuantity(productId, variantId, currentQuantity - 1, item);
+                        }
+                    });
+
+                    // Increase quantity
+                    increaseBtn?.addEventListener('click', () => {
+                        const currentQuantity = parseInt(quantityInput.value);
+                        const maxQuantity = parseInt(quantityInput.max);
+                        if (currentQuantity < maxQuantity) {
+                            updateQuantity(productId, variantId, currentQuantity + 1, item);
+                        }
+                    });
+
+                    // Direct input change
+                    quantityInput?.addEventListener('change', () => {
+                        const newQuantity = parseInt(quantityInput.value);
+                        const maxQuantity = parseInt(quantityInput.max);
+
+                        if (newQuantity < 1) {
+                            quantityInput.value = 1;
+                            updateQuantity(productId, variantId, 1, item);
+                        } else if (newQuantity > maxQuantity) {
+                            quantityInput.value = maxQuantity;
+                            updateQuantity(productId, variantId, maxQuantity, item);
+                        } else {
+                            updateQuantity(productId, variantId, newQuantity, item);
+                        }
+                    });
+
+                    // Remove item
+                    removeBtn?.addEventListener('click', () => {
+                        Swal.fire({
+                            title: 'Remove Item?',
+                            text: 'Are you sure you want to remove this item from your cart?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, remove it!',
+                            cancelButtonText: 'Cancel'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                removeFromCart(productId, variantId, item);
+                                Swal.fire(
+                                    'Removed!',
+                                    'The item has been removed from your cart.',
+                                    'success'
+                                );
+                            }
+                        });
+
+                    });
+                });
+
+                // Clear cart
+                document.getElementById('clearCartBtn')?.addEventListener('click', () => {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You want to clear your entire cart?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, clear it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            clearCart();
+                            Swal.fire(
+                                'Cleared!',
+                                'Your cart has been emptied.',
+                                'success'
+                            );
+                        }
+                    });
+
+                });
+
+                // Checkout button
+                document.getElementById('checkoutBtn')?.addEventListener('click', () => {
+                    // Check for out of stock items
+                    const outOfStockItems = document.querySelectorAll('.disabled-item');
+                    if (outOfStockItems.length > 0) {
+                        showAlert('Please remove out of stock items before proceeding to checkout', 'warning');
+                        return;
+                    }
+
+                    // Proceed to checkout
+                    window.location.href = '/checkout';
+                });
+            });
+
+            // Update quantity function
+            async function updateQuantity(productId, variantId, quantity, itemElement) {
+                try {
+                    itemElement.classList.add('loading');
+
+                    const response = await fetch('/cart/update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            productId,
+                            variantId,
+                            quantity
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update item total
+                        const itemTotal = itemElement.querySelector('.item-total');
+                        itemTotal.textContent = data.itemTotal.toLocaleString();
+
+                        // Update quantity input
+                        const quantityInput = itemElement.querySelector('.quantity-input');
+                        quantityInput.value = quantity;
+
+                        // Update button states
+                        updateButtonStates(itemElement, quantity);
+
+                        // Update cart totals
+                        updateCartTotals(data.cartTotal, data.cartCount);
+
+                        // Update header cart count
+                        updateHeaderCartCount(data.cartCount);
+
+                    } else {
+                        showAlert(data.message, 'error');
+                        // Revert quantity input
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error updating quantity:', error);
+                    showAlert('Failed to update quantity', 'error');
+                    location.reload();
+                } finally {
+                    itemElement.classList.remove('loading');
+                }
+            }
+
+            // Remove from cart function
+            async function removeFromCart(productId, variantId, itemElement) {
+                try {
+                    itemElement.classList.add('loading');
+
+                    const response = await fetch('/cart/remove', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            productId,
+                            variantId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Remove item from DOM
+                        itemElement.remove();
+
+                        // Update cart totals
+                        updateCartTotals(data.cartTotal, data.cartCount);
+
+                        // Update header cart count
+                        updateHeaderCartCount(data.cartCount);
+
+                        // Check if cart is empty
+                        if (data.cartCount === 0) {
+                            location.reload();
+                        }
+
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error removing item:', error);
+                    showAlert('Failed to remove item', 'error');
+                } finally {
+                    itemElement.classList.remove('loading');
+                }
+            }
+
+            // Clear cart function
+            async function clearCart() {
+                try {
+                    const response = await fetch('/cart/clear', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        showAlert(data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error clearing cart:', error);
+                    showAlert('Failed to clear cart', 'error');
+                }
+            }
+
+            // Update button states
+            function updateButtonStates(itemElement, quantity) {
+                const decreaseBtn = itemElement.querySelector('.decrease-btn');
+                const increaseBtn = itemElement.querySelector('.increase-btn');
+                const quantityInput = itemElement.querySelector('.quantity-input');
+                const maxQuantity = parseInt(quantityInput.max);
+
+                decreaseBtn.disabled = quantity <= 1;
+                increaseBtn.disabled = quantity >= maxQuantity;
+            }
+
+            // Update cart totals
+            function updateCartTotals(cartTotal, cartCount) {
+                const subtotalElement = document.getElementById('cartSubtotal');
+                const taxElement = document.getElementById('cartTax');
+                const totalElement = document.getElementById('cartTotal');
+
+                if (subtotalElement) {
+                    subtotalElement.textContent = cartTotal.toLocaleString();
+                }
+
+                const tax = Math.round(cartTotal * 0.18);
+                if (taxElement) {
+                    taxElement.textContent = tax.toLocaleString();
+                }
+
+                const total = Math.round(cartTotal * 1.18);
+                if (totalElement) {
+                    totalElement.textContent = total.toLocaleString();
+                }
+
+                // Update item count in header
+                const headerText = document.querySelector('.cart-header p');
+                if (headerText && cartCount > 0) {
+                    headerText.textContent = `${cartCount} item${cartCount > 1 ? 's' : ''} in your cart`;
+                }
+            }
+
+            // Update header cart count
+            function updateHeaderCartCount(count) {
+                const cartCountElements = document.querySelectorAll('.cart-count');
+                cartCountElements.forEach(element => {
+                    element.textContent = count;
+                    element.style.display = count > 0 ? 'inline' : 'none';
+                });
+            }
+
+            // Show alert function
+            function showAlert(message, type) {
+                // Create alert element
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+                alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+                document.body.appendChild(alertDiv);
+
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+        </script>
+
+        <%-include("../../views/parsuals/user/footer")%>
+</body>
+
+</html>

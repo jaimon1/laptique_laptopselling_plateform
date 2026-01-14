@@ -1,0 +1,980 @@
+<%-include("../../views/parsuals/admin/header")%>
+  <link rel="stylesheet" href="/adminCss/adminProduct.css">
+
+  <!-- Main Content Area -->
+  <div class="col-md-10 p-0">
+    <!-- Modern Page Header -->
+    <div class="modern-page-header">
+      <div class="header-content">
+        <div class="header-left">
+          <div class="header-icon">
+            <i class="fas fa-<%= id ? 'edit' : 'plus-circle' %>"></i>
+          </div>
+          <div>
+            <h1>
+              <%= id ? 'Update Product' : 'Add New Product' %>
+            </h1>
+            <p>
+              <%= id ? 'Edit product details and variants' : 'Create a new product with variants and images' %>
+            </p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <a href="/admin/loadProduct" class="btn-back">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Products</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Form Container -->
+    <div class="product-form-container">
+      <!-- Alerts -->
+      <div class="alert alert-danger" id="errorAlert" style="display: none;"></div>
+      <div class="alert alert-success" id="successAlert" style="display: none;"></div>
+
+      <div class="form-content">
+        <form id="productForm" action="<%= id? '/admin/editProduct/' + id : '/admin/addProduct' %>" method="post"
+          enctype="multipart/form-data" novalidate>
+          <input type="hidden" name="variants" id="variantsData">
+
+          <!-- Basic Information Card -->
+          <div class="form-card">
+            <div class="card-header-custom">
+              <i class="fas fa-info-circle"></i>
+              <h3>Basic Information</h3>
+            </div>
+            <div class="card-body-custom">
+              <div class="form-group-modern">
+                <label for="productName" class="form-label-modern">
+                  <i class="fas fa-tag"></i>
+                  Product Name
+                  <span class="required">*</span>
+                </label>
+                <input type="text" id="productName" class="form-control-modern"
+                  value="<%= id? productData.productName : '' %>" name="productName"
+                  placeholder="Enter product name (min 3 characters)" required minlength="3" maxlength="50">
+                <div class="invalid-feedback">Product name must be between 3 and 50 characters</div>
+                <div class="char-count"><span id="nameCharCount">0</span>/50</div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group-modern">
+                    <label for="brand" class="form-label-modern">
+                      <i class="fas fa-award"></i>
+                      Brand
+                      <span class="required">*</span>
+                    </label>
+                    <select id="brand" class="form-select-modern" name="brand" required>
+                      <option value="">Select Brand</option>
+                      <% for(let i=0; i < brandData.length; i++) { %>
+                        <option value="<%= brandData[i].name %>" <%=id && productData.brand &&
+                          productData.brand.name===brandData[i].name ? 'selected' : '' %>>
+                          <%= brandData[i].name %>
+                        </option>
+                        <% } %>
+                    </select>
+                    <div class="invalid-feedback">Please select a brand</div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group-modern">
+                    <label for="category" class="form-label-modern">
+                      <i class="fas fa-list-alt"></i>
+                      Category
+                      <span class="required">*</span>
+                    </label>
+                    <select id="category" class="form-select-modern" name="category" required>
+                      <option value="">Select Category</option>
+                      <%for(let i=0; i < categoryData.length;i++) { %>
+                        <option value="<%= categoryData[i].name %>" <%=id &&
+                          productData.category.name===categoryData[i].name ? 'selected' : '' %>>
+                          <%= categoryData[i].name %>
+                        </option>
+                        <% } %>
+                    </select>
+                    <div class="invalid-feedback">Please select a category</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group-modern">
+                <label for="description" class="form-label-modern">
+                  <i class="fas fa-align-left"></i>
+                  Short Description
+                  <span class="required">*</span>
+                </label>
+                <textarea id="description" class="form-control-modern" name="description" rows="3"
+                  placeholder="Brief product description (min 10 characters)" required minlength="10"
+                  maxlength="500"><%= id? productData.shortDescription : '' %></textarea>
+                <div class="invalid-feedback">Description must be between 10 and 500 characters</div>
+                <div class="char-count"><span id="descCharCount">0</span>/500</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Images Card -->
+          <div class="form-card">
+            <div class="card-header-custom">
+              <i class="fas fa-images"></i>
+              <h3>Product Images</h3>
+              <span class="badge-info">Min 3, Max 5 images</span>
+            </div>
+            <div class="card-body-custom">
+              <div class="upload-area" id="uploadArea">
+                <input type="file" class="form-control-modern" id="productImages" accept="image/*"
+                  onchange="handleImageUpload(event, 'product')" />
+                <div class="upload-hint">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>Click to upload or drag and drop</p>
+                  <small>First image will be the main product image • JPG, PNG (Max 5MB each) • Minimum 3 images required</small>
+                </div>
+              </div>
+              <div class="image-preview-modern" id="productPreview"></div>
+              <div class="invalid-feedback" id="imageError" style="display: none;">Please upload at least 3 product images</div>
+            </div>
+          </div>
+
+          <!-- Variants Card -->
+          <div class="form-card">
+            <div class="card-header-custom">
+              <i class="fas fa-layer-group"></i>
+              <h3>Product Variants</h3>
+              <button type="button" class="btn-add-variant" onclick="addVariantAccordion()">
+                <i class="fas fa-plus"></i>
+                Add Variant
+              </button>
+            </div>
+            <div class="card-body-custom">
+              <div id="variantAccordionArea"></div>
+              <div class="empty-variants" id="emptyVariants">
+                <i class="fas fa-box-open"></i>
+                <p>No variants added yet</p>
+                <small>Click "Add Variant" to create product variants with different storage options</small>
+              </div>
+              <div class="invalid-feedback" id="variantError" style="display: none;">Please add at least one variant
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn-reset" onclick="resetForm()">
+              <i class="fas fa-undo"></i>
+              Reset Form
+            </button>
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-<%= id ? 'save' : 'plus-circle' %>"></i>
+              <%= id ? 'Update Product' : 'Create Product' %>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Cropping Modal -->
+  <div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Crop Image</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="img-container">
+            <img id="cropperImage" style="max-width: 100%;" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="cropImage()">Crop & Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Processing...</p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Global variables
+    let cropper;
+    let currentUploadType = "";
+    const uploadedImages = {
+      product: []
+    };
+    let variantCount = 0;
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function () {
+      // Real-time validation for product name
+      const productName = document.getElementById('productName');
+      const nameCharCount = document.getElementById('nameCharCount');
+
+      productName.addEventListener('input', function () {
+        // Update character count
+        nameCharCount.textContent = this.value.length;
+
+        // Enforce max length
+        if (this.value.length > 100) {
+          this.value = this.value.substring(0, 100);
+          nameCharCount.textContent = 100;
+          showToast('Product name cannot exceed 100 characters', 'warning');
+        }
+
+        // Real-time validation
+        const trimmedLength = this.value.trim().length;
+        if (trimmedLength >= 3 && trimmedLength <= 100) {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        } else if (this.value.length > 0) {
+          this.classList.remove('is-valid');
+          this.classList.add('is-invalid');
+        } else {
+          this.classList.remove('is-valid');
+          this.classList.remove('is-invalid');
+        }
+      });
+
+      // Initialize name char count
+      nameCharCount.textContent = productName.value.length;
+
+      // Character counter for description
+      const descTextarea = document.getElementById('description');
+      const charCount = document.getElementById('descCharCount');
+
+      descTextarea.addEventListener('input', function () {
+        charCount.textContent = this.value.length;
+        if (this.value.length > 500) {
+          this.value = this.value.substring(0, 500);
+          showToast('Description cannot exceed 500 characters', 'warning');
+        }
+
+        // Real-time validation
+        if (this.value.trim().length >= 10 && this.value.trim().length <= 500) {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        } else if (this.value.length > 0) {
+          this.classList.remove('is-valid');
+          this.classList.add('is-invalid');
+        }
+      });
+
+      // Initialize char count
+      charCount.textContent = descTextarea.value.length;
+
+      // Real-time validation for brand
+      const brand = document.getElementById('brand');
+      brand.addEventListener('change', function () {
+        if (this.value) {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        } else {
+          this.classList.remove('is-valid');
+          this.classList.add('is-invalid');
+        }
+      });
+
+      // Real-time validation for category
+      const category = document.getElementById('category');
+      category.addEventListener('change', function () {
+        if (this.value) {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        } else {
+          this.classList.remove('is-valid');
+          this.classList.add('is-invalid');
+        }
+      });
+
+    <% if (id && productData.ProductImages && productData.ProductImages.length > 0) { %>
+      const existingUrls = <%- JSON.stringify(productData.ProductImages) %>;
+        existingUrls.forEach((url) => {
+          uploadedImages.product.push(url);
+          addImageToPreview(`/uploads/re-images/${url}`, 'productPreview', 'product');
+        });
+    <% } %>
+    
+    <% if (id && productData.variants && productData.variants.length > 0) { %>
+      const existingVariants = <%- JSON.stringify(productData.variants) %>;
+        existingVariants.forEach((variant, index) => {
+          addVariantAccordion(variant, index + 1);
+        });
+    <% } %>
+    
+    const form = document.getElementById('productForm');
+      if (form) {
+        form.addEventListener('submit', handleFormSubmit);
+      }
+    });
+
+    // Reset form completely
+    function resetForm() {
+      Swal.fire({
+        title: 'Reset Form?',
+        text: 'All unsaved changes will be lost',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, reset it'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          document.getElementById('productForm').reset();
+          document.getElementById('productPreview').innerHTML = '';
+          document.getElementById('variantAccordionArea').innerHTML = '';
+          document.getElementById('emptyVariants').style.display = 'flex';
+          uploadedImages.product = [];
+          variantCount = 0;
+          document.getElementById('descCharCount').textContent = '0';
+
+          // Remove validation classes
+          document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+          document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
+
+          showToast('Form reset successfully', 'success');
+        }
+      });
+    }
+
+    // Handle form submission with validation
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Add Bootstrap validation classes
+      const form = e.target;
+      form.classList.add('was-validated');
+
+      // Custom validation
+      if (!validateForm()) {
+        showToast('Please fix all validation errors', 'error');
+        return;
+      }
+
+      // Show loading overlay
+      document.getElementById('loadingOverlay').style.display = 'flex';
+
+      try {
+        // Gather all variant data
+        console.log('Gathering variant data...');
+        const variants = gatherVariantData();
+
+        console.log('Setting variants data to hidden field...');
+        document.getElementById('variantsData').value = JSON.stringify(variants);
+
+        // Create and submit FormData
+        console.log('Creating form data...');
+        const formData = createFormData();
+
+        console.log('Submitting form...');
+        const response = await submitForm(formData);
+
+        console.log('Response received:', response);
+
+        // Hide loading overlay before showing success message
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        if (response.success) {
+          await Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '<%= id ? "Product updated successfully!" : "Product added successfully!" %>',
+            showConfirmButton: false,
+            timer: 2000
+          });
+          window.location.href = '/admin/loadProduct';
+        } else {
+          console.error('Server error:', response.message);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: response.message || 'Error saving product',
+            confirmButtonColor: '#ef4444'
+          });
+        }
+      } catch (error) {
+        console.error('Submission error:', error);
+        document.getElementById('loadingOverlay').style.display = 'none';
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: error.message || 'An error occurred while submitting the form',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    }
+
+    function validateForm() {
+      let isValid = true;
+
+      // Validate product name
+      const productName = document.getElementById('productName');
+      const trimmedName = productName.value.trim();
+      if (trimmedName.length < 3 || trimmedName.length > 50) {
+        productName.classList.add('is-invalid');
+        productName.classList.remove('is-valid');
+        isValid = false;
+        if (trimmedName.length > 50) {
+          showToast('Product name cannot exceed 50 characters', 'error');
+        }
+      } else {
+        productName.classList.remove('is-invalid');
+        productName.classList.add('is-valid');
+      }
+
+      // Validate brand
+      const brand = document.getElementById('brand');
+      if (!brand.value) {
+        brand.classList.add('is-invalid');
+        isValid = false;
+      } else {
+        brand.classList.remove('is-invalid');
+        brand.classList.add('is-valid');
+      }
+
+      // Validate category
+      const category = document.getElementById('category');
+      if (!category.value) {
+        category.classList.add('is-invalid');
+        isValid = false;
+      } else {
+        category.classList.remove('is-invalid');
+        category.classList.add('is-valid');
+      }
+
+      // Validate description
+      const description = document.getElementById('description');
+      const trimmedDesc = description.value.trim();
+      if (trimmedDesc.length < 10 || trimmedDesc.length > 500) {
+        description.classList.add('is-invalid');
+        description.classList.remove('is-valid');
+        isValid = false;
+        if (trimmedDesc.length > 500) {
+          showToast('Description cannot exceed 500 characters', 'error');
+        }
+      } else {
+        description.classList.remove('is-invalid');
+        description.classList.add('is-valid');
+      }
+
+      // Validate images - minimum 3 required
+      const imageError = document.getElementById('imageError');
+      if (uploadedImages.product.length < 3) {
+        imageError.style.display = 'block';
+        imageError.textContent = `Please upload at least 3 product images (${uploadedImages.product.length}/3 uploaded)`;
+        isValid = false;
+      } else {
+        imageError.style.display = 'none';
+      }
+
+      // Validate variants
+      const variantError = document.getElementById('variantError');
+      const variantCards = document.querySelectorAll('.variant-card');
+      if (variantCards.length === 0) {
+        variantError.style.display = 'block';
+        isValid = false;
+      } else {
+        variantError.style.display = 'none';
+
+        // Validate each variant
+        variantCards.forEach((card, index) => {
+          const storage = card.querySelector('[name="storage"]');
+          const regularPrice = card.querySelector('[name="regularPrice"]');
+          const quantity = card.querySelector('[name="quantity"]');
+          const productDescription = card.querySelector('[name="productDescription"]');
+
+          // Validate storage
+          if (!storage.value) {
+            storage.classList.add('is-invalid');
+            storage.classList.remove('is-valid');
+            isValid = false;
+          } else {
+            storage.classList.remove('is-invalid');
+            storage.classList.add('is-valid');
+          }
+
+          // Validate price
+          const priceValue = parseFloat(regularPrice.value);
+          if (!regularPrice.value || priceValue <= 0 || priceValue > 9999999) {
+            regularPrice.classList.add('is-invalid');
+            regularPrice.classList.remove('is-valid');
+            isValid = false;
+          } else {
+            regularPrice.classList.remove('is-invalid');
+            regularPrice.classList.add('is-valid');
+          }
+
+          // Validate quantity
+          const qtyValue = parseInt(quantity.value);
+          if (!quantity.value || qtyValue < 0 || qtyValue > 999999) {
+            quantity.classList.add('is-invalid');
+            quantity.classList.remove('is-valid');
+            isValid = false;
+          } else {
+            quantity.classList.remove('is-invalid');
+            quantity.classList.add('is-valid');
+          }
+
+          // Validate variant description
+          const trimmedVarDesc = productDescription.value.trim();
+          if (!trimmedVarDesc || trimmedVarDesc.length < 10 || trimmedVarDesc.length > 500) {
+            productDescription.classList.add('is-invalid');
+            productDescription.classList.remove('is-valid');
+            isValid = false;
+          } else {
+            productDescription.classList.remove('is-invalid');
+            productDescription.classList.add('is-valid');
+          }
+        });
+      }
+
+      return isValid;
+    }
+
+    function gatherVariantData() {
+      const variants = [];
+      const variantCards = document.querySelectorAll('.variant-card');
+
+      if (variantCards.length === 0) {
+        throw new Error('Please add at least one variant');
+      }
+
+      variantCards.forEach((card, index) => {
+        const storageInput = card.querySelector('[name="storage"]');
+        const priceInput = card.querySelector('[name="regularPrice"]');
+        const quantityInput = card.querySelector('[name="quantity"]');
+        const descInput = card.querySelector('[name="productDescription"]');
+
+        if (!storageInput || !priceInput || !quantityInput || !descInput) {
+          console.error('Missing input fields in variant', index + 1);
+          throw new Error(`Variant ${index + 1} has missing fields`);
+        }
+
+        const storage = storageInput.value.trim();
+        const regularPrice = parseFloat(priceInput.value);
+        const quantity = parseInt(quantityInput.value);
+        const productDescription = descInput.value.trim();
+
+        // Validation
+        if (!storage) {
+          throw new Error(`Storage is required for Variant ${index + 1}`);
+        }
+        if (!productDescription || productDescription.length < 10) {
+          throw new Error(`Description must be at least 10 characters for Variant ${index + 1}`);
+        }
+        if (isNaN(regularPrice) || regularPrice <= 0) {
+          throw new Error(`Valid Regular Price is required for Variant ${index + 1}`);
+        }
+        if (isNaN(quantity) || quantity < 0) {
+          throw new Error(`Valid Quantity is required for Variant ${index + 1}`);
+        }
+
+        const variant = {
+          storage: storage,
+          regularPrice: regularPrice,
+          quantity: quantity,
+          productDescription: productDescription
+        };
+
+        console.log('Variant ' + (index + 1) + ':', variant);
+        variants.push(variant);
+      });
+
+      console.log('Total variants gathered:', variants.length);
+      console.log('Variants data:', JSON.stringify(variants));
+
+      return variants;
+    }
+
+    function createFormData() {
+      const form = document.getElementById('productForm');
+      const formData = new FormData(form);
+
+      const existingImages = [];
+      const newImages = [];
+      uploadedImages.product.forEach((imgData) => {
+        if (typeof imgData === 'string' && imgData.startsWith('data:')) {
+          newImages.push(imgData);
+        } else {
+          existingImages.push(imgData);
+        }
+      });
+
+      // Append new product images
+      newImages.forEach((imgData, index) => {
+        const file = dataURLtoFile(imgData, `product-${index}.jpg`);
+        formData.append('productImages', file);
+      });
+
+      // Add existing images as a JSON string
+      if (existingImages.length > 0) {
+        formData.append('existingImages', JSON.stringify(existingImages));
+      }
+
+      return formData;
+    }
+
+    async function submitForm(formData) {
+      let endpoint = '/admin/addProduct';
+    <% if (id) { %>
+        endpoint = '/admin/editProduct/<%= id %>';
+    <% } %>
+    
+    const response = await fetch(endpoint, {
+          method: 'POST',
+          body: formData,
+        });
+      return await response.json();
+    }
+
+    function handleImageUpload(event, type) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      currentUploadType = type;
+
+      const maxImages = 5;
+      let currentCount = uploadedImages.product.length;
+
+      if (currentCount + files.length > maxImages) {
+        showToast(`Maximum ${maxImages} images allowed. You can add ${maxImages - currentCount} more.`, 'error');
+        event.target.value = '';
+        return;
+      }
+
+      const file = files[0];
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Image size must be less than 5MB', 'error');
+        event.target.value = '';
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.match('image.*')) {
+        showToast('Please upload only image files', 'error');
+        event.target.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        document.getElementById('cropperImage').src = reader.result;
+        const modal = new bootstrap.Modal(document.getElementById('cropModal'));
+        modal.show();
+
+        setTimeout(() => {
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(document.getElementById('cropperImage'), {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 0.8,
+            responsive: true,
+            guides: false
+          });
+        }, 200);
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function cropImage() {
+      const canvas = cropper.getCroppedCanvas({
+        width: 800,
+        height: 800,
+        minWidth: 400,
+        minHeight: 400,
+        maxWidth: 1200,
+        maxHeight: 1200,
+        fillColor: '#fff',
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+      });
+
+      if (!canvas) {
+        showToast('Could not crop image. Please try again.', 'error');
+        return;
+      }
+
+      const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+      if (currentUploadType === 'product') {
+        uploadedImages.product.push(imageUrl);
+        addImageToPreview(imageUrl, 'productPreview', 'product');
+        
+        // Update image count and show message
+        const imageCount = uploadedImages.product.length;
+        if (imageCount < 3) {
+          showToast(`${imageCount}/3 images uploaded. Please add ${3 - imageCount} more image(s).`, 'info');
+        } else {
+          showToast(`Image added successfully! (${imageCount}/5)`, 'success');
+        }
+      }
+
+      cropper.destroy();
+      cropper = null;
+      bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
+
+      const fileInput = document.getElementById('productImages');
+      if (fileInput) fileInput.value = '';
+
+      // Update image error message
+      const imageError = document.getElementById('imageError');
+      if (uploadedImages.product.length < 3) {
+        imageError.style.display = 'block';
+        imageError.textContent = `Please upload at least 3 product images (${uploadedImages.product.length}/3 uploaded)`;
+      } else {
+        imageError.style.display = 'none';
+      }
+    }
+
+    function addImageToPreview(imageUrl, previewId, type = 'product') {
+      const previewDiv = document.getElementById(previewId);
+      if (!previewDiv) return;
+
+      const imgContainer = document.createElement('div');
+      imgContainer.className = 'image-preview-item';
+
+      const img = document.createElement('img');
+      img.src = imageUrl;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-image-btn';
+      removeBtn.type = 'button';
+      removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+      removeBtn.onclick = function () {
+        removeImage(imageUrl, type);
+        imgContainer.remove();
+      };
+
+      const mainBadge = document.createElement('span');
+      mainBadge.className = 'main-image-badge';
+      mainBadge.innerHTML = '<i class="fas fa-star"></i> Main';
+
+      imgContainer.appendChild(img);
+      imgContainer.appendChild(removeBtn);
+
+      // Add main badge to first image
+      if (uploadedImages.product.length === 1) {
+        imgContainer.appendChild(mainBadge);
+      }
+
+      previewDiv.appendChild(imgContainer);
+    }
+
+    function removeImage(imageUrl, type) {
+      if (type === 'product') {
+        let imageToRemove = imageUrl;
+        if (imageUrl.includes('/uploads/re-images/')) {
+          imageToRemove = imageUrl.split('/uploads/re-images/')[1];
+        }
+        uploadedImages.product = uploadedImages.product.filter(img => {
+          if (img.includes('/uploads/re-images/')) {
+            return img.split('/uploads/re-images/')[1] !== imageToRemove;
+          }
+          return img !== imageToRemove && img !== imageUrl;
+        });
+        
+        // Update image error message after removal
+        const imageError = document.getElementById('imageError');
+        const imageCount = uploadedImages.product.length;
+        if (imageCount < 3) {
+          imageError.style.display = 'block';
+          imageError.textContent = `Please upload at least 3 product images (${imageCount}/3 uploaded)`;
+        } else {
+          imageError.style.display = 'none';
+        }
+        
+        showToast(`Image removed. ${imageCount}/3 images uploaded.`, 'info');
+      }
+    }
+
+    function addVariantAccordion(data = {}, number = null) {
+      variantCount++;
+      const accordionId = `variant-${variantCount}`;
+      const variantNumber = number || variantCount;
+
+      const storage = data.storage || '';
+      const regularPrice = data.regularPrice || '';
+      const quantity = data.quantity || '';
+      const productDescription = data.productDescription || '';
+
+      // Hide empty state
+      const emptyState = document.getElementById('emptyVariants');
+      if (emptyState) emptyState.style.display = 'none';
+
+      // Hide variant error
+      document.getElementById('variantError').style.display = 'none';
+
+      const html = `
+    <div class="variant-card" id="${accordionId}">
+      <div class="variant-header" onclick="toggleVariant('${accordionId}')">
+        <div class="variant-title">
+          <i class="fas fa-cube"></i>
+          <span>Variant ${variantNumber}</span>
+          <span class="variant-badge">${storage || 'Not configured'}</span>
+        </div>
+        <div class="variant-actions">
+          <button type="button" class="btn-icon-danger" onclick="event.stopPropagation(); removeVariant('${accordionId}')">
+            <i class="fas fa-trash"></i>
+          </button>
+          <i class="fas fa-chevron-down variant-toggle"></i>
+        </div>
+      </div>
+      <div class="variant-body" id="body-${accordionId}" style="display: block;">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group-modern">
+              <label class="form-label-modern">
+                <i class="fas fa-hdd"></i>
+                Storage <span class="required">*</span>
+              </label>
+              <select class="form-select-modern" name="storage" required>
+                <option value="">Select Storage</option>
+                <option value="64GB" ${storage === '64GB' ? 'selected' : ''}>64GB</option>
+                <option value="128GB" ${storage === '128GB' ? 'selected' : ''}>128GB</option>
+                <option value="256GB" ${storage === '256GB' ? 'selected' : ''}>256GB</option>
+                <option value="512GB" ${storage === '512GB' ? 'selected' : ''}>512GB</option>
+                <option value="1TB" ${storage === '1TB' ? 'selected' : ''}>1TB</option>
+                <option value="2TB" ${storage === '2TB' ? 'selected' : ''}>2TB</option>
+              </select>
+              <div class="invalid-feedback">Please select a storage option</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group-modern">
+              <label class="form-label-modern">
+                <i class="fas fa-rupee-sign"></i>
+                Regular Price <span class="required">*</span>
+              </label>
+              <input type="number" class="form-control-modern" name="regularPrice" value="${regularPrice}" 
+                min="1" max="9999999" step="0.01" placeholder="0.00" required
+                oninput="if(this.value > 9999999) this.value = 9999999;">
+              <div class="invalid-feedback">Price must be between 1 and 9,999,999</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group-modern">
+              <label class="form-label-modern">
+                <i class="fas fa-boxes"></i>
+                Quantity <span class="required">*</span>
+              </label>
+              <input type="number" class="form-control-modern" value="${quantity}" name="quantity" 
+                min="0" max="999999" placeholder="0" required
+                oninput="if(this.value > 999999) this.value = 999999; if(this.value < 0) this.value = 0;">
+              <div class="invalid-feedback">Quantity must be between 0 and 999,999</div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="form-group-modern">
+              <label class="form-label-modern">
+                <i class="fas fa-align-left"></i>
+                Description <span class="required">*</span>
+              </label>
+              <textarea class="form-control-modern" rows="3" name="productDescription" 
+                placeholder="Variant description (min 10 characters)" required minlength="10" maxlength="500"
+                oninput="if(this.value.length > 500) this.value = this.value.substring(0, 500);">${productDescription}</textarea>
+              <div class="invalid-feedback">Description must be between 10 and 500 characters</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+      const container = document.getElementById('variantAccordionArea');
+      container.insertAdjacentHTML('beforeend', html);
+
+      // Mark as expanded and rotate toggle icon
+      setTimeout(() => {
+        const card = document.getElementById(accordionId);
+        const toggle = card.querySelector('.variant-toggle');
+        if (card && toggle) {
+          card.classList.add('expanded');
+          toggle.style.transform = 'rotate(180deg)';
+        }
+      }, 10);
+    }
+
+    function toggleVariant(accordionId) {
+      const body = document.getElementById(`body-${accordionId}`);
+      const card = document.getElementById(accordionId);
+      const toggle = card.querySelector('.variant-toggle');
+
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        toggle.style.transform = 'rotate(180deg)';
+        card.classList.add('expanded');
+      } else {
+        body.style.display = 'none';
+        toggle.style.transform = 'rotate(0deg)';
+        card.classList.remove('expanded');
+      }
+    }
+
+    function removeVariant(accordionId) {
+      Swal.fire({
+        title: 'Remove Variant?',
+        text: 'This action cannot be undone',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, remove it'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const variantElement = document.getElementById(accordionId);
+          if (variantElement) {
+            variantElement.remove();
+            variantCount--;
+
+            // Show empty state if no variants
+            const container = document.getElementById('variantAccordionArea');
+            if (container.children.length === 0) {
+              document.getElementById('emptyVariants').style.display = 'flex';
+            }
+          }
+        }
+      });
+    }
+
+    function dataURLtoFile(dataurl, filename) {
+      const arr = dataurl.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+
+      return new File([u8arr], filename, { type: mime });
+    }
+
+    function showToast(message, type = 'success') {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: type,
+        title: message,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+    }
+  </script>
+
+  <%-include("../../views/parsuals/admin/footer")%>

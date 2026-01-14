@@ -1,0 +1,821 @@
+<%-include("../../views/parsuals/admin/header")%>
+
+    <div class="col-md-10 p-0">
+        <div class="topbar">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <h4>Product Management</h4>
+                <div class="d-flex gap-3 align-items-center">
+                    <form id="searchForm" action="/admin/loadProduct" method="GET" class="d-flex"
+                        onsubmit="return false;">
+                        <input type="text" id="searchInput" name="search" class="form-control me-2"
+                            placeholder="Search by name, category, brand..." style="width: 350px;"
+                            value="<%= search || '' %>">
+                        <button type="button" class="btn btn-primary" onclick="performSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <% if(search) { %>
+                            <button type="button" class="btn btn-secondary ms-2" onclick="clearSearch()"
+                                title="Clear search">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <% } %>
+                    </form>
+                    <a href="/admin/addProduct" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Product
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid py-4">
+            <!-- Stats Cards -->
+            <div class="row mb-4" id="productStats">
+                <div class="col-md-3">
+                    <div class="stats-card-mini">
+                        <div class="stats-icon-mini bg-gradient-primary">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 id="totalProductsCount">
+                                <%= productData.length %>
+                            </h3>
+                            <p>Total Products</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card-mini">
+                        <div class="stats-icon-mini bg-gradient-success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 id="activeProductsCount">
+                                <%= productData.filter(p=> !p.isBlocked).length %>
+                            </h3>
+                            <p>Active Products</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card-mini">
+                        <div class="stats-icon-mini bg-gradient-danger">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 id="blockedProductsCount">
+                                <%= productData.filter(p=> p.isBlocked).length %>
+                            </h3>
+                            <p>Blocked Products</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card-mini">
+                        <div class="stats-icon-mini bg-gradient-warning">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3>
+                                <%= productData.reduce((sum, p)=> sum + (p.variants[0]?.quantity || 0), 0) %>
+                            </h3>
+                            <p>Total Stock</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modern-card" id="productTableCard"></div>
+            <div class="card-header-modern">
+                <h5><i class="fas fa-box me-2"></i>Product List</h5>
+                <span class="badge bg-primary">Total: <%= productData.length %> products</span>
+            </div>
+            <div class="table-container">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="th-content"><i class="fas fa-image me-2"></i>Image</div>
+                            </th>
+                            <th>
+                                <div class="th-content"><i class="fas fa-tag me-2"></i>Product</div>
+                            </th>
+                            <th>
+                                <div class="th-content"><i class="fas fa-folder me-2"></i>Category</div>
+                            </th>
+                            <th>
+                                <div class="th-content"><i class="fas fa-copyright me-2"></i>Brand</div>
+                            </th>
+                            <th>
+                                <div class="th-content"><i class="fas fa-rupee-sign me-2"></i>Price</div>
+                            </th>
+                            <th>
+                                <div class="th-content"><i class="fas fa-cubes me-2"></i>Stock</div>
+                            </th>
+                            <th>
+                                <div class="th-content"><i class="fas fa-layer-group me-2"></i>Variants</div>
+                            </th>
+                            <th>
+                                <div class="th-content"><i class="fas fa-shield-alt me-2"></i>Status</div>
+                            </th>
+                            <th>
+                                <div class="th-content"><i class="fas fa-cog me-2"></i>Actions</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                        <% for(let i=0; i < productData.length; i++) { const product=productData[i] %>
+                            <tr class="product-row">
+                                <td>
+                                    <img src="/uploads/re-images/<%= productData[i].ProductImages[0] %>" alt="Product"
+                                        class="product-image">
+                                </td>
+                                <td>
+                                    <div class="product-name">
+                                        <%= product.productName %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="category-badge">
+                                        <%= product.category ? product.category.name : 'No category' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="brand-badge">
+                                        <%= product.brand ? product.brand.name : 'No brand' %>
+                                    </span>
+                                </td>
+                                <td id="displayPrice<%= i %>">
+                                    <div class="price-display">
+                                        <% if(product?.variants && product.variants[0]) { %>
+                                            ₹<%= product.variants[0].salePrice || product.variants[0].regularPrice %>
+                                                <% } else { %>
+                                                    N/A
+                                                    <% } %>
+                                    </div>
+                                </td>
+                                <td id="displayQuantity<%= i %>">
+                                    <span
+                                        class="stock-badge <%= product.variants[0]?.quantity > 10 ? 'stock-high' : product.variants[0]?.quantity > 0 ? 'stock-low' : 'stock-out' %>">
+                                        <%= product.variants[0]?.quantity || 0 %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-variant" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#variant<%= i %>">
+                                        <i class="fas fa-eye me-1"></i>View (<%= product.variants.length %>)
+                                    </button>
+                                    <div class="collapse mt-2" id="variant<%= i %>">
+                                        <div class="variant-selector">
+                                            <select class="form-select form-select-sm"
+                                                onchange="updatePrice(this, <%= i %>)">
+                                                <option selected disabled>Select Variant</option>
+                                                <% product.variants.forEach(function(variant){ %>
+                                                    <option value="<%= variant.regularPrice %>"
+                                                        data-sale="<%= variant.salePrice %>"
+                                                        data-regular="<%= variant.regularPrice %>"
+                                                        data-quantity="<%= variant.quantity %>">
+                                                        <%= variant.storage %> - ₹<%= variant.salePrice ||
+                                                                variant.regularPrice %> (Stock: <%= variant.quantity %>)
+                                                    </option>
+                                                    <% }) %>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <% if(product.isBlocked===false) { %>
+                                        <span class="status-badge status-active">
+                                            <i class="fas fa-check-circle me-1"></i>Active
+                                        </span>
+                                        <% } else { %>
+                                            <span class="status-badge status-blocked">
+                                                <i class="fas fa-ban me-1"></i>Blocked
+                                            </span>
+                                            <% } %>
+                                </td>
+                                <td>
+                                    <div class="action-buttons-product">
+                                        <a href="/admin/editProduct/<%= product._id %>" class="btn-action btn-edit"
+                                            title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn-action btn-delete"
+                                            onclick="deleteProduct('<%= product._id %>', '<%= currentPage %>')"
+                                            title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <% if(product.isBlocked===false) { %>
+                                            <button class="btn-action btn-block-product"
+                                                onclick="toggleProductStatus('<%= product._id %>', true, this)"
+                                                title="Block">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                            <% } else { %>
+                                                <button class="btn-action btn-unblock-product"
+                                                    onclick="toggleProductStatus('<%= product._id %>', false, this)"
+                                                    title="Unblock">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </button>
+                                                <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <nav aria-label="Page navigation" id="productPagination">
+                <ul class="pagination justify-content-center mt-4">
+                    <% if(currentPage> 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="#"
+                                onclick="loadProductPage(<%= currentPage - 1 %>); return false;">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        <% } else { %>
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                            </li>
+                            <% } %>
+
+                                <% if(totalPages> 0) { %>
+                                    <li class="page-item <%= currentPage === 1 ? 'active' : '' %>">
+                                        <a class="page-link" href="#" onclick="loadProductPage(1); return false;">1</a>
+                                    </li>
+                                    <% } %>
+
+                                        <% if(currentPage> 3) { %>
+                                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                                            <% } %>
+
+                                                <% let startPage=Math.max(2, currentPage - 1); let
+                                                    endPage=Math.min(totalPages - 1, currentPage + 1); for(let
+                                                    i=startPage; i <=endPage; i++) { %>
+                                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                        <a class="page-link" href="#"
+                                                            onclick="loadProductPage(<%= i %>); return false;">
+                                                            <%= i %>
+                                                        </a>
+                                                    </li>
+                                                    <% } %>
+
+                                                        <% if(currentPage < totalPages - 2) { %>
+                                                            <li class="page-item disabled"><span
+                                                                    class="page-link">...</span></li>
+                                                            <% } %>
+
+                                                                <% if(totalPages> 1) { %>
+                                                                    <li
+                                                                        class="page-item <%= currentPage === totalPages ? 'active' : '' %>">
+                                                                        <a class="page-link" href="#"
+                                                                            onclick="loadProductPage(<%= totalPages %>); return false;">
+                                                                            <%= totalPages %>
+                                                                        </a>
+                                                                    </li>
+                                                                    <% } %>
+
+                                                                        <% if(currentPage < totalPages) { %>
+                                                                            <li class="page-item">
+                                                                                <a class="page-link" href="#"
+                                                                                    onclick="loadProductPage(<%= currentPage + 1 %>); return false;">
+                                                                                    <i class="fas fa-chevron-right"></i>
+                                                                                </a>
+                                                                            </li>
+                                                                            <% } else { %>
+                                                                                <li class="page-item disabled">
+                                                                                    <span class="page-link"><i
+                                                                                            class="fas fa-chevron-right"></i></span>
+                                                                                </li>
+                                                                                <% } %>
+                </ul>
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Page <%= currentPage %> of <%= totalPages %> (Showing <%= productData.length %> products)
+                    </small>
+                </div>
+            </nav>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Copy all the modern styles from userListing.ejs */
+        .stats-card-mini {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s;
+            border: 1px solid #f1f5f9;
+        }
+
+        .stats-card-mini:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .stats-icon-mini {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .bg-gradient-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .stats-content h3 {
+            font-size: 32px;
+            font-weight: 900;
+            color: #0f172a;
+            margin: 0;
+            letter-spacing: -1px;
+            transition: all 0.3s;
+        }
+
+        .stats-content p {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .modern-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
+        }
+
+        .card-header-modern {
+            padding: 24px 28px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header-modern h5 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .modern-table thead th {
+            padding: 20px 16px;
+            border-bottom: 2px solid #e2e8f0;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #475569;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .th-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .modern-table tbody tr {
+            transition: all 0.3s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .modern-table tbody tr:hover {
+            background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+            transform: scale(1.002);
+        }
+
+        .modern-table tbody td {
+            padding: 16px;
+            vertical-align: middle;
+        }
+
+        .product-image {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-name {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 14px;
+        }
+
+        .category-badge,
+        .brand-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: #475569;
+        }
+
+        .price-display {
+            font-weight: 800;
+            color: #10b981;
+            font-size: 16px;
+        }
+
+        .stock-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .stock-high {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .stock-low {
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            color: #92400e;
+        }
+
+        .stock-out {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+        }
+
+        .btn-variant {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6366f1;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-variant:hover {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .variant-selector {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-blocked {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .action-buttons-product {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-block-product {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+
+        .btn-unblock-product {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+
+    <script>
+        // Update price when variant is selected
+        function updatePrice(selectElement, index) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const regularPrice = selectedOption.getAttribute('data-regular');
+            const salePrice = selectedOption.getAttribute('data-sale');
+            const quantity = selectedOption.getAttribute('data-quantity');
+
+            const displayPrice = salePrice && salePrice != '0' ? salePrice : regularPrice;
+            document.getElementById(`displayPrice${index}`).innerHTML = `<div class="price-display">₹${displayPrice}</div>`;
+
+            const quantityElement = document.getElementById(`displayQuantity${index}`);
+            const stockClass = quantity > 10 ? 'stock-high' : quantity > 0 ? 'stock-low' : 'stock-out';
+            quantityElement.innerHTML = `<span class="stock-badge ${stockClass}">${quantity}</span>`;
+        }
+
+        // Load page without refresh
+        async function loadProductPage(pageNumber) {
+            const searchValue = document.getElementById('searchInput').value.trim();
+            const searchParam = searchValue ? `&search=${encodeURIComponent(searchValue)}` : '';
+
+            const tableBody = document.getElementById('productTableBody');
+            const originalContent = tableBody.innerHTML;
+            tableBody.innerHTML = `
+            <tr>
+                <td colspan="9" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading products...</p>
+                </td>
+            </tr>
+        `;
+
+            try {
+                const response = await fetch(`/admin/loadProduct?page=${pageNumber}${searchParam}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                if (response.ok) {
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    const newTableBody = doc.querySelector('#productTableBody');
+                    if (newTableBody) tableBody.innerHTML = newTableBody.innerHTML;
+
+                    const newStats = doc.querySelector('#productStats');
+                    if (newStats) document.querySelector('#productStats').innerHTML = newStats.innerHTML;
+
+                    const newPagination = doc.querySelector('#productPagination');
+                    if (newPagination) document.querySelector('#productPagination').innerHTML = newPagination.innerHTML;
+
+                    // Update search input value from response
+                    const newSearchInput = doc.querySelector('#searchInput');
+                    if (newSearchInput) {
+                        document.getElementById('searchInput').value = newSearchInput.value;
+                    }
+
+                    const newUrl = `/admin/loadProduct?page=${pageNumber}${searchParam}`;
+                    window.history.pushState({ page: pageNumber, search: searchValue }, '', newUrl);
+
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    throw new Error('Failed to load page');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                tableBody.innerHTML = originalContent;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to load page. Please try again.',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        }
+
+        // Perform search
+        function performSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                console.log('Searching for:', searchInput.value);
+                loadProductPage(1);
+            }
+        }
+
+        // Clear search
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.value = '';
+                loadProductPage(1);
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Product page loaded');
+
+            // Handle search form
+            const searchForm = document.getElementById('searchForm');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    performSearch();
+                });
+            }
+
+            // Handle Enter key in search input
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performSearch();
+                    }
+                });
+            }
+        });
+
+        // Toggle product status
+        async function toggleProductStatus(productId, shouldBlock, buttonElement) {
+            const action = shouldBlock ? 'block' : 'unblock';
+
+            const result = await Swal.fire({
+                title: `${action.charAt(0).toUpperCase() + action.slice(1)} Product?`,
+                text: `Are you sure you want to ${action} this product?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: shouldBlock ? '#ef4444' : '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: `Yes, ${action}!`,
+                cancelButtonText: 'Cancel'
+            });
+
+            if (!result.isConfirmed) return;
+
+            buttonElement.disabled = true;
+            const originalHTML = buttonElement.innerHTML;
+            buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const url = shouldBlock
+                    ? `/admin/blockProduct?id=${productId}&page=<%= currentPage %>`
+                    : `/admin/unblockProduct?id=${productId}&page=<%= currentPage %>`;
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                if (response.ok) {
+                    const row = buttonElement.closest('tr');
+                    const statusCell = row.querySelector('td:nth-child(8)');
+
+                    if (shouldBlock) {
+                        buttonElement.className = 'btn-action btn-unblock-product';
+                        buttonElement.innerHTML = '<i class="fas fa-check-circle"></i>';
+                        buttonElement.onclick = function () { toggleProductStatus(productId, false, this); };
+                        buttonElement.title = 'Unblock';
+                        if (statusCell) {
+                            statusCell.innerHTML = '<span class="status-badge status-blocked"><i class="fas fa-ban me-1"></i>Blocked</span>';
+                        }
+                    } else {
+                        buttonElement.className = 'btn-action btn-block-product';
+                        buttonElement.innerHTML = '<i class="fas fa-ban"></i>';
+                        buttonElement.onclick = function () { toggleProductStatus(productId, true, this); };
+                        buttonElement.title = 'Block';
+                        if (statusCell) {
+                            statusCell.innerHTML = '<span class="status-badge status-active"><i class="fas fa-check-circle me-1"></i>Active</span>';
+                        }
+                    }
+                    buttonElement.disabled = false;
+
+                    // Update stats
+                    const activeCount = document.getElementById('activeProductsCount');
+                    const blockedCount = document.getElementById('blockedProductsCount');
+                    if (activeCount && blockedCount) {
+                        let active = parseInt(activeCount.textContent);
+                        let blocked = parseInt(blockedCount.textContent);
+                        if (shouldBlock) {
+                            active--;
+                            blocked++;
+                        } else {
+                            active++;
+                            blocked--;
+                        }
+                        activeCount.textContent = active;
+                        blockedCount.textContent = blocked;
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: `Product ${shouldBlock ? 'blocked' : 'unblocked'} successfully`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    throw new Error('Failed to update product status');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                buttonElement.innerHTML = originalHTML;
+                buttonElement.disabled = false;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to update product status. Please try again.',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        }
+
+        // Delete product
+        async function deleteProduct(productId, currentPage) {
+            const result = await Swal.fire({
+                title: 'Delete Product?',
+                text: 'This action cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (result.isConfirmed) {
+                window.location.href = `/admin/deleteProduct?id=${productId}&page=${currentPage}`;
+            }
+        }
+
+        // Browser back/forward
+        window.addEventListener('popstate', function (event) {
+            if (event.state && event.state.page) {
+                loadProductPage(event.state.page);
+            } else {
+                location.reload();
+            }
+        });
+    </script>
+
+    <%-include("../../views/parsuals/admin/footer")%>

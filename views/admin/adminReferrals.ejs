@@ -1,0 +1,470 @@
+<%- include("../../views/parsuals/admin/header") %>
+
+    <div class="col-md-10 content-area">
+        <div class="container-fluid py-4">
+            <!-- Page Header -->
+            <div class="page-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-1"><i class="fas fa-gift me-2"></i>Referral Management</h2>
+                        <p class="text-muted mb-0">Manage referral program and rewards</p>
+                    </div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                        <i class="fas fa-cog me-2"></i>Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4" id="statsCards">
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="totalReferrers">0</h3>
+                            <p class="stat-label">Total Referrers</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="totalReferrals">0</h3>
+                            <p class="stat-label">Total Referrals</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="rewardsGiven">0</h3>
+                            <p class="stat-label">Rewards Given</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="totalAmount">₹0</h3>
+                            <p class="stat-label">Total Rewards</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referrers Table -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-table me-2"></i>Referral Overview</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Referrer</th>
+                                    <th>Referral Code</th>
+                                    <th>Total Referred</th>
+                                    <th>Rewards Given</th>
+                                    <th>Pending</th>
+                                    <th>Total Earned</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (referralStats && referralStats.length> 0) { %>
+                                    <% referralStats.forEach(stat=> { %>
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>
+                                                        <%= stat.name %>
+                                                    </strong>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        <%= stat.email %>
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">
+                                                    <%= stat.referralCode %>
+                                                </span>
+                                            </td>
+                                            <td><span class="badge bg-info">
+                                                    <%= stat.totalReferred %>
+                                                </span></td>
+                                            <td><span class="badge bg-success">
+                                                    <%= stat.rewardsGiven %>
+                                                </span></td>
+                                            <td>
+                                                <% if (stat.pendingRewards> 0) { %>
+                                                    <span class="badge bg-warning">
+                                                        <%= stat.pendingRewards %>
+                                                    </span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary">0</span>
+                                                        <% } %>
+                                            </td>
+                                            <td><strong>₹<%= stat.totalRewardsEarned %></strong></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                    onclick="viewDetails('<%= stat._id %>')">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="7" class="text-center py-5">
+                                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                                        <p class="text-muted">No referrals found</p>
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-friends me-2"></i>
+                        Referral Details - <span id="referrerName"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <strong>Referral Code:</strong> <span class="badge bg-primary" id="referrerCode"></span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Referred User</th>
+                                    <th>Registered On</th>
+                                    <th>Orders</th>
+                                    <th>Last Order</th>
+                                    <th>Reward Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="referralDetailsBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-cog me-2"></i>Referral Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="settingsForm">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Wallet Reward Amount (₹)</label>
+                                <input type="number" class="form-control" name="rewardAmount"
+                                    value="<%= settings.rewardAmount %>" min="0" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Bonus Coupon Amount (₹)</label>
+                                <input type="number" class="form-control" name="bonusCouponAmount"
+                                    value="<%= settings.bonusCouponAmount %>" min="0" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Minimum Purchase Amount (₹)</label>
+                                <input type="number" class="form-control" name="minimumPurchaseAmount"
+                                    value="<%= settings.minimumPurchaseAmount %>" min="0" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Reward Recipient</label>
+                                <select class="form-select" name="rewardRecipient" required>
+                                    <option value="referrer_only" <%=settings.rewardRecipient==='referrer_only'
+                                        ? 'selected' : '' %>>
+                                        Referrer Only
+                                    </option>
+                                    <option value="both" <%=settings.rewardRecipient==='both' ? 'selected' : '' %>>
+                                        Both (Referrer & Referred)
+                                    </option>
+                                    <option value="referred_only" <%=settings.rewardRecipient==='referred_only'
+                                        ? 'selected' : '' %>>
+                                        Referred User Only
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="autoCredit"
+                                        <%=settings.autoCredit ? 'checked' : '' %>>
+                                    <label class="form-check-label">Auto Credit Rewards</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="isActive" <%=settings.isActive
+                                        ? 'checked' : '' %>>
+                                    <label class="form-check-label">Referral Program Active</label>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Terms & Conditions</label>
+                                <textarea class="form-control" name="termsAndConditions"
+                                    rows="3"><%= settings.termsAndConditions %></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/admin/referrals/stats');
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('totalReferrers').textContent = data.stats.totalReferrers;
+                    document.getElementById('totalReferrals').textContent = data.stats.totalReferrals;
+                    document.getElementById('rewardsGiven').textContent = data.stats.totalRewardsGiven;
+                    document.getElementById('totalAmount').textContent = '₹' + data.stats.totalRewardAmount;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // View referral details
+        async function viewDetails(userId) {
+            try {
+                const response = await fetch(`/admin/referrals/details/${userId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('referrerName').textContent = data.referrer.name;
+                    document.getElementById('referrerCode').textContent = data.referrer.referralCode;
+
+                    const tbody = document.getElementById('referralDetailsBody');
+                    tbody.innerHTML = '';
+
+                    data.referrals.forEach(ref => {
+                        const row = `
+                        <tr>
+                            <td>
+                                <strong>${ref.name}</strong><br>
+                                <small class="text-muted">${ref.email}</small>
+                            </td>
+                            <td>${new Date(ref.registeredOn).toLocaleDateString()}</td>
+                            <td><span class="badge bg-info">${ref.orderCount}</span></td>
+                            <td>
+                                ${ref.lastOrderAmount ? '₹' + ref.lastOrderAmount : 'No orders'}
+                                ${ref.lastOrderDate ? '<br><small>' + new Date(ref.lastOrderDate).toLocaleDateString() + '</small>' : ''}
+                            </td>
+                            <td>
+                                ${ref.rewardGiven
+                                ? '<span class="badge bg-success"><i class="fas fa-check"></i> Given</span>'
+                                : '<span class="badge bg-warning"><i class="fas fa-clock"></i> Pending</span>'}
+                            </td>
+                            <td>
+                                ${!ref.rewardGiven
+                                ? `<button class="btn btn-sm btn-success" onclick="creditReward('${userId}', '${ref.userId}')">
+                                        <i class="fas fa-gift"></i> Credit
+                                       </button>`
+                                : `<button class="btn btn-sm btn-danger" onclick="revokeReward('${userId}', '${ref.userId}')">
+                                        <i class="fas fa-undo"></i> Revoke
+                                       </button>`}
+                            </td>
+                        </tr>
+                    `;
+                        tbody.innerHTML += row;
+                    });
+
+                    new bootstrap.Modal(document.getElementById('detailsModal')).show();
+                }
+            } catch (error) {
+                console.error('Error loading details:', error);
+                Swal.fire('Error', 'Failed to load referral details', 'error');
+            }
+        }
+
+        // Credit reward manually
+        async function creditReward(referrerId, referredUserId) {
+            const result = await Swal.fire({
+                title: 'Credit Reward?',
+                text: 'This will credit the referral reward to the user\'s wallet',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, credit it',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch('/admin/referrals/credit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ referrerId, referredUserId })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire('Success', data.message, 'success');
+                        viewDetails(referrerId);
+                        loadStats();
+                        location.reload();
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'Failed to credit reward', 'error');
+                }
+            }
+        }
+
+        // Revoke reward
+        async function revokeReward(referrerId, referredUserId) {
+            const { value: reason } = await Swal.fire({
+                title: 'Revoke Reward?',
+                html: `
+                <div class="text-start">
+                    <label for="revokeReason" class="form-label fw-bold mb-2">Select reason for revoking:</label>
+                    <select id="revokeReason" class="form-select form-select-lg">
+                        <option value="">-- Select a reason --</option>
+                        <option value="Fraudulent Activity">Fraudulent Activity</option>
+                        <option value="Duplicate Account">Duplicate Account</option>
+                        <option value="Fake Referral">Fake Referral</option>
+                        <option value="User Requested Cancellation">User Requested Cancellation</option>
+                        <option value="Order Cancelled/Returned">Order Cancelled/Returned</option>
+                        <option value="Terms Violation">Terms Violation</option>
+                        <option value="Account Suspended">Account Suspended</option>
+                        <option value="Administrative Error">Administrative Error</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            `,
+                showCancelButton: true,
+                confirmButtonText: 'Revoke Reward',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                width: '500px',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const reason = document.getElementById('revokeReason').value;
+                    if (!reason || reason === '') {
+                        Swal.showValidationMessage('Please select a reason for revoking');
+                        return false;
+                    }
+                    return reason;
+                }
+            });
+
+            if (reason) {
+                try {
+                    const response = await fetch('/admin/referrals/revoke', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ referrerId, referredUserId, reason })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: data.message,
+                            confirmButtonColor: '#28a745'
+                        });
+                        viewDetails(referrerId);
+                        loadStats();
+                        location.reload();
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error revoking reward:', error);
+                    Swal.fire('Error', 'Failed to revoke reward', 'error');
+                }
+            }
+        }
+
+        // Update settings
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {
+                rewardAmount: parseInt(formData.get('rewardAmount')),
+                bonusCouponAmount: parseInt(formData.get('bonusCouponAmount')),
+                minimumPurchaseAmount: parseInt(formData.get('minimumPurchaseAmount')),
+                rewardRecipient: formData.get('rewardRecipient'),
+                autoCredit: formData.get('autoCredit') === 'on',
+                isActive: formData.get('isActive') === 'on',
+                termsAndConditions: formData.get('termsAndConditions')
+            };
+
+            try {
+                const response = await fetch('/admin/referrals/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire('Success', 'Settings updated successfully', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+                    location.reload();
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Failed to update settings', 'error');
+            }
+        });
+
+        // Load stats on page load
+        document.addEventListener('DOMContentLoaded', loadStats);
+    </script>
+
+    <%- include("../../views/parsuals/admin/footer") %>

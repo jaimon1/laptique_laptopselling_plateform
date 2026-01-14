@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Failed - LapTique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/orderSuccess.css" />
+    <style>
+        .failure-container { min-height: calc(100vh - 140px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .failure-card { max-width: 820px; width: 100%; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }
+        .failure-icon { width: 80px; height: 80px; border-radius: 50%; background: #fdecef; color: #dc3545; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; }
+        .failure-title { font-size: 28px; font-weight: 700; color: #212529; margin-bottom: 6px; }
+        .failure-message { color: #6c757d; margin-bottom: 16px; }
+        .illustration .fa-times-circle { font-size: 64px; color: #dc3545; opacity: 0.7; }
+        .action-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+        .btn-primary-custom, .btn-success-custom, .btn-danger-custom { border-radius: 10px; padding: 10px 16px; font-weight: 600; border: none; color: #fff; }
+        .btn-primary-custom { background: #0d6efd; }
+        .btn-success-custom { background: #198754; }
+        .btn-danger-custom { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <%-include("../../views/parsuals/user/header")%>
+     <div style="margin-top: 70px;"></div>
+    <div class="failure-container">
+      <div class="failure-card">
+        <div class="failure-icon"><i class="fas fa-times"></i></div>
+        <h1 class="failure-title">Payment Failed</h1>
+        <p class="failure-message">We couldn't process your payment for Order <strong>#<%= order.orderId %></strong>.</p>
+        <div class="illustration mb-3"><i class="fas fa-times-circle"></i></div>
+        <p class="text-muted">You can try the payment again or view the order details.</p>
+        <div class="action-buttons">
+            <button id="retryPaymentBtn" class="btn-primary-custom">
+                <i class="fas fa-rotate-right me-2"></i>Retry Payment
+            </button>
+            <a href="/order/<%= order._id %>" class="btn-success-custom">
+                <i class="fas fa-list me-2"></i>View Order Details
+            </a>
+            <a href="/shop" class="btn-danger-custom">
+                <i class="fas fa-store me-2"></i>Continue Shopping
+            </a>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById('retryPaymentBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                
+                console.log('Initiating retry payment for order:', '<%= order._id %>');
+                
+                const res = await fetch('/payment/razorpay/retry/<%= order._id %>', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                console.log('Response status:', res.status);
+                
+                let data;
+                try {
+                    data = await res.json();
+                } catch (parseError) {
+                    console.error('Failed to parse response:', parseError);
+                    const text = await res.text();
+                    console.error('Response text:', text);
+                    throw new Error('Invalid server response');
+                }
+                
+                console.log('Retry payment response:', data);
+                
+                if (!data.success) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: data.message || 'Failed to initiate retry payment',
+                        confirmButtonColor: '#dc3545'
+                    });
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return;
+                }
+                
+                const options = {
+                    key: data.keyId,
+                    amount: data.amount,
+                    currency: data.currency,
+                    name: 'LapTique',
+                    description: `Order ${data.orderNumber} - Retry Payment`,
+                    order_id: data.razorpayOrderId,
+                    handler: async function (response) {
+                        console.log('Payment successful, verifying...', response);
+                        
+                        try {
+                            const verifyRes = await fetch('/payment/razorpay/verify', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    orderId: data.orderId
+                                })
+                            });
+                            
+                            const verifyData = await verifyRes.json();
+                            console.log('Verification response:', verifyData);
+                            
+                            if (verifyData.success && verifyData.redirectUrl) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Payment Successful!',
+                                    text: 'Redirecting to order details...',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.href = verifyData.redirectUrl;
+                                });
+                            } else if (verifyData.redirectUrl) {
+                                window.location.href = verifyData.redirectUrl;
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Verification Failed',
+                                    text: verifyData.message || 'Payment verification failed',
+                                    confirmButtonColor: '#dc3545'
+                                });
+                                btn.disabled = false;
+                                btn.innerHTML = originalText;
+                            }
+                        } catch (err) {
+                            console.error('Verification error:', err);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Verification Failed',
+                                text: 'Payment verification failed. Please contact support.',
+                                confirmButtonColor: '#dc3545'
+                            });
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        }
+                    },
+                    prefill: {
+                        name: '<%= user?.name || "" %>',
+                        email: '<%= user?.email || "" %>'
+                    },
+                    theme: {
+                        color: '#0d6efd'
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            console.log('Payment modal dismissed');
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        }
+                    }
+                };
+                
+                console.log('Opening Razorpay modal...');
+                const rzp = new Razorpay(options);
+                rzp.open();
+                
+            } catch (err) {
+                console.error('Retry payment error:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Failed',
+                    text: err.message || 'Failed to initiate payment',
+                    confirmButtonColor: '#dc3545'
+                });
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+    </script>
+    <%-include("../../views/parsuals/user/footer")%>
+</body>
+</html>

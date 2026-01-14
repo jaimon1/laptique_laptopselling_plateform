@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login - LAPTIQUE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/adminCss/adminLogin.css">
+  <script>
+    window.onpageshow = function (event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    };
+  </script>
+</head>
+
+<body>
+  <div class="page-container">
+    <div class="logo">LAPTIQUE</div>
+
+    <div class="left-section">
+      <div class="left-content">
+        <div class="admin-icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M2 17L12 22L22 17" stroke="white" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M2 12L12 17L22 12" stroke="white" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h2>Admin Dashboard</h2>
+        <p>Manage your e-commerce platform with powerful tools and insights</p>
+      </div>
+    </div>
+
+    <div class="right-section">
+      <div class="login-card">
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Sign in to access the admin panel</p>
+
+        <% if(msg) { %>
+          <div class="alert alert-danger">
+            <%= msg %>
+          </div>
+          <% } %>
+
+            <form action="/admin/login" method="post" id="adminLoginForm">
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="admin@laptique.com"
+                  required>
+                <div class="error-message" id="err1"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" name="password" id="password"
+                  placeholder="Enter your password" required>
+                <div class="error-message" id="err2"></div>
+              </div>
+
+              <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+
+            <div class="footer-text">
+              <p>Secure admin access only</p>
+            </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let adminEmail = document.getElementById('email');
+    let adminPassword = document.getElementById('password');
+    let emailError = document.getElementById('err1');
+    let passwordError = document.getElementById('err2');
+
+    function validateEmail() {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailPattern.test(adminEmail.value.trim())) {
+        emailError.style.display = "block";
+        emailError.innerHTML = "Please enter a valid email address";
+        return false;
+      } else {
+        emailError.style.display = "none";
+        emailError.innerHTML = "";
+        return true;
+      }
+    }
+
+    function validatePassword() {
+      if (adminPassword.value.trim().length < 6) {
+        passwordError.style.display = "block";
+        passwordError.innerHTML = "Password must be at least 6 characters";
+        return false;
+      } else {
+        passwordError.style.display = "none";
+        passwordError.innerHTML = "";
+        return true;
+      }
+    }
+
+    document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+      const isEmailValid = validateEmail();
+      const isPasswordValid = validatePassword();
+
+      if (!isEmailValid || !isPasswordValid) {
+        e.preventDefault();
+      }
+    });
+
+    adminEmail.addEventListener('blur', validateEmail);
+    adminPassword.addEventListener('blur', validatePassword);
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,291 @@
+<%-include("../../views/parsuals/admin/header")%>
+
+<!-- Main Content -->
+<div class="col-md-10 p-0">
+    <div class="topbar-category">
+        <div class="topbar-content-category">
+            <div class="topbar-left-category">
+                <div class="page-title-wrapper-category">
+                    <i class="fas fa-list-alt"></i>
+                    <div>
+                        <h4>Category Management</h4>
+                        <p class="subtitle">Manage and organize product categories</p>
+                    </div>
+                </div>
+            </div>
+            <div class="topbar-right-category">
+                <form action="/admin/category" method="GET" class="search-form-category" id="searchForm">
+                    <div class="search-input-wrapper-category">
+                        <i class="fas fa-search search-icon-category"></i>
+                        <input type="text" name="search" class="search-input-category" id="searchInput"
+                            placeholder="Search categories by name..." 
+                            value="<%= search || '' %>">
+                        <% if (search) { %>
+                            <button type="button" class="clear-search-category" id="clearSearchBtn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        <% } %>
+                    </div>
+                    <button type="submit" class="btn-search-category">
+                        <i class="fas fa-search"></i>
+                        <span>Search</span>
+                    </button>
+                </form>
+                <a href="/admin/addCategory" class="btn-add-category">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Category</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper-category">
+        <!-- Stats Cards -->
+        <div class="stats-grid-category" id="statsGrid">
+            <div class="stats-card-category">
+                <div class="stats-card-header-category">
+                    <div class="stats-icon-category bg-gradient-primary-category">
+                        <i class="fas fa-list-alt"></i>
+                    </div>
+                    <div class="stats-badge-category">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stats-card-body-category">
+                    <h3 class="stats-number-category" id="totalCategoriesCount"><%= cat.length %></h3>
+                    <p class="stats-label-category">Total Categories</p>
+                    <div class="stats-footer-category">
+                        <span class="stats-info-category">On this page</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-card-category">
+                <div class="stats-card-header-category">
+                    <div class="stats-icon-category bg-gradient-success-category">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stats-badge-category success">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <div class="stats-card-body-category">
+                    <h3 class="stats-number-category" id="listedCategoriesCount"><%= cat.filter(c => c.isListed).length %></h3>
+                    <p class="stats-label-category">Listed Categories</p>
+                    <div class="stats-footer-category">
+                        <span class="stats-info-category">Currently active</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-card-category">
+                <div class="stats-card-header-category">
+                    <div class="stats-icon-category bg-gradient-danger-category">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="stats-badge-category danger">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+                <div class="stats-card-body-category">
+                    <h3 class="stats-number-category" id="unlistedCategoriesCount"><%= cat.filter(c => !c.isListed).length %></h3>
+                    <p class="stats-label-category">Unlisted Categories</p>
+                    <div class="stats-footer-category">
+                        <span class="stats-info-category">Currently hidden</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category List Card -->
+        <div class="professional-card-category">
+            <div class="card-header-category" id="cardHeader">
+                <div class="header-left-category">
+                    <h5><i class="fas fa-list me-2"></i>Category List</h5>
+                    <span class="header-subtitle-category" id="showingCount">Showing <%= cat.length %> categories</span>
+                </div>
+                <div class="header-right-category">
+                    <span class="badge-category bg-primary" id="recordsBadge">
+                        <i class="fas fa-database me-1"></i>
+                        <%= cat.length %> Records
+                    </span>
+                </div>
+            </div>
+            
+            <div class="categories-grid" id="categoriesGrid">
+                <% if(cat.length === 0) { %>
+                    <div class="empty-state-category">
+                        <div class="empty-content-category">
+                            <i class="fas fa-list-alt"></i>
+                            <h5>No Categories Found</h5>
+                            <p>There are no categories matching your search criteria.</p>
+                            <a href="/admin/addCategory" class="btn-add-category">
+                                <i class="fas fa-plus"></i>
+                                <span>Add Your First Category</span>
+                            </a>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <% cat.forEach((category, index) => { %>
+                        <div class="category-card">
+                            <div class="category-card-header">
+                                <div class="category-icon-wrapper">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <% if(category.isListed) { %>
+                                    <span class="category-status-badge status-listed-category">
+                                        <span class="status-dot-category"></span>
+                                        <span>Listed</span>
+                                    </span>
+                                <% } else { %>
+                                    <span class="category-status-badge status-unlisted-category">
+                                        <span class="status-dot-category"></span>
+                                        <span>Unlisted</span>
+                                    </span>
+                                <% } %>
+                            </div>
+                            
+                            <div class="category-card-body">
+                                <h6 class="category-name"><%= category.name %></h6>
+                                <p class="category-description"><%= category.description %></p>
+                                <p class="category-id">ID: <%= category._id.toString().slice(-8) %></p>
+                            </div>
+                            
+                            <div class="category-card-footer">
+                                <% if(category.isListed) { %>
+                                    <a href="javascript:void(0)" 
+                                        class="btn-category-action btn-unlist-category"
+                                        onclick="unlistCategoryAjax('<%=category._id%>', '<%=category.name%>')">
+                                        <i class="fas fa-eye-slash"></i>
+                                        <span>Unlist</span>
+                                    </a>
+                                <% } else { %>
+                                    <a href="javascript:void(0)" 
+                                        class="btn-category-action btn-list-category"
+                                        onclick="listCategoryAjax('<%=category._id%>', '<%=category.name%>')">
+                                        <i class="fas fa-eye"></i>
+                                        <span>List</span>
+                                    </a>
+                                <% } %>
+                                <a href="/admin/addCategory?id=<%= category._id %>" 
+                                    class="btn-category-action btn-edit-category">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Edit</span>
+                                </a>
+                                <a href="javascript:void(0)" 
+                                    class="btn-category-action btn-delete-category"
+                                    onclick="deleteCategoryAjax('<%=category._id%>', '<%=category.name%>')">
+                                    <i class="fas fa-trash-alt"></i>
+                                    <span>Delete</span>
+                                </a>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+
+            <!-- Pagination -->
+            <% if(totalPages > 1) { %>
+                <div class="pagination-wrapper-category" id="paginationWrapper">
+                    <nav aria-label="Category pagination">
+                        <ul class="pagination-category" id="paginationList">
+                            <!-- Previous Button -->
+                            <% if(currentPage > 1) { %>
+                                <li class="page-item-category">
+                                    <a class="page-link-category page-prev-category" 
+                                        href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>">
+                                        <i class="fas fa-chevron-left"></i>
+                                        <span>Previous</span>
+                                    </a>
+                                </li>
+                            <% } else { %>
+                                <li class="page-item-category disabled">
+                                    <span class="page-link-category page-prev-category">
+                                        <i class="fas fa-chevron-left"></i>
+                                        <span>Previous</span>
+                                    </span>
+                                </li>
+                            <% } %>
+
+                            <!-- First Page -->
+                            <% if(totalPages > 0) { %>
+                                <li class="page-item-category <%= currentPage === 1 ? 'active' : '' %>">
+                                    <a class="page-link-category" href="?page=1<%= search ? '&search=' + search : '' %>">1</a>
+                                </li>
+                            <% } %>
+
+                            <!-- Left Ellipsis -->
+                            <% if(currentPage > 3) { %>
+                                <li class="page-item-category disabled">
+                                    <span class="page-link-category">...</span>
+                                </li>
+                            <% } %>
+
+                            <!-- Middle Pages -->
+                            <% 
+                                let startPage = Math.max(2, currentPage - 1);
+                                let endPage = Math.min(totalPages - 1, currentPage + 1);
+                                for(let i = startPage; i <= endPage; i++) { 
+                            %>
+                                <li class="page-item-category <%= currentPage === i ? 'active' : '' %>">
+                                    <a class="page-link-category" href="?page=<%= i %><%= search ? '&search=' + search : '' %>">
+                                        <%= i %>
+                                    </a>
+                                </li>
+                            <% } %>
+
+                            <!-- Right Ellipsis -->
+                            <% if(currentPage < totalPages - 2) { %>
+                                <li class="page-item-category disabled">
+                                    <span class="page-link-category">...</span>
+                                </li>
+                            <% } %>
+
+                            <!-- Last Page -->
+                            <% if(totalPages > 1) { %>
+                                <li class="page-item-category <%= currentPage === totalPages ? 'active' : '' %>">
+                                    <a class="page-link-category" href="?page=<%= totalPages %><%= search ? '&search=' + search : '' %>">
+                                        <%= totalPages %>
+                                    </a>
+                                </li>
+                            <% } %>
+
+                            <!-- Next Button -->
+                            <% if(currentPage < totalPages) { %>
+                                <li class="page-item-category">
+                                    <a class="page-link-category page-next-category" 
+                                        href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>">
+                                        <span>Next</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            <% } else { %>
+                                <li class="page-item-category disabled">
+                                    <span class="page-link-category page-next-category">
+                                        <span>Next</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                    
+                    <!-- Page Info -->
+                    <div class="page-info-category" id="pageInfo">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Page <strong><%= currentPage %></strong> of <strong><%= totalPages %></strong></span>
+                        <span class="separator">•</span>
+                        <span>Total <strong><%= cat.length %></strong> categories</span>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<!-- Category AJAX Script -->
+<script src="/js/categoryAjax.js"></script>
+
+<%-include("../../views/parsuals/admin/footer")%>

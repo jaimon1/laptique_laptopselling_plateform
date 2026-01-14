@@ -1,0 +1,628 @@
+<%-include("../../views/parsuals/admin/header")%>
+
+    <!-- Main Content -->
+    <div class="col-md-10 p-0">
+        <div class="topbar-modern">
+            <div class="topbar-content">
+                <div class="topbar-left">
+                    <div class="page-title-wrapper">
+                        <i class="fas fa-users-cog"></i>
+                        <div>
+                            <h4>User Management</h4>
+                            <p class="subtitle">Manage and monitor all registered users</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <form action="/admin/users" method="GET" class="search-form-modern">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" name="search" class="search-input" 
+                                placeholder="Search by name, email or phone..." 
+                                value="<%= search || '' %>">
+                            <% if (search) { %>
+                                <button type="button" class="clear-search" onclick="clearSearch()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            <% } %>
+                        </div>
+                        <button type="submit" class="btn-search">
+                            <i class="fas fa-search"></i>
+                            <span>Search</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- Stats Cards -->
+            <div class="stats-grid" id="statsCards">
+                <div class="stats-card-pro">
+                    <div class="stats-card-header">
+                        <div class="stats-icon-pro bg-gradient-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stats-badge">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="stats-card-body">
+                        <h3 id="totalUsersCount" class="stats-number">
+                            <%= data.length %>
+                        </h3>
+                        <p class="stats-label">Total Users</p>
+                        <div class="stats-footer">
+                            <span class="stats-info">On this page</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-card-pro">
+                    <div class="stats-card-header">
+                        <div class="stats-icon-pro bg-gradient-success">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stats-badge success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="stats-card-body">
+                        <h3 id="activeUsersCount" class="stats-number">
+                            <%= data.filter(u=> !u.isBlocked).length %>
+                        </h3>
+                        <p class="stats-label">Active Users</p>
+                        <div class="stats-footer">
+                            <span class="stats-info">Currently active</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-card-pro">
+                    <div class="stats-card-header">
+                        <div class="stats-icon-pro bg-gradient-danger">
+                            <i class="fas fa-user-slash"></i>
+                        </div>
+                        <div class="stats-badge danger">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                    </div>
+                    <div class="stats-card-body">
+                        <h3 id="blockedUsersCount" class="stats-number">
+                            <%= data.filter(u=> u.isBlocked).length %>
+                        </h3>
+                        <p class="stats-label">Blocked Users</p>
+                        <div class="stats-footer">
+                            <span class="stats-info">Restricted access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="professional-card">
+                <div class="card-header-pro">
+                    <div class="header-left">
+                        <h5><i class="fas fa-list me-2"></i>Users List</h5>
+                        <span class="header-subtitle">Showing <%= data.length %> users</span>
+                    </div>
+                    <div class="header-right">
+                        <span class="badge-pro bg-primary">
+                            <i class="fas fa-database me-1"></i>
+                            <%= data.length %> Records
+                        </span>
+                    </div>
+                </div>
+                <div class="table-container-pro">
+                    <table class="professional-table">
+                        <thead>
+                            <tr>
+                                <th class="th-id">
+                                    <div class="th-content">
+                                        <i class="fas fa-hashtag"></i>
+                                        <span>ID</span>
+                                    </div>
+                                </th>
+                                <th class="th-user">
+                                    <div class="th-content">
+                                        <i class="fas fa-user"></i>
+                                        <span>User Details</span>
+                                    </div>
+                                </th>
+                                <th class="th-email">
+                                    <div class="th-content">
+                                        <i class="fas fa-envelope"></i>
+                                        <span>Email Address</span>
+                                    </div>
+                                </th>
+                                <th class="th-phone">
+                                    <div class="th-content">
+                                        <i class="fas fa-phone"></i>
+                                        <span>Phone Number</span>
+                                    </div>
+                                </th>
+                                <th class="th-status">
+                                    <div class="th-content">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span>Status</span>
+                                    </div>
+                                </th>
+                                <th class="th-actions">
+                                    <div class="th-content">
+                                        <i class="fas fa-cog"></i>
+                                        <span>Actions</span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if(data.length === 0) { %>
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        <div class="empty-content">
+                                            <i class="fas fa-users-slash"></i>
+                                            <h5>No Users Found</h5>
+                                            <p>There are no users matching your search criteria.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } else { %>
+                                <% for(let i=0;i < data.length; i++){ %>
+                                    <tr class="user-row-pro">
+                                        <td class="td-id">
+                                            <div class="id-wrapper">
+                                                <span class="id-badge-pro">#<%= i+1 %></span>
+                                            </div>
+                                        </td>
+                                        <td class="td-user">
+                                            <div class="user-info-pro">
+                                                <div class="user-avatar-pro">
+                                                    <%= data[i].name.charAt(0).toUpperCase() %>
+                                                </div>
+                                                <div class="user-details-pro">
+                                                    <span class="user-name-pro">
+                                                        <%= data[i].name %>
+                                                    </span>
+                                                    <span class="user-id-small">ID: <%= data[i]._id.toString().slice(-6) %></span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="td-email">
+                                            <div class="email-wrapper">
+                                                <i class="fas fa-envelope"></i>
+                                                <span class="email-text"><%= data[i].email %></span>
+                                            </div>
+                                        </td>
+                                        <td class="td-phone">
+                                            <div class="phone-wrapper">
+                                                <i class="fas fa-phone"></i>
+                                                <span class="phone-text"><%= data[i].phone %></span>
+                                            </div>
+                                        </td>
+                                        <td class="td-status">
+                                            <% if(data[i].isBlocked===false){ %>
+                                                <span class="status-badge-pro status-active-pro">
+                                                    <span class="status-dot"></span>
+                                                    <span class="status-text">Active</span>
+                                                </span>
+                                            <% } else { %>
+                                                <span class="status-badge-pro status-blocked-pro">
+                                                    <span class="status-dot"></span>
+                                                    <span class="status-text">Blocked</span>
+                                                </span>
+                                            <% } %>
+                                        </td>
+                                        <td class="td-actions">
+                                            <div class="action-buttons-pro">
+                                                <% if(data[i].isBlocked===false){ %>
+                                                    <button class="btn-action-pro btn-block-pro"
+                                                        onclick="toggleUserStatus('<%=data[i]._id%>', true, this)"
+                                                        data-user-id="<%=data[i]._id%>" 
+                                                        title="Block this user">
+                                                        <i class="fas fa-ban"></i>
+                                                        <span>Block</span>
+                                                    </button>
+                                                <% } else { %>
+                                                    <button class="btn-action-pro btn-unblock-pro"
+                                                        onclick="toggleUserStatus('<%=data[i]._id%>', false, this)"
+                                                        data-user-id="<%=data[i]._id%>" 
+                                                        title="Unblock this user">
+                                                        <i class="fas fa-check-circle"></i>
+                                                        <span>Unblock</span>
+                                                    </button>
+                                                <% } %>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-wrapper">
+                    <nav aria-label="Page navigation" id="paginationNav">
+                        <ul class="pagination-pro">
+                            <!-- Previous Button -->
+                            <% if(currentPage> 1){ %>
+                                <li class="page-item-pro">
+                                    <a class="page-link-pro page-prev" href="#" onclick="loadPage(<%= currentPage - 1 %>); return false;">
+                                        <i class="fas fa-chevron-left"></i>
+                                        <span>Previous</span>
+                                    </a>
+                                </li>
+                            <% } else { %>
+                                <li class="page-item-pro disabled">
+                                    <span class="page-link-pro page-prev">
+                                        <i class="fas fa-chevron-left"></i>
+                                        <span>Previous</span>
+                                    </span>
+                                </li>
+                            <% } %>
+
+                            <!-- First Page -->
+                            <% if(totalPages> 0) { %>
+                                <li class="page-item-pro <%= currentPage === 1 ? 'active' : '' %>">
+                                    <a class="page-link-pro" href="#" onclick="loadPage(1); return false;">1</a>
+                                </li>
+                            <% } %>
+
+                            <!-- Left Ellipsis -->
+                            <% if(currentPage> 3) { %>
+                                <li class="page-item-pro disabled">
+                                    <span class="page-link-pro">...</span>
+                                </li>
+                            <% } %>
+
+                            <!-- Middle Pages -->
+                            <% let startPage=Math.max(2, currentPage - 1); 
+                               let endPage=Math.min(totalPages - 1, currentPage + 1); 
+                               for(let i=startPage; i <=endPage; i++) { %>
+                                <li class="page-item-pro <%= currentPage === i ? 'active' : '' %>">
+                                    <a class="page-link-pro" href="#" onclick="loadPage(<%= i %>); return false;">
+                                        <%= i %>
+                                    </a>
+                                </li>
+                            <% } %>
+
+                            <!-- Right Ellipsis -->
+                            <% if(currentPage < totalPages - 2) { %>
+                                <li class="page-item-pro disabled">
+                                    <span class="page-link-pro">...</span>
+                                </li>
+                            <% } %>
+
+                            <!-- Last Page -->
+                            <% if(totalPages> 1) { %>
+                                <li class="page-item-pro <%= currentPage === totalPages ? 'active' : '' %>">
+                                    <a class="page-link-pro" href="#" onclick="loadPage(<%= totalPages %>); return false;">
+                                        <%= totalPages %>
+                                    </a>
+                                </li>
+                            <% } %>
+
+                            <!-- Next Button -->
+                            <% if(currentPage < totalPages) { %>
+                                <li class="page-item-pro">
+                                    <a class="page-link-pro page-next" href="#" onclick="loadPage(<%= currentPage + 1 %>); return false;">
+                                        <span>Next</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            <% } else { %>
+                                <li class="page-item-pro disabled">
+                                    <span class="page-link-pro page-next">
+                                        <span>Next</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                    
+                    <!-- Page Info -->
+                    <div class="page-info-pro" id="pageInfo">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Page <strong><%= currentPage %></strong> of <strong><%= totalPages %></strong></span>
+                        <% if(data.length> 0) { %>
+                            <span class="separator">•</span>
+                            <span>Showing <strong><%= data.length %></strong> users</span>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+
+
+    <!-- Toast Notification -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+        <div id="statusToast" class="toast align-items-center border-0" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Load page without refresh
+        async function loadPage(pageNumber) {
+            const searchValue = document.querySelector('input[name="search"]').value;
+            const searchParam = searchValue ? `&search=${encodeURIComponent(searchValue)}` : '';
+
+            // Show loading indicator
+            const tableBody = document.querySelector('tbody');
+            const originalContent = tableBody.innerHTML;
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading users...</p>
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const response = await fetch(`/admin/users?page=${pageNumber}${searchParam}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    const html = await response.text();
+
+                    // Parse the HTML response
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Update table body
+                    const newTableBody = doc.querySelector('tbody');
+                    if (newTableBody) {
+                        tableBody.innerHTML = newTableBody.innerHTML;
+                    }
+
+                    // Update stats cards
+                    const newStatsCards = doc.querySelector('#statsCards');
+                    if (newStatsCards) {
+                        document.querySelector('#statsCards').innerHTML = newStatsCards.innerHTML;
+                    }
+
+                    // Update pagination
+                    const newPagination = doc.querySelector('#paginationNav');
+                    if (newPagination) {
+                        document.querySelector('#paginationNav').innerHTML = newPagination.innerHTML;
+                    }
+
+                    // Update page info
+                    const newPageInfo = doc.querySelector('#pageInfo');
+                    if (newPageInfo) {
+                        const currentPageInfo = document.querySelector('#pageInfo');
+                        if (currentPageInfo) {
+                            currentPageInfo.innerHTML = newPageInfo.innerHTML;
+                        }
+                    }
+
+                    // Update total badge in header
+                    const newBadge = doc.querySelector('.card-header-modern .badge');
+                    if (newBadge) {
+                        const currentBadge = document.querySelector('.card-header-modern .badge');
+                        if (currentBadge) {
+                            currentBadge.textContent = newBadge.textContent;
+                        }
+                    }
+
+                    // Update URL without refresh
+                    const newUrl = `/admin/users?page=${pageNumber}${searchParam}`;
+                    window.history.pushState({ page: pageNumber }, '', newUrl);
+
+                    // Scroll to top smoothly
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    throw new Error('Failed to load page');
+                }
+            } catch (error) {
+                console.error('Error loading page:', error);
+                tableBody.innerHTML = originalContent;
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to load page. Please try again.',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        }
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function (event) {
+            if (event.state && event.state.page) {
+                loadPage(event.state.page);
+            } else {
+                location.reload();
+            }
+        });
+
+        // Update stats counts
+        function updateStatsCount(shouldBlock) {
+            // Get current counts by ID
+            const activeCountElement = document.getElementById('activeUsersCount');
+            const blockedCountElement = document.getElementById('blockedUsersCount');
+
+            if (activeCountElement && blockedCountElement) {
+                let activeCount = parseInt(activeCountElement.textContent);
+                let blockedCount = parseInt(blockedCountElement.textContent);
+
+                if (shouldBlock) {
+                    activeCount--;
+                    blockedCount++;
+                } else {
+                    activeCount++;
+                    blockedCount--;
+                }
+
+                // Update with animation
+                animateCount(activeCountElement, activeCount);
+                animateCount(blockedCountElement, blockedCount);
+            }
+        }
+
+        // Animate count change
+        function animateCount(element, newValue) {
+            element.style.transform = 'scale(1.2)';
+            element.style.color = '#6366f1';
+
+            setTimeout(() => {
+                element.textContent = newValue;
+                element.style.transform = 'scale(1)';
+                element.style.color = '#0f172a';
+            }, 200);
+        }
+
+        // Toggle user block/unblock status without page refresh
+        async function toggleUserStatus(userId, shouldBlock, buttonElement) {
+            const action = shouldBlock ? 'block' : 'unblock';
+            const actionText = shouldBlock ? 'Block' : 'Unblock';
+
+            // Show confirmation dialog
+            const result = await Swal.fire({
+                title: `${actionText} User?`,
+                text: `Are you sure you want to ${action} this user?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: shouldBlock ? '#ef4444' : '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: `Yes, ${action}!`,
+                cancelButtonText: 'Cancel'
+            });
+
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            // Disable button and show loading
+            buttonElement.disabled = true;
+            const originalHTML = buttonElement.innerHTML;
+            buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
+
+            try {
+                const url = shouldBlock
+                    ? `/admin/blockCustomer?id=${userId}&page=<%= currentPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>`
+                    : `/admin/unBlockCustomer?id=${userId}&page=<%= currentPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>`;
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    // Find the status badge in the same row
+                    const row = buttonElement.closest('tr');
+                    const statusCell = row.querySelector('td:nth-child(5)');
+
+                    // Update button appearance with correct class names
+                    if (shouldBlock) {
+                        buttonElement.className = 'btn-action-pro btn-unblock-pro';
+                        buttonElement.innerHTML = '<i class="fas fa-check-circle"></i><span>Unblock</span>';
+                        buttonElement.onclick = function () { toggleUserStatus(userId, false, this); };
+                        buttonElement.title = 'Unblock this user';
+
+                        // Update status badge
+                        if (statusCell) {
+                            statusCell.innerHTML = `
+                                <span class="status-badge-pro status-blocked-pro">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Blocked</span>
+                                </span>
+                            `;
+                        }
+                    } else {
+                        buttonElement.className = 'btn-action-pro btn-block-pro';
+                        buttonElement.innerHTML = '<i class="fas fa-ban"></i><span>Block</span>';
+                        buttonElement.onclick = function () { toggleUserStatus(userId, true, this); };
+                        buttonElement.title = 'Block this user';
+
+                        // Update status badge
+                        if (statusCell) {
+                            statusCell.innerHTML = `
+                                <span class="status-badge-pro status-active-pro">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Active</span>
+                                </span>
+                            `;
+                        }
+                    }
+                    buttonElement.disabled = false;
+
+                    // Update stats counts
+                    updateStatsCount(shouldBlock);
+
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: `User ${shouldBlock ? 'blocked' : 'unblocked'} successfully`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    throw new Error('Failed to update user status');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+
+                // Restore button
+                buttonElement.innerHTML = originalHTML;
+                buttonElement.disabled = false;
+
+                // Show error message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to update user status. Please try again.',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        }
+
+        // Clear search function
+        function clearSearch() {
+            const searchInput = document.querySelector('input[name="search"]');
+            if (searchInput) {
+                searchInput.value = '';
+                loadPage(1);
+            }
+        }
+
+        // Handle search form submission without refresh
+        document.querySelector('form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            loadPage(1); // Load first page with search
+        });
+
+        // Optional: Add live search with debounce
+        let searchTimeout;
+        const searchInput = document.querySelector('input[name="search"]');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    // Auto-submit form after 500ms of no typing
+                    // Uncomment below if you want auto-search
+                    // this.form.submit();
+                }, 500);
+            });
+        }
+    </script>
+
+    <%-include("../../views/parsuals/admin/footer")%>

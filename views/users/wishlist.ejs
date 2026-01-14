@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - LapTique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/wishlist.css">
+</head>
+
+<body class="wishlist-body">
+    <%-include("../../views/parsuals/user/header")%>
+    
+    <div class="wishlist-content-wrapper">
+        <div style="margin-top: 70px;"></div>
+        <!-- Wishlist Header -->
+        <div class="wishlist-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1 class="mb-0">
+                            <i class="fas fa-heart me-3"></i>My Wishlist
+                        </h1>
+                        <p class="mb-0 opacity-75">
+                            <% if (totalItems> 0) { %>
+                                <%= totalItems %> item<%= totalItems> 1 ? 's' : '' %> in your wishlist
+                                        <% } else { %>
+                                            Your wishlist is empty
+                                            <% } %>
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="/shop" class="btn btn-light">
+                            <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <% if (wishlistItems && wishlistItems.length> 0) { %>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="wishlist-card">
+                            <% wishlistItems.forEach((item, index)=> { %>
+                                <div class="wishlist-item d-flex align-items-center <%= !item.inStock ? 'disabled-item' : '' %>"
+                                    data-product-id="<%= item.productId._id %>">
+
+                                    <% if (!item.inStock) { %>
+                                        <div class="disabled-overlay">
+                                            <span><i class="fas fa-exclamation-triangle me-2"></i>Out of Stock</span>
+                                        </div>
+                                        <% } %>
+
+                                            <!-- Product Image -->
+                                            <div class="me-3">
+                                                <img src="/Uploads/re-images/<%= item.productId.ProductImages[0] %>"
+                                                    alt="<%= item.productId.productName %>" class="product-image">
+                                            </div>
+
+                                            <!-- Product Details -->
+                                            <div class="flex-grow-1">
+                                                <a href="/product/<%= item.productId._id %>" class="product-title h5">
+                                                    <%= item.productId.productName %>
+                                                </a>
+                                                <div class="product-brand">
+                                                    <i class="fas fa-tag me-1"></i>
+                                                    Brand: <%= item.productId.brand.name %>
+                                                </div>
+                                                <div class="product-brand">
+                                                    <i class="fas fa-layer-group me-1"></i>
+                                                    Category: <%= item.productId.category.name %>
+                                                </div>
+
+                                                <!-- Price -->
+                                                <div class="product-price">
+                                                    ₹<%= item.minPrice.toLocaleString() %>
+                                                        <% if (item.minPrice !==item.maxPrice) { %>
+                                                            - ₹<%= item.maxPrice.toLocaleString() %>
+                                                                <% } %>
+                                                                    <% if (item.hasDiscount) { %>
+                                                                        <% const
+                                                                            originalVariant=item.productId.variants.find(v=>
+                                                                            v.regularPrice > v.salePrice); %>
+                                                                            <% if (originalVariant) { %>
+                                                                                <span class="original-price">₹<%=
+                                                                                        originalVariant.regularPrice.toLocaleString()
+                                                                                        %></span>
+                                                                                <span class="discount-badge">
+                                                                                    <%= Math.round(((originalVariant.regularPrice
+                                                                                        - originalVariant.salePrice) /
+                                                                                        originalVariant.regularPrice) *
+                                                                                        100) %>% OFF
+                                                                                </span>
+                                                                                <% } %>
+                                                                                    <% } %>
+                                                </div>
+
+                                                <!-- Stock Info -->
+                                                <div class="stock-info">
+                                                    <% if (item.totalStock===0) { %>
+                                                        <span class="stock-out">
+                                                            <i class="fas fa-times-circle me-1"></i>Out of Stock
+                                                        </span>
+                                                        <% } else if (item.totalStock <=5) { %>
+                                                            <span class="stock-low">
+                                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                                Only <%= item.totalStock %> left in stock
+                                                            </span>
+                                                            <% } else { %>
+                                                                <span class="stock-good">
+                                                                    <i class="fas fa-check-circle me-1"></i>In Stock
+                                                                </span>
+                                                                <% } %>
+                                                </div>
+
+                                                <!-- Variant Selector -->
+                                                <% if (item.productId.variants.length> 1) { %>
+                                                    <div class="variant-selector">
+                                                        <small class="text-muted d-block mb-2">Select Storage:</small>
+                                                        <% item.productId.variants.forEach((variant, vIndex)=> { %>
+                                                            <span
+                                                                class="variant-option <%= vIndex === 0 ? 'active' : '' %> <%= variant.quantity === 0 ? 'disabled' : '' %>"
+                                                                data-variant-id="<%= variant.storage %>"
+                                                                data-quantity="<%= variant.quantity %>"
+                                                                onclick="selectVariant(this, '<%= item.productId._id %>')">
+                                                                <%= variant.storage %>
+                                                            </span>
+                                                            <% }) %>
+                                                    </div>
+                                                    <% } %>
+
+                                                        <!-- Added Date -->
+                                                        <div class="added-date">
+                                                            <i class="fas fa-calendar-plus me-1"></i>
+                                                            Added on <%= new Date(item.addOn).toLocaleDateString() %>
+                                                        </div>
+                                            </div>
+
+                                            <!-- Action Buttons -->
+                                            <div class="action-buttons">
+                                                <button class="btn-move-cart" <%=!item.inStock ? 'disabled' : '' %>
+                                                    data-product-id="<%= item.productId._id %>"
+                                                        data-variants-count="<%= item.productId.variants ?
+                                                            item.productId.variants.length : 0 %>"
+                                                            data-default-variant-storage="<%= item.productId.variants &&
+                                                                item.productId.variants.length===1 ?
+                                                                item.productId.variants[0].storage : '' %>"
+                                                                <%= !item.inStock ? 'disabled' : '' %>
+                                                                    onclick="moveToCart('<%= item.productId._id %>',
+                                                                        this)">
+                                                                        <i class="fas fa-shopping-cart me-1"></i>
+                                                                        <%= !item.inStock ? 'Out of Stock'
+                                                                            : 'Move to Cart' %>
+                                                </button>
+                                                <a href="/product/<%= item.productId._id %>" class="btn-view">
+                                                    <i class="fas fa-eye me-1"></i>View
+                                                </a>
+                                                <button class="btn-remove"
+                                                    onclick="removeFromWishlist('<%= item.productId._id %>', this)">
+                                                    <i class="fas fa-trash me-1"></i>Remove
+                                                </button>
+                                            </div>
+                                </div>
+                                <% }) %>
+
+                                    <!-- Clear Wishlist Button -->
+                                    <div class="text-end mt-3">
+                                        <button class="btn btn-outline-danger" id="clearWishlistBtn">
+                                            <i class="fas fa-trash me-2"></i>Clear Wishlist
+                                        </button>
+                                    </div>
+                        </div>
+                    </div>
+                </div>
+                <% } else { %>
+                    <!-- Empty Wishlist -->
+                    <div class="wishlist-card">
+                        <div class="empty-wishlist">
+                            <i class="fas fa-heart-broken"></i>
+                            <h3 class="mb-3">Your wishlist is empty</h3>
+                            <p class="text-muted mb-4">
+                                Save your favorite items to your wishlist and never lose track of what you love!
+                            </p>
+                            <a href="/shop" class="continue-shopping">
+                                <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+                            </a>
+                        </div>
+                    </div>
+                    <% } %>
+        </div>
+    </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            // Global variables to track selected variants
+            const selectedVariants = window.selectedVariants || {};
+
+            // Initialize selected variants
+            document.addEventListener('DOMContentLoaded', function () {
+                // Set default variants for each product
+                document.querySelectorAll('.wishlist-item').forEach(item => {
+                    const productId = item.dataset.productId;
+                    const firstVariant = item.querySelector('.variant-option.active');
+                    if (firstVariant) {
+                        selectedVariants[productId] = firstVariant.dataset.variantId;
+                    } else {
+                        // If no variants, use the first available variant from the product
+                        const firstAvailableVariant = item.querySelector('.variant-option');
+                        if (firstAvailableVariant) {
+                            selectedVariants[productId] = firstAvailableVariant.dataset.variantId;
+                        }
+                    }
+                });
+
+                // Clear wishlist button
+                document.getElementById('clearWishlistBtn')?.addEventListener('click', () => {
+                    confirmClearWishlist();
+                });
+            });
+
+            // Select variant function
+            function selectVariant(element, productId) {
+                if (element.classList.contains('disabled')) return;
+
+                // Remove active class from siblings
+                const siblings = element.parentNode.querySelectorAll('.variant-option');
+                siblings.forEach(sibling => sibling.classList.remove('active'));
+
+                // Add active class to selected
+                element.classList.add('active');
+
+                // Update selected variant
+                selectedVariants[productId] = element.dataset.variantId;
+
+                // Update move to cart button based on stock
+                const quantity = parseInt(element.dataset.quantity);
+                const moveBtn = document.querySelector(`[data-product-id="${productId}"].btn-move-cart`);
+
+                if (moveBtn) {
+                    if (quantity === 0) {
+                        moveBtn.disabled = true;
+                        moveBtn.innerHTML = '<i class="fas fa-times me-1"></i>Out of Stock';
+                    } else {
+                        moveBtn.disabled = false;
+                        moveBtn.innerHTML = '<i class="fas fa-shopping-cart me-1"></i>Move to Cart';
+                    }
+                }
+            }
+
+            // Move to cart function
+            // selectedVariants should map productId -> chosenVariantStorage (you likely already have this)
+             // keep current behavior
+
+            async function moveToCart(productId, buttonElement) {
+                // read data-attributes set in EJS
+                const variantsCount = Number(buttonElement.dataset.variantsCount || 0);
+                const defaultVariantStorage = buttonElement.dataset.defaultVariantStorage || null;
+
+                // try explicit selection first
+                let variantId = selectedVariants[productId]; // this is the storage string in your app
+                // fallback: if there is only one variant, use the default variant storage
+                if (!variantId) {
+                    if (variantsCount === 1 && defaultVariantStorage) {
+                        variantId = defaultVariantStorage;
+                    } else {
+                        showAlert('Please select a variant first', 'warning');
+                        return;
+                    }
+                }
+
+                const originalText = buttonElement.innerHTML;
+                try {
+                    buttonElement.disabled = true;
+                    buttonElement.classList.add('btn-loading');
+                    buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Moving...';
+
+                    const response = await fetch('/wishlist/move-to-cart', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId, variantId }) // variantId is the storage string
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const wishlistItem = buttonElement.closest('.wishlist-item');
+                        if (wishlistItem) wishlistItem.remove();
+
+                        // update header counts (you already have this)
+                        updateHeaderCounts(data.cartCount, data.wishlistCount);
+                        updateWishlistHeader(data.wishlistCount);
+
+                        // Update localStorage
+                        removeFromWishlistStorage(productId);
+                        
+                        // Trigger storage event for other tabs
+                        localStorage.setItem('wishlistUpdate', Date.now().toString());
+
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Moved to Cart!',
+                            text: data.message || 'Item successfully moved to your cart',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        if (data.wishlistCount === 0) {
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message || 'Unable to move item to cart',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error moving to cart:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to move item to cart. Please try again.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                } finally {
+                    buttonElement.disabled = false;
+                    buttonElement.classList.remove('btn-loading');
+                    buttonElement.innerHTML = originalText;
+                }
+            }
+
+
+            // Confirm clear wishlist with SweetAlert
+            async function confirmClearWishlist() {
+                const result = await Swal.fire({
+                    title: 'Clear Wishlist?',
+                    html: 'Are you sure you want to remove <strong>all items</strong> from your wishlist?<br><small class="text-muted">This action cannot be undone.</small>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="fas fa-trash me-2"></i>Yes, Clear All',
+                    cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'btn-swal-confirm',
+                        cancelButton: 'btn-swal-cancel'
+                    }
+                });
+
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Clearing Wishlist...',
+                        html: 'Please wait while we clear your wishlist.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    await clearWishlist();
+                }
+            }
+
+            // Remove from wishlist function
+            async function removeFromWishlist(productId, buttonElement) {
+                const result = await Swal.fire({
+                    title: 'Remove from Wishlist?',
+                    html: 'Are you sure you want to remove this item from your wishlist?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="fas fa-trash me-2"></i>Yes, Remove',
+                    cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'btn-swal-confirm',
+                        cancelButton: 'btn-swal-cancel'
+                    }
+                });
+
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                const originalText = buttonElement.innerHTML;
+
+                try {
+                    // Show loading state
+                    buttonElement.disabled = true;
+                    buttonElement.classList.add('btn-loading');
+                    buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Removing...';
+
+                    const response = await fetch('/wishlist/remove', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            productId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Remove item from wishlist display
+                        const wishlistItem = buttonElement.closest('.wishlist-item');
+                        wishlistItem.remove();
+
+                        // Update wishlist count
+                        updateHeaderWishlistCount(data.wishlistCount);
+
+                        // Update header text
+                        updateWishlistHeader(data.wishlistCount);
+
+                        // Update localStorage
+                        removeFromWishlistStorage(productId);
+                        
+                        // Trigger storage event for other tabs
+                        localStorage.setItem('wishlistUpdate', Date.now().toString());
+
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Removed!',
+                            text: data.message || 'Item removed from wishlist',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        // Check if wishlist is empty
+                        if (data.wishlistCount === 0) {
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message || 'Failed to remove item',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error removing from wishlist:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to remove item from wishlist. Please try again.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                } finally {
+                    // Reset button state
+                    buttonElement.disabled = false;
+                    buttonElement.classList.remove('btn-loading');
+                    buttonElement.innerHTML = originalText;
+                }
+            }
+
+            // Clear wishlist function
+            async function clearWishlist() {
+                try {
+                    const response = await fetch('/wishlist/clear', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Wishlist Cleared!',
+                            text: 'All items have been removed from your wishlist.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: data.message || 'Failed to clear wishlist',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error clearing wishlist:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to clear wishlist. Please try again.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            }
+
+            // Update header counts
+            function updateHeaderCounts(cartCount, wishlistCount) {
+                updateHeaderCartCount(cartCount);
+                updateHeaderWishlistCount(wishlistCount);
+            }
+
+            // Update header cart count
+            function updateHeaderCartCount(count) {
+                const cartCountElements = document.querySelectorAll('.cart-count');
+                cartCountElements.forEach(element => {
+                    element.textContent = count;
+                    element.style.display = count > 0 ? 'inline' : 'none';
+                });
+            }
+
+            // Update header wishlist count
+            function updateHeaderWishlistCount(count) {
+                const wishlistCountElements = document.querySelectorAll('.wishlist-count');
+                wishlistCountElements.forEach(element => {
+                    element.textContent = count;
+                    element.style.display = count > 0 ? 'inline' : 'none';
+                });
+            }
+
+            // Update wishlist header text
+            function updateWishlistHeader(count) {
+                const headerText = document.querySelector('.wishlist-header p');
+                if (headerText) {
+                    if (count > 0) {
+                        headerText.textContent = `${count} item${count > 1 ? 's' : ''} in your wishlist`;
+                    } else {
+                        headerText.textContent = 'Your wishlist is empty';
+                    }
+                }
+            }
+
+            // Show alert function
+            function showAlert(message, type) {
+                // Remove existing alerts
+                const existingAlerts = document.querySelectorAll('.custom-alert');
+                existingAlerts.forEach(alert => alert.remove());
+
+                // Create alert element
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show custom-alert`;
+                alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
+                alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+                document.body.appendChild(alertDiv);
+
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+
+            // LocalStorage helper functions
+            function removeFromWishlistStorage(productId) {
+                try {
+                    const wishlist = JSON.parse(localStorage.getItem('userWishlist') || '[]');
+                    const updated = wishlist.filter(id => id !== productId);
+                    localStorage.setItem('userWishlist', JSON.stringify(updated));
+                } catch (e) {
+                    console.error('Storage error:', e);
+                }
+            }
+        </script>
+
+        <%-include("../../views/parsuals/user/footer")%>
+</body>
+
+</html>

@@ -1,0 +1,474 @@
+<%-include("../../views/parsuals/admin/header")%>
+    <!-- Main Content -->
+    <div class="col-md-10 p-0">
+        <div class="topbar-brand">
+            <div class="topbar-content-brand">
+                <div class="topbar-left-brand">
+                    <div class="page-title-wrapper-brand">
+                        <i class="fas fa-award"></i>
+                        <div>
+                            <h4>Brand Management</h4>
+                            <p class="subtitle">Manage and organize product brands</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="topbar-right-brand">
+                    <form action="/admin/brands" method="GET" class="search-form-brand" id="searchForm">
+                        <div class="search-input-wrapper-brand">
+                            <i class="fas fa-search search-icon-brand"></i>
+                            <input type="text" name="search" class="search-input-brand" id="searchInput"
+                                placeholder="Search brands by name..." 
+                                value="<%= search || '' %>">
+                            <% if (search) { %>
+                                <button type="button" class="clear-search-brand" id="clearSearchBtn">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            <% } %>
+                        </div>
+                        <button type="submit" class="btn-search-brand">
+                            <i class="fas fa-search"></i>
+                            <span>Search</span>
+                        </button>
+                    </form>
+                    <a href="/admin/createBrand" class="btn-add-brand">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Brand</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper-brand">
+            <!-- Stats Cards -->
+            <div class="stats-grid-brand" id="statsGrid">
+                <div class="stats-card-brand">
+                    <div class="stats-card-header-brand">
+                        <div class="stats-icon-brand bg-gradient-primary-brand">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <div class="stats-badge-brand">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="stats-card-body-brand">
+                        <h3 class="stats-number-brand" id="totalBrandsCount"><%= brandData.length %></h3>
+                        <p class="stats-label-brand">Total Brands</p>
+                        <div class="stats-footer-brand">
+                            <span class="stats-info-brand">On this page</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-card-brand">
+                    <div class="stats-card-header-brand">
+                        <div class="stats-icon-brand bg-gradient-success-brand">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stats-badge-brand success">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="stats-card-body-brand">
+                        <h3 class="stats-number-brand" id="activeBrandsCount"><%= brandData.filter(b => !b.isBlocked).length %></h3>
+                        <p class="stats-label-brand">Active Brands</p>
+                        <div class="stats-footer-brand">
+                            <span class="stats-info-brand">Currently active</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-card-brand">
+                    <div class="stats-card-header-brand">
+                        <div class="stats-icon-brand bg-gradient-danger-brand">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="stats-badge-brand danger">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                    <div class="stats-card-body-brand">
+                        <h3 class="stats-number-brand" id="blockedBrandsCount"><%= brandData.filter(b => b.isBlocked).length %></h3>
+                        <p class="stats-label-brand">Blocked Brands</p>
+                        <div class="stats-footer-brand">
+                            <span class="stats-info-brand">Currently blocked</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brand List Card -->
+            <div class="professional-card-brand">
+                <div class="card-header-brand" id="cardHeader">
+                    <div class="header-left-brand">
+                        <h5><i class="fas fa-list me-2"></i>Brand List</h5>
+                        <span class="header-subtitle-brand" id="showingCount">Showing <%= brandData.length %> brands</span>
+                    </div>
+                    <div class="header-right-brand">
+                        <span class="badge-brand bg-primary" id="recordsBadge">
+                            <i class="fas fa-database me-1"></i>
+                            <%= brandData.length %> Records
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="brands-grid" id="brandsGrid">
+                    <% if(brandData.length === 0) { %>
+                        <div class="empty-state-brand">
+                            <div class="empty-content-brand">
+                                <i class="fas fa-award"></i>
+                                <h5>No Brands Found</h5>
+                                <p>There are no brands matching your search criteria.</p>
+                                <a href="/admin/createBrand" class="btn-add-brand">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Add Your First Brand</span>
+                                </a>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <% brandData.reverse().forEach((brand, index) => { %>
+                            <div class="brand-card">
+                                <div class="brand-card-header">
+                                    <div class="brand-logo-wrapper">
+                                        <img src="/uploads/re-images/<%= brand.BrandImage %>" 
+                                            alt="<%= brand.name %>" 
+                                            class="brand-logo">
+                                    </div>
+                                    <% if(!brand.isBlocked) { %>
+                                        <span class="brand-status-badge status-active-brand">
+                                            <span class="status-dot-brand"></span>
+                                            <span>Active</span>
+                                        </span>
+                                    <% } else { %>
+                                        <span class="brand-status-badge status-inactive-brand">
+                                            <span class="status-dot-brand"></span>
+                                            <span>Blocked</span>
+                                        </span>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="brand-card-body">
+                                    <h6 class="brand-name"><%= brand.name %></h6>
+                                    <p class="brand-id">ID: <%= brand._id.toString().slice(-8) %></p>
+                                </div>
+                                
+                                <div class="brand-card-footer">
+                                    <% if(!brand.isBlocked) { %>
+                                        <a href="javascript:void(0)" 
+                                            class="btn-brand-action btn-unblock-brand"
+                                            onclick="blockBrandAjax('<%=brand._id%>', '<%=brand.name%>')">
+                                            <i class="fas fa-ban"></i>
+                                            <span>Block</span>
+                                        </a>
+                                    <% } else { %>
+                                        <a href="javascript:void(0)" 
+                                            class="btn-brand-action btn-activate-brand"
+                                            onclick="unblockBrandAjax('<%=brand._id%>', '<%=brand.name%>')">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Unblock</span>
+                                        </a>
+                                    <% } %>
+                                    <a href="javascript:void(0)" 
+                                        class="btn-brand-action btn-delete-brand"
+                                        onclick="deleteBrandAjax('<%=brand._id%>', '<%=brand.name%>')">
+                                        <i class="fas fa-trash-alt"></i>
+                                        <span>Delete</span>
+                                    </a>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+
+                <!-- Pagination -->
+                <% if(totalPage > 1) { %>
+                    <div class="pagination-wrapper-brand" id="paginationWrapper">
+                        <nav aria-label="Brand pagination">
+                            <ul class="pagination-brand" id="paginationList">
+                                <!-- Previous Button -->
+                                <% if(currentPages > 1) { %>
+                                    <li class="page-item-brand">
+                                        <a class="page-link-brand page-prev-brand" 
+                                            href="?page=<%= currentPages - 1 %><%= search ? '&search=' + search : '' %>">
+                                            <i class="fas fa-chevron-left"></i>
+                                            <span>Previous</span>
+                                        </a>
+                                    </li>
+                                <% } else { %>
+                                    <li class="page-item-brand disabled">
+                                        <span class="page-link-brand page-prev-brand">
+                                            <i class="fas fa-chevron-left"></i>
+                                            <span>Previous</span>
+                                        </span>
+                                    </li>
+                                <% } %>
+
+                                <!-- First Page -->
+                                <% if(totalPage > 0) { %>
+                                    <li class="page-item-brand <%= currentPages === 1 ? 'active' : '' %>">
+                                        <a class="page-link-brand" href="?page=1<%= search ? '&search=' + search : '' %>">1</a>
+                                    </li>
+                                <% } %>
+
+                                <!-- Left Ellipsis -->
+                                <% if(currentPages > 3) { %>
+                                    <li class="page-item-brand disabled">
+                                        <span class="page-link-brand">...</span>
+                                    </li>
+                                <% } %>
+
+                                <!-- Middle Pages -->
+                                <% 
+                                    let startPage = Math.max(2, currentPages - 1);
+                                    let endPage = Math.min(totalPage - 1, currentPages + 1);
+                                    for(let i = startPage; i <= endPage; i++) { 
+                                %>
+                                    <li class="page-item-brand <%= currentPages === i ? 'active' : '' %>">
+                                        <a class="page-link-brand" href="?page=<%= i %><%= search ? '&search=' + search : '' %>">
+                                            <%= i %>
+                                        </a>
+                                    </li>
+                                <% } %>
+
+                                <!-- Right Ellipsis -->
+                                <% if(currentPages < totalPage - 2) { %>
+                                    <li class="page-item-brand disabled">
+                                        <span class="page-link-brand">...</span>
+                                    </li>
+                                <% } %>
+
+                                <!-- Last Page -->
+                                <% if(totalPage > 1) { %>
+                                    <li class="page-item-brand <%= currentPages === totalPage ? 'active' : '' %>">
+                                        <a class="page-link-brand" href="?page=<%= totalPage %><%= search ? '&search=' + search : '' %>">
+                                            <%= totalPage %>
+                                        </a>
+                                    </li>
+                                <% } %>
+
+                                <!-- Next Button -->
+                                <% if(currentPages < totalPage) { %>
+                                    <li class="page-item-brand">
+                                        <a class="page-link-brand page-next-brand" 
+                                            href="?page=<%= currentPages + 1 %><%= search ? '&search=' + search : '' %>">
+                                            <span>Next</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                <% } else { %>
+                                    <li class="page-item-brand disabled">
+                                        <span class="page-link-brand page-next-brand">
+                                            <span>Next</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                        
+                        <!-- Page Info -->
+                        <div class="page-info-brand">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Page <strong><%= currentPages %></strong> of <strong><%= totalPage %></strong></span>
+                            <span class="separator">•</span>
+                            <span>Total <strong><%= brandData.length %></strong> brands</span>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Brand AJAX Script -->
+    <script src="/js/brandAjax.js"></script>
+
+    <script>
+        function clearBrandSearch() {
+            const searchInput = document.querySelector('input[name="search"]');
+            if (searchInput) {
+                searchInput.value = '';
+                loadBrands(1, '');
+            }
+        }
+
+        // SweetAlert for Block Brand
+        function confirmBlockBrand(brandId, page, brandName) {
+            Swal.fire({
+                title: 'Block Brand?',
+                html: `Are you sure you want to block <strong>${brandName}</strong>?<br><small>This brand will be hidden from users.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-ban me-2"></i>Yes, Block it!',
+                cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn-swal-confirm',
+                    cancelButton: 'btn-swal-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Blocking Brand...',
+                        html: 'Please wait while we process your request.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Redirect to block endpoint
+                    window.location.href = `/admin/blockBrand?id=${brandId}&page=${page}`;
+                }
+            });
+        }
+
+        // SweetAlert for Unblock Brand
+        function confirmUnblockBrand(brandId, page, brandName) {
+            Swal.fire({
+                title: 'Unblock Brand?',
+                html: `Are you sure you want to unblock <strong>${brandName}</strong>?<br><small>This brand will be visible to users again.</small>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-check-circle me-2"></i>Yes, Unblock it!',
+                cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn-swal-confirm',
+                    cancelButton: 'btn-swal-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Unblocking Brand...',
+                        html: 'Please wait while we process your request.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Redirect to unblock endpoint
+                    window.location.href = `/admin/unBlockBrand?id=${brandId}&page=${page}`;
+                }
+            });
+        }
+
+        // SweetAlert for Delete Brand
+        function confirmDeleteBrand(brandId, page, brandName) {
+            Swal.fire({
+                title: 'Delete Brand?',
+                html: `Are you sure you want to delete <strong>${brandName}</strong>?<br><small class="text-danger">⚠️ This action cannot be undone!</small>`,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-trash-alt me-2"></i>Yes, Delete it!',
+                cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn-swal-confirm',
+                    cancelButton: 'btn-swal-cancel'
+                },
+                footer: '<span style="color: #ef4444;">⚠️ Warning: All products associated with this brand may be affected.</span>'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Deleting Brand...',
+                        html: 'Please wait while we process your request.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Redirect to delete endpoint
+                    window.location.href = `/admin/deleteBrand?id=${brandId}&page=${page}`;
+                }
+            });
+        }
+
+        // Check for success/error messages in URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            const action = urlParams.get('action');
+
+            if (status === 'success' && action) {
+                let title = 'Success!';
+                let message = '';
+                
+                switch(action) {
+                    case 'blocked':
+                        title = 'Brand Blocked!';
+                        message = 'The brand has been blocked successfully.';
+                        break;
+                    case 'unblocked':
+                        title = 'Brand Unblocked!';
+                        message = 'The brand has been unblocked successfully.';
+                        break;
+                    case 'deleted':
+                        title = 'Brand Deleted!';
+                        message = 'The brand has been deleted successfully.';
+                        break;
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: title,
+                    text: message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+
+    <style>
+        /* SweetAlert Custom Styles */
+        .btn-swal-confirm,
+        .btn-swal-cancel {
+            padding: 10px 24px !important;
+            font-weight: 700 !important;
+            border-radius: 10px !important;
+            font-size: 14px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+
+        .swal2-popup {
+            border-radius: 16px !important;
+            padding: 24px !important;
+        }
+
+        .swal2-title {
+            font-size: 24px !important;
+            font-weight: 800 !important;
+            color: #1e293b !important;
+        }
+
+        .swal2-html-container {
+            font-size: 15px !important;
+            color: #64748b !important;
+        }
+
+        .swal2-icon {
+            border-width: 3px !important;
+        }
+    </style>
+
+    <%-include("../../views/parsuals/admin/footer")%>

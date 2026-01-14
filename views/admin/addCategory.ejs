@@ -1,0 +1,268 @@
+<%-include("../../views/parsuals/admin/header")%>
+
+<!-- Main Content Area -->
+<div class="col-md-10 p-0">
+    <!-- Modern Page Header -->
+    <div class="modern-page-header-category">
+        <div class="header-content-category">
+            <div class="header-left-category">
+                <div class="header-icon-category">
+                    <i class="fas fa-<%= category ? 'edit' : 'plus-circle' %>"></i>
+                </div>
+                <div>
+                    <h1><%= category ? 'Update Category' : 'Add New Category' %></h1>
+                    <p><%= category ? 'Edit category details and description' : 'Create a new product category' %></p>
+                </div>
+            </div>
+            <div class="header-actions-category">
+                <a href="/admin/category" class="btn-back-category">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Categories</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Form Container -->
+    <div class="category-form-container">
+        <form id="categoryForm" novalidate>
+            <% if (category) { %>
+                <input type="hidden" id="categoryId" name="id" value="<%= category._id %>">
+            <% } %>
+            
+            <!-- Category Information Card -->
+            <div class="form-card-category">
+                <div class="card-header-custom-category">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Category Information</h3>
+                </div>
+                <div class="card-body-custom-category">
+                    <!-- Category Name -->
+                    <div class="form-group-modern-category">
+                        <label for="categoryName" class="form-label-modern-category">
+                            <i class="fas fa-tag"></i>
+                            Category Name
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" 
+                            id="categoryName" 
+                            class="form-control-modern-category" 
+                            name="categoryName"
+                            placeholder="Enter category name (e.g., Laptops, Smartphones)" 
+                            required 
+                            minlength="2" 
+                            maxlength="50"
+                            value="<%= category ? category.name : '' %>">
+                        <div class="invalid-feedback-category">Category name must be between 2 and 50 characters</div>
+                        <div class="char-count-category"><span id="nameCharCount">0</span>/50</div>
+                        <div class="help-text-category">
+                            <i class="fas fa-info-circle"></i>
+                            Use only letters and spaces
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group-modern-category">
+                        <label for="description" class="form-label-modern-category">
+                            <i class="fas fa-align-left"></i>
+                            Description
+                            <span class="required">*</span>
+                        </label>
+                        <textarea 
+                            id="description" 
+                            class="form-control-modern-category textarea-category" 
+                            name="description"
+                            placeholder="Enter a detailed description of this category..." 
+                            required 
+                            minlength="10" 
+                            maxlength="500"
+                            rows="5"><%= category ? category.description : '' %></textarea>
+                        <div class="invalid-feedback-category">Description must be between 10 and 500 characters</div>
+                        <div class="char-count-category"><span id="descCharCount">0</span>/500</div>
+                        <div class="help-text-category">
+                            <i class="fas fa-lightbulb"></i>
+                            Provide a clear description to help users understand this category
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions-category">
+                <button type="submit" class="btn-submit-category" id="submitBtn">
+                    <i class="fas fa-<%= category ? 'save' : 'check-circle' %>"></i>
+                    <span><%= category ? 'Update Category' : 'Add Category' %></span>
+                    <div class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </button>
+                <a href="/admin/category" class="btn-cancel-category">
+                    <i class="fas fa-times"></i>
+                    <span>Cancel</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('categoryForm');
+        const categoryNameInput = document.getElementById('categoryName');
+        const descriptionInput = document.getElementById('description');
+        const submitBtn = document.getElementById('submitBtn');
+        const nameCharCount = document.getElementById('nameCharCount');
+        const descCharCount = document.getElementById('descCharCount');
+        const isUpdate = <%= category ? 'true' : 'false' %>;
+
+        // Initialize character counters
+        nameCharCount.textContent = categoryNameInput.value.length;
+        descCharCount.textContent = descriptionInput.value.length;
+
+        // Character counter for name
+        categoryNameInput.addEventListener('input', function() {
+            const length = this.value.length;
+            nameCharCount.textContent = length;
+            
+            if (length > 50) {
+                this.value = this.value.substring(0, 50);
+                nameCharCount.textContent = 50;
+            }
+        });
+
+        // Character counter for description
+        descriptionInput.addEventListener('input', function() {
+            const length = this.value.length;
+            descCharCount.textContent = length;
+            
+            if (length > 500) {
+                this.value = this.value.substring(0, 500);
+                descCharCount.textContent = 500;
+            }
+        });
+
+        // Form validation and submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            clearErrors();
+            
+            let isValid = true;
+
+            // Validate category name
+            const categoryName = categoryNameInput.value.trim();
+            if (categoryName === '') {
+                showFieldError(categoryNameInput, 'Category name is required');
+                isValid = false;
+            } else if (categoryName.length < 2) {
+                showFieldError(categoryNameInput, 'Category name must be at least 2 characters');
+                isValid = false;
+            } else if (categoryName.length > 50) {
+                showFieldError(categoryNameInput, 'Category name must not exceed 50 characters');
+                isValid = false;
+            } else if (!/^[a-zA-Z\s&'-]+$/.test(categoryName)) {
+                showFieldError(categoryNameInput, 'Category name can only contain letters, spaces, and &\'-');
+                isValid = false;
+            }
+
+            // Validate description
+            const description = descriptionInput.value.trim();
+            if (description === '') {
+                showFieldError(descriptionInput, 'Description is required');
+                isValid = false;
+            } else if (description.length < 10) {
+                showFieldError(descriptionInput, 'Description must be at least 10 characters');
+                isValid = false;
+            } else if (description.length > 500) {
+                showFieldError(descriptionInput, 'Description must not exceed 500 characters');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                return false;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.querySelector('.spinner-border').style.display = 'inline-block';
+            submitBtn.querySelector('span').textContent = isUpdate ? 'Updating...' : 'Adding...';
+
+            // Prepare data
+            const formData = {
+                categoryName: categoryName,
+                description: description
+            };
+
+            if (isUpdate) {
+                formData.id = document.getElementById('categoryId').value;
+            }
+
+            try {
+                const response = await fetch('/admin/addCategory', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to save category');
+                }
+
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: isUpdate ? 'Category Updated!' : 'Category Added!',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Redirect to category listing
+                    window.location.href = '/admin/category';
+                });
+
+            } catch (error) {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.querySelector('.spinner-border').style.display = 'none';
+                submitBtn.querySelector('span').textContent = isUpdate ? 'Update Category' : 'Add Category';
+
+                // Show error message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: error.message || 'An error occurred while saving the category',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        });
+
+        function showFieldError(input, message) {
+            input.classList.add('is-invalid');
+            const feedback = input.nextElementSibling;
+            if (feedback && feedback.classList.contains('invalid-feedback-category')) {
+                feedback.textContent = message;
+                feedback.style.display = 'block';
+            }
+        }
+
+        function clearErrors() {
+            const inputs = form.querySelectorAll('.form-control-modern-category');
+            inputs.forEach(input => {
+                input.classList.remove('is-invalid');
+            });
+            const feedbacks = form.querySelectorAll('.invalid-feedback-category');
+            feedbacks.forEach(feedback => {
+                feedback.style.display = 'none';
+            });
+        }
+    });
+</script>
+
+<%-include("../../views/parsuals/admin/footer")%>

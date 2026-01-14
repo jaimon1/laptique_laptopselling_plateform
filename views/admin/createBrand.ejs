@@ -1,0 +1,321 @@
+<%-include("../../views/parsuals/admin/header")%>
+
+<!-- Main Content Area -->
+<div class="col-md-10 p-0">
+    <!-- Modern Page Header -->
+    <div class="modern-page-header-brand">
+        <div class="header-content-brand">
+            <div class="header-left-brand">
+                <div class="header-icon-brand">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div>
+                    <h1>Add New Brand</h1>
+                    <p>Create a new brand with logo and details</p>
+                </div>
+            </div>
+            <div class="header-actions-brand">
+                <a href="/admin/brands" class="btn-back-brand">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Brands</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Brand Form Container -->
+    <div class="brand-form-container">
+        <form id="brandForm" action="/admin/createBrand" method="POST" enctype="multipart/form-data" novalidate>
+            
+            <!-- Brand Information Card -->
+            <div class="form-card-brand">
+                <div class="card-header-custom-brand">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Brand Information</h3>
+                </div>
+                <div class="card-body-custom-brand">
+                    <!-- Brand Name -->
+                    <div class="form-group-modern-brand">
+                        <label for="brandName" class="form-label-modern-brand">
+                            <i class="fas fa-tag"></i>
+                            Brand Name
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" 
+                            id="brandName" 
+                            class="form-control-modern-brand" 
+                            name="name"
+                            placeholder="Enter brand name (e.g., Apple, Samsung)" 
+                            required 
+                            minlength="2" 
+                            maxlength="40">
+                        <div class="invalid-feedback-brand">Brand name must be between 2 and 40 characters</div>
+                        <div class="char-count-brand"><span id="nameCharCount">0</span>/40</div>
+                        <div class="help-text-brand">
+                            <i class="fas fa-info-circle"></i>
+                            Use only letters, numbers, and spaces
+                        </div>
+                    </div>
+
+                    <!-- Brand Logo -->
+                    <div class="form-group-modern-brand">
+                        <label for="brandLogo" class="form-label-modern-brand">
+                            <i class="fas fa-image"></i>
+                            Brand Logo
+                            <span class="required">*</span>
+                        </label>
+                        <div class="image-upload-area-brand" id="imageUploadArea">
+                            <input type="file" 
+                                id="brandLogo" 
+                                name="logo" 
+                                accept="image/*" 
+                                required
+                                style="display: none;">
+                            <div class="upload-placeholder-brand" id="uploadPlaceholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h4>Click to upload or drag and drop</h4>
+                                <p>PNG, JPG, WEBP (Max 5MB)</p>
+                                <p class="recommended">Recommended: 500x500px square image</p>
+                            </div>
+                            <div class="image-preview-brand" id="imagePreview" style="display: none;">
+                                <img id="previewImg" src="" alt="Brand Logo Preview">
+                                <div class="preview-overlay-brand">
+                                    <button type="button" class="btn-change-image-brand" id="changeImageBtn">
+                                        <i class="fas fa-sync-alt"></i>
+                                        Change Image
+                                    </button>
+                                    <button type="button" class="btn-remove-image-brand" id="removeImageBtn">
+                                        <i class="fas fa-trash-alt"></i>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="invalid-feedback-brand" id="imageError">Please upload a brand logo</div>
+                        <div class="help-text-brand">
+                            <i class="fas fa-lightbulb"></i>
+                            Upload a clear, high-quality logo for best results
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions-brand">
+                <button type="submit" class="btn-submit-brand" id="submitBtn">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Add Brand</span>
+                    <div class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </button>
+                <a href="/admin/brands" class="btn-cancel-brand">
+                    <i class="fas fa-times"></i>
+                    <span>Cancel</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+    // Form validation and submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('brandForm');
+        const brandNameInput = document.getElementById('brandName');
+        const brandLogoInput = document.getElementById('brandLogo');
+        const submitBtn = document.getElementById('submitBtn');
+        const imageUploadArea = document.getElementById('imageUploadArea');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const changeImageBtn = document.getElementById('changeImageBtn');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+        const nameCharCount = document.getElementById('nameCharCount');
+
+        // Character counter
+        brandNameInput.addEventListener('input', function() {
+            const length = this.value.length;
+            nameCharCount.textContent = length;
+            
+            if (length > 40) {
+                this.value = this.value.substring(0, 40);
+                nameCharCount.textContent = 40;
+            }
+        });
+
+        // Image upload handling
+        imageUploadArea.addEventListener('click', function(e) {
+            if (!e.target.closest('.btn-change-image-brand') && !e.target.closest('.btn-remove-image-brand')) {
+                brandLogoInput.click();
+            }
+        });
+
+        // Drag and drop
+        imageUploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+
+        imageUploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('dragover');
+        });
+
+        imageUploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                brandLogoInput.files = files;
+                handleImageSelect();
+            }
+        });
+
+        brandLogoInput.addEventListener('change', handleImageSelect);
+
+        function handleImageSelect() {
+            const file = brandLogoInput.files[0];
+            
+            if (file) {
+                // Validate file type
+                if (!file.type.match('image.*')) {
+                    showError('Please select a valid image file');
+                    brandLogoInput.value = '';
+                    return;
+                }
+
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showError('Image size must be less than 5MB');
+                    brandLogoInput.value = '';
+                    return;
+                }
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    uploadPlaceholder.style.display = 'none';
+                    imagePreview.style.display = 'block';
+                    document.getElementById('imageError').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        changeImageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            brandLogoInput.click();
+        });
+
+        removeImageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            brandLogoInput.value = '';
+            uploadPlaceholder.style.display = 'flex';
+            imagePreview.style.display = 'none';
+            previewImg.src = '';
+        });
+
+        // Form validation
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            clearErrors();
+            
+            let isValid = true;
+
+            // Validate brand name
+            const brandName = brandNameInput.value.trim();
+            if (brandName === '') {
+                showFieldError(brandNameInput, 'Brand name is required');
+                isValid = false;
+            } else if (brandName.length < 2) {
+                showFieldError(brandNameInput, 'Brand name must be at least 2 characters');
+                isValid = false;
+            } else if (brandName.length > 40) {
+                showFieldError(brandNameInput, 'Brand name must not exceed 40 characters');
+                isValid = false;
+            } else if (!/^[a-zA-Z0-9\s&'-]+$/.test(brandName)) {
+                showFieldError(brandNameInput, 'Brand name can only contain letters, numbers, spaces, and &\'-');
+                isValid = false;
+            }
+
+            // Validate brand logo
+            if (brandLogoInput.files.length === 0) {
+                document.getElementById('imageError').style.display = 'block';
+                document.getElementById('imageError').textContent = 'Brand logo is required';
+                isValid = false;
+            }
+
+            if (!isValid) {
+                return false;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.querySelector('.spinner-border').style.display = 'inline-block';
+            submitBtn.querySelector('span').textContent = 'Adding Brand...';
+
+            // Submit form
+            form.submit();
+        });
+
+        function showFieldError(input, message) {
+            input.classList.add('is-invalid');
+            const feedback = input.nextElementSibling;
+            if (feedback && feedback.classList.contains('invalid-feedback-brand')) {
+                feedback.textContent = message;
+                feedback.style.display = 'block';
+            }
+        }
+
+        function clearErrors() {
+            const inputs = form.querySelectorAll('.form-control-modern-brand');
+            inputs.forEach(input => {
+                input.classList.remove('is-invalid');
+            });
+            const feedbacks = form.querySelectorAll('.invalid-feedback-brand');
+            feedbacks.forEach(feedback => {
+                feedback.style.display = 'none';
+            });
+        }
+
+        function showError(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: message,
+                confirmButtonColor: '#ef4444'
+            });
+        }
+
+        // Check for URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('brandadded') === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Brand Added Successfully!',
+                text: 'The brand has been added to your store.',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = '/admin/brands';
+            });
+        } else if (urlParams.get('brandadded') === 'exists') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Brand Already Exists',
+                text: 'A brand with this name already exists. Please use a different name.',
+                confirmButtonColor: '#ef4444'
+            }).then(() => {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            });
+        }
+    });
+</script>
+
+<%-include("../../views/parsuals/admin/footer")%>

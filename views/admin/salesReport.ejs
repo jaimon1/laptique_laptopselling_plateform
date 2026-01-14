@@ -1,0 +1,441 @@
+<%-include("../../views/parsuals/admin/header")%>
+
+<div class="col-md-10 p-0">
+    <!-- Modern Header -->
+    <div class="sales-report-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="icon-wrapper">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div>
+                    <h1>Sales Report</h1>
+                    <p>Comprehensive sales analytics and insights</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn-download" onclick="downloadReport('excel')">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Excel</span>
+                </button>
+                <button class="btn-download" onclick="downloadReport('pdf')">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sales-report-container">
+        <!-- Filters Section -->
+        <div class="filters-card">
+            <div class="filters-header">
+                <h3><i class="fas fa-filter"></i> Filters</h3>
+            </div>
+            <div class="filters-body">
+                <div class="filter-group">
+                    <label>Report Type</label>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="daily">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>Daily</span>
+                        </button>
+                        <button class="filter-btn" data-filter="weekly">
+                            <i class="fas fa-calendar-week"></i>
+                            <span>Weekly</span>
+                        </button>
+                        <button class="filter-btn" data-filter="monthly">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Monthly</span>
+                        </button>
+                        <button class="filter-btn" data-filter="yearly">
+                            <i class="fas fa-calendar"></i>
+                            <span>Yearly</span>
+                        </button>
+                        <button class="filter-btn" data-filter="custom">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Custom</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="custom-date-range" id="customDateRange" style="display: none;">
+                    <div class="date-inputs">
+                        <div class="input-group">
+                            <label>Start Date</label>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        <div class="input-group">
+                            <label>End Date</label>
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                    </div>
+                    <button class="btn-apply" onclick="applyCustomFilter()">
+                        <i class="fas fa-check"></i> Apply
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Orders</p>
+                    <h2 class="stat-values" id="totalOrders">0</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Sales</p>
+                    <h2 class="stat-values" id="totalSales">₹0</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Discount</p>
+                    <h2 class="stat-values" id="totalDiscount">₹0</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Coupon Discount</p>
+                    <h2 class="stat-values" id="couponDiscount">₹0</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Average Order</p>
+                    <h2 class="stat-values" id="avgOrder">₹0</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Order Details</h3>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search orders...">
+                    </div>
+                    <select id="limitSelect" class="form-select" onchange="changeLimit()">
+                        <option value="10">10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Discount</th>
+                            <th>Coupon</th>
+                            <th>Final Amount</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr>
+                            <td colspan="10" class="text-center">
+                                <div class="loading-spinner">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading data...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-container" id="paginationContainer">
+                <!-- Pagination will be inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentFilter = 'daily';
+let currentPage = 1;
+let currentLimit = 10;
+let startDate = '';
+let endDate = '';
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadSalesReport();
+    setupFilterButtons();
+    setupSearch();
+});
+
+// Setup filter buttons
+function setupFilterButtons() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.dataset.filter;
+            currentPage = 1;
+
+            if (currentFilter === 'custom') {
+                document.getElementById('customDateRange').style.display = 'block';
+            } else {
+                document.getElementById('customDateRange').style.display = 'none';
+                loadSalesReport();
+            }
+        });
+    });
+}
+
+// Apply custom filter
+function applyCustomFilter() {
+    startDate = document.getElementById('startDate').value;
+    endDate = document.getElementById('endDate').value;
+
+    if (!startDate || !endDate) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Missing Dates',
+            text: 'Please select both start and end dates'
+        });
+        return;
+    }
+
+    if (new Date(startDate) > new Date(endDate)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Date Range',
+            text: 'Start date must be before end date'
+        });
+        return;
+    }
+
+    currentPage = 1;
+    loadSalesReport();
+}
+
+// Load sales report
+async function loadSalesReport() {
+    try {
+        const params = new URLSearchParams({
+            filterType: currentFilter,
+            page: currentPage,
+            limit: currentLimit
+        });
+
+        if (currentFilter === 'custom' && startDate && endDate) {
+            params.append('startDate', startDate);
+            params.append('endDate', endDate);
+        }
+
+        const response = await fetch(`/admin/salesReport/data?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateStatistics(data.statistics);
+            updateTable(data.orders);
+            updatePagination(data.pagination);
+        }
+    } catch (error) {
+        console.error('Error loading sales report:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load sales report'
+        });
+    }
+}
+
+// Update statistics
+function updateStatistics(stats) {
+    document.getElementById('totalOrders').textContent = stats.totalOrders;
+    document.getElementById('totalSales').textContent = `₹${stats.totalSales}`;
+    document.getElementById('totalDiscount').textContent = `₹${stats.totalDiscount}`;
+    document.getElementById('couponDiscount').textContent = `₹${stats.totalCouponDiscount}`;
+    document.getElementById('avgOrder').textContent = `₹${stats.averageOrderValue}`;
+}
+
+// Update table
+function updateTable(orders) {
+    const tbody = document.getElementById('ordersTableBody');
+
+    if (orders.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10" class="text-center">
+                    <div class="no-data">
+                        <i class="fas fa-inbox"></i>
+                        <p>No orders found for the selected period</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = orders.map(order => `
+        <tr>
+            <td><strong>${order.orderId}</strong></td>
+            <td>
+                <div>${order.customerName}</div>
+                <small style="color: #94a3b8;">${order.customerEmail}</small>
+            </td>
+            <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+            <td>${order.itemsCount}</td>
+            <td>₹${order.totalAmount}</td>
+            <td>₹${order.discount}</td>
+            <td>
+                ${order.couponDiscount > 0 ? 
+                    `<div>₹${order.couponDiscount}</div><small style="color: #94a3b8;">${order.couponCode}</small>` : 
+                    '-'}
+            </td>
+            <td><strong>₹${order.finalAmount}</strong></td>
+            <td>${order.paymentMethod}</td>
+            <td>
+                <span class="status-badge status-${order.status.toLowerCase().replace(' ', '-')}">
+                    ${order.status}
+                </span>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Update pagination
+function updatePagination(pagination) {
+    const container = document.getElementById('paginationContainer');
+    const { currentPage, totalPages, totalOrders, limit } = pagination;
+
+    const start = (currentPage - 1) * limit + 1;
+    const end = Math.min(currentPage * limit, totalOrders);
+
+    let paginationHTML = `
+        <div class="pagination-info">
+            Showing ${start} to ${end} of ${totalOrders} orders
+        </div>
+        <div class="pagination-buttons">
+            <button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+    `;
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+            paginationHTML += `
+                <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                    ${i}
+                </button>
+            `;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+            paginationHTML += `<span style="padding: 8px;">...</span>`;
+        }
+    }
+
+    paginationHTML += `
+            <button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    `;
+
+    container.innerHTML = paginationHTML;
+}
+
+// Change page
+function changePage(page) {
+    currentPage = page;
+    loadSalesReport();
+}
+
+// Change limit
+function changeLimit() {
+    currentLimit = parseInt(document.getElementById('limitSelect').value);
+    currentPage = 1;
+    loadSalesReport();
+}
+
+// Setup search
+function setupSearch() {
+    const searchInput = document.getElementById('searchInput');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#ordersTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }, 300);
+    });
+}
+
+// Download report
+async function downloadReport(format) {
+    try {
+        const params = new URLSearchParams({
+            filterType: currentFilter
+        });
+
+        if (currentFilter === 'custom' && startDate && endDate) {
+            params.append('startDate', startDate);
+            params.append('endDate', endDate);
+        }
+
+        const url = `/admin/salesReport/download/${format}?${params}`;
+        window.location.href = url;
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Download Started',
+            text: `Your ${format.toUpperCase()} report is being downloaded`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+    } catch (error) {
+        console.error('Error downloading report:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Download Failed',
+            text: 'Failed to download report'
+        });
+    }
+}
+</script>
+
+<%-include("../../views/parsuals/admin/footer")%>

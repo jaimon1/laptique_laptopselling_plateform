@@ -1,0 +1,167 @@
+/* Offer Badge Styles */
+.product-card {
+    position: relative;
+}
+
+.offer-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    animation: pulse 2s infinite;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.offer-badge i {
+    margin-right: 4px;
+    font-size: 11px;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Price Display with Offers */
+.price-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.regular-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.sale-price {
+    color: #ff6b6b;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.savings-badge {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Product Details Page Offer Banner */
+.offer-banner {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    animation: slideIn 0.5s ease-out;
+}
+
+.offer-banner i {
+    font-size: 24px;
+}
+
+.offer-banner span {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Price Section on Product Details */
+.price-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.price-row .label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.price-row .regular-price {
+    font-size: 16px;
+    text-decoration: line-through;
+    color: #999;
+}
+
+.price-row .sale-price {
+    font-size: 28px;
+    color: #ff6b6b;
+    font-weight: 700;
+}
+
+.savings-highlight {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 15px;
+    margin-top: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .offer-badge {
+        top: 10px;
+        right: 10px;
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+    
+    .sale-price {
+        font-size: 18px;
+    }
+    
+    .offer-banner {
+        padding: 12px 18px;
+    }
+    
+    .offer-banner span {
+        font-size: 14px;
+    }
+}

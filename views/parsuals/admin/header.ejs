@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>LapTique Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css">
+    
+    <!-- Admin Global CSS -->
+    <link rel="stylesheet" href="/adminCss/adminGlobal.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/offers.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/salesReport.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/adminOrders.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/adminOrderDetails.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/adminProduct.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/coupon.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/addCoupon.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/adminReferrals.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/adminUsers.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/adminBrand.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/createBrand.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/category.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/addCategory.css?v=<%= Date.now() %>">
+    <link rel="stylesheet" href="/adminCss/orders.css?v=<%= Date.now() %>">
+    <script>
+        window.onpageshow = function (event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        };
+        
+        // CSS Loading Verification - Improved version
+        (function() {
+            // Hide indicator immediately if CSS is already loaded
+            function checkCSSLoaded() {
+                const sidebar = document.querySelector('.modern-sidebar');
+                const indicator = document.getElementById('cssLoadingIndicator');
+                
+                if (sidebar && indicator) {
+                    // Check if CSS is applied by checking computed styles
+                    const sidebarStyles = window.getComputedStyle(sidebar);
+                    const hasGradient = sidebarStyles.background.includes('gradient') || 
+                                       sidebarStyles.backgroundImage.includes('gradient');
+                    
+                    if (hasGradient || sidebarStyles.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+                        indicator.style.display = 'none';
+                        console.log('✅ Admin CSS loaded successfully!');
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            // Check immediately
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(checkCSSLoaded, 100);
+                });
+            } else {
+                setTimeout(checkCSSLoaded, 100);
+            }
+            
+            // Also check after window load
+            window.addEventListener('load', function() {
+                setTimeout(checkCSSLoaded, 200);
+            });
+            
+            // Fallback: hide indicator after 2 seconds
+            setTimeout(function() {
+                const indicator = document.getElementById('cssLoadingIndicator');
+                if (indicator) {
+                    indicator.style.display = 'none';
+                }
+            }, 2000);
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        /* Critical CSS - Inline fallback to ensure basic layout works */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Inter', sans-serif; 
+            background: #f8fafc;
+        }
+        .modern-sidebar { 
+            position: fixed; 
+            left: 0; 
+            top: 0; 
+            width: 280px; 
+            height: 100vh; 
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            z-index: 1050;
+        }
+        .main-content-wrapper { 
+            margin-left: 280px; 
+            min-height: 100vh; 
+            background: #f8fafc;
+        }
+        @media (max-width: 992px) {
+            .modern-sidebar { transform: translateX(-100%); }
+            .main-content-wrapper { margin-left: 0; }
+            .mobile-menu-toggle { display: flex !important; }
+        }
+    </style>
+</head>
+
+<body>
+    
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Modern Sidebar -->
+    <aside class="modern-sidebar" id="modernSidebar">
+        <!-- Logo Section -->
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-laptop"></i>
+                </div>
+                <h3 class="logo-text">LapTique</h3>
+            </div>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <span class="nav-section-title">Main Menu</span>
+                <a href="/admin" class="nav-link-item" data-page="dashboard">
+                    <div class="nav-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span class="nav-text">Dashboard</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="/admin/loadProduct" class="nav-link-item" data-page="products">
+                    <div class="nav-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <span class="nav-text">Products</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="/admin/orders" class="nav-link-item" data-page="orders">
+                    <div class="nav-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <span class="nav-text">Orders</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="/admin/users" class="nav-link-item" data-page="users">
+                    <div class="nav-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="nav-text">Users</span>
+                    <div class="nav-indicator"></div>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-title">Management</span>
+                <a href="/admin/brands" class="nav-link-item" data-page="brands">
+                    <div class="nav-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <span class="nav-text">Brands</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="/admin/category" class="nav-link-item" data-page="category">
+                    <div class="nav-icon">
+                        <i class="fas fa-list-alt"></i>
+                    </div>
+                    <span class="nav-text">Category</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="/admin/loadCoupon" class="nav-link-item" data-page="coupons">
+                    <div class="nav-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <span class="nav-text">Coupons</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="/admin/offers" class="nav-link-item" data-page="offers">
+                    <div class="nav-icon">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <span class="nav-text">Offers</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="/admin/referrals" class="nav-link-item" data-page="referrals">
+                    <div class="nav-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <span class="nav-text">Referrals</span>
+                    <div class="nav-indicator"></div>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-title">Reports</span>
+                <a href="/admin/salesReport" class="nav-link-item" data-page="sales">
+                    <div class="nav-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <span class="nav-text">Sales Report</span>
+                    <div class="nav-indicator"></div>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Bottom Actions -->
+        <div class="sidebar-footer">
+            <a href="#" class="footer-btn settings-btn">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="/admin/logout" class="footer-btn logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content-wrapper">
+            
+    <script>
+        // Simple Sidebar Navigation - No AJAX
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('modernSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const navLinks = document.querySelectorAll('.nav-link-item');
+            const currentPath = window.location.pathname;
+
+            // Mobile menu toggle
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    sidebar.classList.add('active');
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+
+            // Close sidebar
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            if (sidebarClose) {
+                sidebarClose.addEventListener('click', closeSidebar);
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+
+            // Set active navigation based on current URL
+            function updateActiveNav(path) {
+                navLinks.forEach(link => link.classList.remove('active'));
+                
+                if (path === '/admin' || path === '/admin/') {
+                    document.querySelector('[data-page="dashboard"]')?.classList.add('active');
+                } else if (path.includes('/admin/loadProduct') || path.includes('/admin/addProduct') || path.includes('/admin/editProduct')) {
+                    document.querySelector('[data-page="products"]')?.classList.add('active');
+                } else if (path.includes('/admin/order')) {
+                    document.querySelector('[data-page="orders"]')?.classList.add('active');
+                } else if (path.includes('/admin/user')) {
+                    document.querySelector('[data-page="users"]')?.classList.add('active');
+                } else if (path.includes('/admin/brand')) {
+                    document.querySelector('[data-page="brands"]')?.classList.add('active');
+                } else if (path.includes('/admin/loadCoupon') || path.includes('/admin/addCoupon') || path.includes('/admin/editCoupon')) {
+                    document.querySelector('[data-page="coupons"]')?.classList.add('active');
+                } else if (path.includes('/admin/category')) {
+                    document.querySelector('[data-page="category"]')?.classList.add('active');
+                } else if (path.includes('/admin/referral')) {
+                    document.querySelector('[data-page="referrals"]')?.classList.add('active');
+                } else if (path.includes('/admin/offer')) {
+                    document.querySelector('[data-page="offers"]')?.classList.add('active');
+                } else if (path.includes('/admin/salesReport')) {
+                    document.querySelector('[data-page="sales"]')?.classList.add('active');
+                }
+            }
+
+            // Set initial active state
+            updateActiveNav(currentPath);
+
+            // Close mobile sidebar on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 992) {
+                    closeSidebar();
+                }
+            });
+        });
+    </script>

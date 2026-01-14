@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Placed Successfully - LapTique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/orderSuccess.css">
+</head>
+
+<body>
+    <%-include("../../views/parsuals/user/header")%>
+     <div style="margin-top: 70px;"></div>
+    <div class="success-container">
+        <div class="success-card">
+            <!-- Celebration Animation -->
+            <div class="celebration-animation">
+                <div class="confetti" style="left: 10%; animation-delay: 0s;"></div>
+                <div class="confetti" style="left: 20%; animation-delay: -0.3s;"></div>
+                <div class="confetti" style="left: 30%; animation-delay: -0.6s;"></div>
+                <div class="confetti" style="left: 40%; animation-delay: -0.9s;"></div>
+                <div class="confetti" style="left: 50%; animation-delay: -1.2s;"></div>
+                <div class="confetti" style="left: 60%; animation-delay: -1.5s;"></div>
+                <div class="confetti" style="left: 70%; animation-delay: -1.8s;"></div>
+                <div class="confetti" style="left: 80%; animation-delay: -2.1s;"></div>
+                <div class="confetti" style="left: 90%; animation-delay: -2.4s;"></div>
+            </div>
+
+            <!-- Success Icon -->
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+
+            <!-- Success Message -->
+            <h1 class="success-title">Order Placed Successfully!</h1>
+            
+            <div class="thank-you-text">
+                <i class="fas fa-heart text-danger me-2"></i>
+                Thank you for choosing LapTique!
+            </div>
+
+            <p class="success-message">
+                Your order has been placed successfully and is being processed. 
+                You will receive a confirmation email shortly with your order details.
+            </p>
+
+            <!-- Illustration -->
+            <div class="illustration">
+                <i class="fas fa-shipping-fast" style="font-size: 4rem; color: var(--primary-color); opacity: 0.7;"></i>
+            </div>
+
+            <!-- Order Details -->
+            <div class="order-details">
+                <h5><i class="fas fa-receipt me-2"></i>Order Details</h5>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Order ID:</span>
+                    <span class="detail-value">
+                        <span class="order-id">#<%= order.orderId || order._id.toString().slice(-8).toUpperCase() %></span>
+                    </span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Order Date:</span>
+                    <span class="detail-value">
+                        <%= new Date(order.createdOn).toLocaleDateString('en-IN', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) %>
+                    </span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Total Items:</span>
+                    <span class="detail-value">
+                        <%= order.orderItems.reduce((total, item) => total + item.quantity, 0) %> items
+                    </span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Total Amount:</span>
+                    <span class="detail-value">
+                        <strong style="color: var(--success-color); font-size: 1.2rem;">
+                            ₹<%= parseInt(order.finalAmount).toLocaleString() %>
+                        </strong>
+                    </span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Payment Method:</span>
+                    <span class="detail-value">
+                        <i class="fas fa-money-bill-wave me-1"></i>
+                        <%= order.paymentMethod === 'COD' ? 'Cash on Delivery' : order.paymentMethod %>
+                    </span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Order Status:</span>
+                    <span class="detail-value">
+                        <span class="status-badge">
+                            <i class="fas fa-clock me-1"></i>
+                            <%= order.status %>
+                        </span>
+                    </span>
+                </div>
+
+                <% if (order.couponApplied && order.couponDetails) { %>
+                    <div class="detail-row">
+                        <span class="detail-label">Coupon Applied:</span>
+                        <span class="detail-value">
+                            <span style="color: var(--success-color); font-weight: 600;">
+                                <%= order.couponDetails.code %> 
+                                (-₹<%= order.couponDetails.discount.toLocaleString() %>)
+                            </span>
+                        </span>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Delivery Information -->
+            <div class="delivery-info">
+                <h6><i class="fas fa-map-marker-alt me-2"></i>Delivery Address</h6>
+                <div class="delivery-address">
+                    <strong><%= order.address.name %></strong><br>
+                    <%= order.address.landmark %><br>
+                    <%= order.address.city %>, <%= order.address.state %><br>
+                    <i class="fas fa-phone me-1"></i> <%= order.address.phone %>
+                    <% if (order.address.altPhone && order.address.altPhone !== order.address.phone) { %>
+                        <br><i class="fas fa-phone me-1"></i> <%= order.address.altPhone %> (Alt)
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Order Timeline -->
+            <div class="order-timeline">
+                <h6 class="text-center mb-3" style="color: var(--primary-color);">
+                    <i class="fas fa-route me-2"></i>Order Timeline
+                </h6>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon active">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="timeline-text">
+                        <h6>Order Placed</h6>
+                        <small>Your order has been placed successfully</small>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon pending">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="timeline-text">
+                        <h6>Processing</h6>
+                        <small>We're preparing your order</small>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon pending">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <div class="timeline-text">
+                        <h6>Shipped</h6>
+                        <small>Your order is on the way</small>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon pending">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="timeline-text">
+                        <h6>Delivered</h6>
+                        <small>Order delivered to your address</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/order/<%= order._id %>" class="btn-primary-custom">
+                    <i class="fas fa-list-alt me-2"></i>
+                    View Order Details
+                </a>
+                <a href="/shop" class="btn-success-custom">
+                    <i class="fas fa-shopping-bag me-2"></i>
+                    Continue Shopping
+                </a>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mt-4 pt-3" style="border-top: 1px solid #e9ecef;">
+                <p class="text-muted mb-2">
+                    <i class="fas fa-info-circle me-2"></i>
+                    You will receive order updates via email and SMS
+                </p>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-headset me-2"></i>
+                    Need help? Contact our customer support
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate the success icon
+            setTimeout(() => {
+                const successIcon = document.querySelector('.success-icon');
+                successIcon.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    successIcon.style.transform = 'scale(1)';
+                }, 200);
+            }, 500);
+
+            // Add click effects to buttons
+            document.querySelectorAll('.btn-primary-custom, .btn-success-custom').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // Create ripple effect
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        pointer-events: none;
+                    `;
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // Auto-scroll to center the card on mobile
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    document.querySelector('.success-card').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }, 100);
+            }
+        });
+
+        // Add ripple animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+    <%-include("../../views/parsuals/user/footer")%>
+</body>
+</html>

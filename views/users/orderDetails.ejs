@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - LapTique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/orderDetails.css">
+</head>
+
+<body>
+    <%-include("../../views/parsuals/user/header")%>
+        <div style="margin-top: 120px;"></div>
+        <!-- Order Header -->
+        <div class="order-header">
+            <div class="containers">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1 class="mb-0">
+                            <i class="fas fa-receipt me-3"></i>Order Details
+                        </h1>
+                        <p class="mb-0 opacity-75">Track your order status and details</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="/profile" class="btn btn-light">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container
+    +
+    ">
+            <!-- Payment Failed/Pending Alert -->
+            <% if (order.paymentMethod !=='COD' && (order.paymentStatus==='Failed' || order.paymentStatus==='Pending' )
+                && (order.status==='Pending' || order.status==='Failed' )) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <div class="flex-grow-1 mb-2 mb-md-0">
+                            <h5 class="alert-heading mb-2">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Payment <%=
+                                    order.paymentStatus==='Failed' ? 'Failed' : 'Pending' %>
+                            </h5>
+                            <p class="mb-0">
+                                Your payment for this order could not be processed. Please retry the payment to confirm
+                                your order.
+                            </p>
+                        </div>
+                        <button class="btn btn-danger btn-sm ms-3" onclick="retryPayment('<%= order._id %>')"
+                            style="white-space: nowrap; font-weight: 600;">
+                            <i class="fas fa-redo me-2"></i>Retry Payment
+                        </button>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Prominent Retry Payment Card -->
+                <div class="card border-danger mb-4" style="box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);">
+                    <div class="card-body text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-credit-card text-danger" style="font-size: 48px;"></i>
+                        </div>
+                        <h4 class="card-title text-danger mb-2">Payment Required</h4>
+                        <p class="card-text text-muted mb-4">
+                            Complete your payment to confirm this order. Your items are reserved for you.
+                        </p>
+                        <button class="btn btn-danger btn-lg px-5" onclick="retryPayment('<%= order._id %>')"
+                            style="font-weight: 600; border-radius: 8px;">
+                            <i class="fas fa-redo me-2"></i>Retry Payment Now
+                        </button>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Secure payment powered by Razorpay
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                    <!-- Return Rejected Alert -->
+                    <% if (order.returnStatus === 'Rejected' && order.returnRejectionReason) { %>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-grow-1">
+                                    <h5 class="alert-heading mb-2">
+                                        <i class="fas fa-times-circle me-2"></i>Return Request Rejected
+                                    </h5>
+                                    <p class="mb-2">
+                                        <strong>Reason:</strong> <%= order.returnRejectionReason %>
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        If you have questions about this decision, please contact our customer support.
+                                    </small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <% } %>
+
+                    <div class="row">
+                        <!-- Left Column - Order Info -->
+                        <div class="col-lg-8">
+                            <!-- Order Summary -->
+                            <div class="order-card">
+                                <h4 class="section-title">
+                                    <i class="fas fa-info-circle me-2"></i>Order Information
+                                </h4>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Order ID:</span>
+                                    <span class="detail-value">
+                                        <span class="order-id">#<%= order.orderId ||
+                                                order._id.toString().slice(-8).toUpperCase() %>
+                                        </span>
+                                    </span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Order Date:</span>
+                                    <span class="detail-value">
+                                        <%= new Date(order.createdOn).toLocaleDateString('en-IN', { year: 'numeric' ,
+                                            month: 'long' , day: 'numeric' , hour: '2-digit' , minute: '2-digit' }) %>
+                                    </span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Order Status:</span>
+                                    <span class="detail-value">
+                                        <% 
+                                        // Show "Payment Pending" if payment failed/pending
+                                        let displayStatus = order.status;
+                                        let statusIcon = 'clock';
+                                        
+                                        if (order.paymentMethod !== 'COD' && (order.paymentStatus === 'Failed' || order.paymentStatus === 'Pending') && order.status === 'Pending') {
+                                            displayStatus = 'Payment Pending';
+                                            statusIcon = 'exclamation-circle';
+                                        } else if (order.status === 'Pending') {
+                                            statusIcon = 'clock';
+                                        } else if (order.status === 'Processing') {
+                                            statusIcon = 'cog';
+                                        } else if (order.status === 'Shipped') {
+                                            statusIcon = 'shipping-fast';
+                                        } else if (order.status === 'Out for Delivery') {
+                                            statusIcon = 'truck';
+                                        } else if (order.status === 'Delivered') {
+                                            statusIcon = 'check-circle';
+                                        } else if (order.status === 'Returned') {
+                                            statusIcon = 'undo';
+                                        } else if (order.status === 'Return Requested') {
+                                            statusIcon = 'undo';
+                                        } else if (order.status === 'Failed') {
+                                            statusIcon = 'exclamation-circle';
+                                        } else {
+                                            statusIcon = 'times-circle';
+                                        }
+                                        %>
+                                        <span class="status-badge status-<%= displayStatus.toLowerCase().replace(/\s+/g, '-') %>">
+                                            <i class="fas fa-<%= statusIcon %> me-1"></i>
+                                            <%= displayStatus %>
+                                        </span>
+                                    </span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Payment Method:</span>
+                                    <span class="detail-value">
+                                        <i
+                                            class="fas fa-<%= order.paymentMethod === 'COD' ? 'money-bill-wave' : 'credit-card' %> me-1"></i>
+                                        <%= order.paymentMethod==='COD' ? 'Cash on Delivery' : order.paymentMethod %>
+                                    </span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Payment Status:</span>
+                                    <span class="detail-value">
+                                        <span class="badge bg-<%= order.paymentStatus === 'Completed' ? 'success' : 
+                                                      order.paymentStatus === 'Failed' ? 'danger' : 'warning' %>">
+                                            <%= order.paymentStatus %>
+                                        </span>
+                                        <% if (order.paymentMethod !=='COD' && (order.paymentStatus==='Failed' ||
+                                            order.paymentStatus==='Pending' ) && (order.status==='Pending' ||
+                                            order.status==='Failed' )) { %>
+                                            <button class="btn btn-sm btn-danger ms-2"
+                                                onclick="retryPayment('<%= order._id %>')"
+                                                style="padding: 4px 12px; font-size: 0.85rem; font-weight: 600;">
+                                                <i class="fas fa-redo me-1"></i>Retry Payment
+                                            </button>
+                                            <% } %>
+                                    </span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Total Items:</span>
+                                    <span class="detail-value">
+                                        <%= order.orderItems.reduce((total, item)=> total + item.quantity, 0) %> items
+                                    </span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Total Amount:</span>
+                                    <span class="detail-value">
+                                        <strong style="color: var(--success-color); font-size: 1.2rem;">
+                                            ₹<%= parseInt(order.finalAmount).toLocaleString() %>
+                                        </strong>
+                                    </span>
+                                </div>
+
+                                <% if (order.couponApplied && order.couponDetails) { %>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Coupon Applied:</span>
+                                        <span class="detail-value">
+                                            <span style="color: var(--success-color); font-weight: 600;">
+                                                <%= order.couponDetails.code %>
+                                                    (-₹<%= order.couponDetails.discount.toLocaleString() %>)
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <% } %>
+                            </div>
+
+                            <!-- Order Timeline -->
+                            <div class="order-card">
+                                <h4 class="section-title">
+                                    <i class="fas fa-route me-2"></i>Order Timeline
+                                </h4>
+
+                                <% 
+                                // Check if payment failed/pending for non-COD orders
+                                const isPaymentFailed = order.paymentMethod !== 'COD' && 
+                                                       (order.paymentStatus === 'Failed' || order.paymentStatus === 'Pending') && 
+                                                       (order.status === 'Pending' || order.status === 'Failed');
+                                %>
+
+                                <% if (isPaymentFailed) { %>
+                                    <!-- Payment Failed Timeline - Don't show "Order Placed" -->
+                                    <div class="order-timeline">
+                                        <div class="timeline-item active">
+                                            <div class="timeline-icon" style="background: #ef4444; color: white; box-shadow: 0 0 0 4px #fee2e2, 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6 style="color: #ef4444;">Payment <%= order.paymentStatus === 'Failed' ? 'Failed' : 'Pending' %></h6>
+                                                <small>
+                                                    <%= new Date(order.createdOn).toLocaleDateString('en-IN', {
+                                                        year: 'numeric' , month: 'short' , day: 'numeric' , hour: '2-digit'
+                                                        , minute: '2-digit' }) %>
+                                                </small>
+                                                <div class="mt-2">
+                                                    <small class="text-muted d-block">
+                                                        <i class="fas fa-info-circle me-1"></i>
+                                                        Your order will be confirmed once payment is completed
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon pending">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6 class="text-muted">Order Confirmation</h6>
+                                                <small class="text-muted">Awaiting payment completion</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon pending">
+                                                <i class="fas fa-cog"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6 class="text-muted">Processing</h6>
+                                                <small class="text-muted">Will start after payment</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon pending">
+                                                <i class="fas fa-shipping-fast"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6 class="text-muted">Shipped</h6>
+                                                <small class="text-muted">Pending</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon pending">
+                                                <i class="fas fa-truck"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6 class="text-muted">Out for Delivery</h6>
+                                                <small class="text-muted">Pending</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon pending">
+                                                <i class="fas fa-home"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6 class="text-muted">Delivered</h6>
+                                                <small class="text-muted">Pending</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } else if (order.status === 'Cancelled' || order.status === 'Failed') { %>
+                                    <!-- Cancelled/Failed Order Timeline -->
+                                    <div class="order-timeline">
+                                        <div class="timeline-item active">
+                                            <div class="timeline-icon active">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Order Placed</h6>
+                                                <small>
+                                                    <%= new Date(order.createdOn).toLocaleDateString('en-IN', {
+                                                        year: 'numeric' , month: 'short' , day: 'numeric' , hour: '2-digit'
+                                                        , minute: '2-digit' }) %>
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item active">
+                                            <div class="timeline-icon" style="background: #ef4444; color: white; box-shadow: 0 0 0 4px #fee2e2, 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                                                <i class="fas fa-times"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6 style="color: #ef4444;"><%= order.status === 'Failed' ? 'Payment Failed' : 'Order Cancelled' %></h6>
+                                                <small>
+                                                    <% if (order.status === 'Failed') { %>
+                                                        Payment could not be processed
+                                                    <% } else { %>
+                                                        Order has been cancelled
+                                                    <% } %>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } else if (order.status === 'Returned' || order.status === 'Return Requested' || order.returnStatus === 'Rejected') { %>
+                                    <!-- Return Timeline -->
+                                    <div class="order-timeline">
+                                        <div class="timeline-item active">
+                                            <div class="timeline-icon active">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Order Placed</h6>
+                                                <small>
+                                                    <%= new Date(order.createdOn).toLocaleDateString('en-IN', {
+                                                        year: 'numeric' , month: 'short' , day: 'numeric' , hour: '2-digit'
+                                                        , minute: '2-digit' }) %>
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item active">
+                                            <div class="timeline-icon active">
+                                                <i class="fas fa-cog"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Processing</h6>
+                                                <small>Order was prepared</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item active">
+                                            <div class="timeline-icon active">
+                                                <i class="fas fa-shipping-fast"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Shipped</h6>
+                                                <small>Order was shipped</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item active">
+                                            <div class="timeline-icon active">
+                                                <i class="fas fa-truck"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Out for Delivery</h6>
+                                                <small>Order was out for delivery</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item active">
+                                            <div class="timeline-icon active">
+                                                <i class="fas fa-home"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Delivered</h6>
+                                                <small>Order was delivered</small>
+                                            </div>
+                                        </div>
+
+                                        <% if (order.returnStatus === 'Rejected') { %>
+                                            <!-- Return Rejected Timeline -->
+                                            <div class="timeline-item active">
+                                                <div class="timeline-icon active">
+                                                    <i class="fas fa-undo"></i>
+                                                </div>
+                                                <div class="timeline-text">
+                                                    <h6>Return Requested</h6>
+                                                    <small>Return was requested</small>
+                                                </div>
+                                            </div>
+
+                                            <div class="timeline-item active">
+                                                <div class="timeline-icon" style="background: #ef4444; color: white; box-shadow: 0 0 0 4px #fee2e2, 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                                                    <i class="fas fa-times-circle"></i>
+                                                </div>
+                                                <div class="timeline-text">
+                                                    <h6 style="color: #ef4444;">Return Rejected</h6>
+                                                    <small>Your return request was not approved</small>
+                                                </div>
+                                            </div>
+                                        <% } else if (order.status === 'Return Requested') { %>
+                                            <div class="timeline-item active">
+                                                <div class="timeline-icon" style="background: #f59e0b; color: white; box-shadow: 0 0 0 4px #fef3c7, 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                                                    <i class="fas fa-undo"></i>
+                                                </div>
+                                                <div class="timeline-text">
+                                                    <h6 style="color: #f59e0b;">Return Requested</h6>
+                                                    <small>Waiting for admin approval</small>
+                                                </div>
+                                            </div>
+                                        <% } else { %>
+                                            <div class="timeline-item active">
+                                                <div class="timeline-icon active">
+                                                    <i class="fas fa-undo"></i>
+                                                </div>
+                                                <div class="timeline-text">
+                                                    <h6>Return Requested</h6>
+                                                    <small>Return was requested</small>
+                                                </div>
+                                            </div>
+
+                                            <div class="timeline-item active">
+                                                <div class="timeline-icon" style="background: #10b981; color: white; box-shadow: 0 0 0 4px #d1fae5, 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                                <div class="timeline-text">
+                                                    <h6 style="color: #10b981;">Returned</h6>
+                                                    <small>Order has been returned and refunded</small>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                <% } else { %>
+                                    <!-- Normal Order Timeline -->
+                                    <div class="order-timeline">
+                                        <div class="timeline-item active">
+                                            <div class="timeline-icon active">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Order Placed</h6>
+                                                <small>
+                                                    <%= new Date(order.createdOn).toLocaleDateString('en-IN', {
+                                                        year: 'numeric' , month: 'short' , day: 'numeric' , hour: '2-digit'
+                                                        , minute: '2-digit' }) %>
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="timeline-item <%= order.status === 'Processing' ? 'current' : 
+                                                          ['Shipped', 'Out for Delivery', 'Delivered'].includes(order.status) ? 'active' : '' %>">
+                                            <div
+                                                class="timeline-icon <%= order.status === 'Processing' ? 'current' : 
+                                                              ['Shipped', 'Out for Delivery', 'Delivered'].includes(order.status) ? 'active' : 'pending' %>">
+                                                <i class="fas fa-cog"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Processing</h6>
+                                                <small>We're preparing your order</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item <%= order.status === 'Shipped' ? 'current' : 
+                                                          ['Out for Delivery','Delivered'].includes(order.status) ? 'active' : '' %>">
+                                            <div class="timeline-icon <%= order.status === 'Shipped' ? 'current' : 
+                                                              ['Out for Delivery', 'Delivered'].includes(order.status) ? 'active' : 'pending' %>">
+                                                <i class="fas fa-shipping-fast"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Shipped</h6>
+                                                <small>Your order is on the way</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item <%= order.status === 'Out for Delivery' ? 'current' : 
+                                                          order.status === 'Delivered' ? 'active' : '' %>">
+                                            <div class="timeline-icon <%= order.status === 'Out for Delivery' ? 'current' : 
+                                                              order.status === 'Delivered' ? 'active' : 'pending' %>">
+                                                <i class="fas fa-truck"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Out for Delivery</h6>
+                                                <small>Your order is out for delivery</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-item <%= order.status === 'Delivered' ? 'active' : '' %>">
+                                            <div
+                                                class="timeline-icon <%= order.status === 'Delivered' ? 'active' : 'pending' %>">
+                                                <i class="fas fa-home"></i>
+                                            </div>
+                                            <div class="timeline-text">
+                                                <h6>Delivered</h6>
+                                                <small>Order delivered to your address</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } %>   
+                            </div>
+
+                            <!-- Products List -->
+                            <div class="order-card">
+                                <h4 class="section-title">
+                                    <i class="fas fa-box me-2"></i>Ordered Items
+                                </h4>
+
+                                <% order.orderItems.forEach(item=> { %>
+                                    <% if (item.product) { %>
+                                        <div class="product-item d-flex align-items-center">
+                                            <div class="me-3">
+                                                <% if (item.product.ProductImages && item.product.ProductImages.length>
+                                                    0) { %>
+                                                    <img src="/uploads/re-images/<%= item.product.ProductImages[0] %>"
+                                                        alt="<%= item.product.productName %>" class="product-image"
+                                                        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                                                    <% } else { %>
+                                                        <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3ENo Image%3C/text%3E%3C/svg%3E"
+                                                            alt="No Image" class="product-image">
+                                                        <% } %>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="product-details">
+                                                    <h6>
+                                                        <%= item.product.productName || 'Product Unavailable' %>
+                                                    </h6>
+                                                    <% if (item.variant && item.variant.storage) { %>
+                                                        <div class="product-variant">
+                                                            <i class="fas fa-microchip me-1"></i>
+                                                            Storage: <%= item.variant.storage %>
+                                                        </div>
+                                                        <% } %>
+                                                            <% if (item.variant && item.variant.color) { %>
+                                                                <div class="product-variant">
+                                                                    <i class="fas fa-palette me-1"></i>
+                                                                    Color: <%= item.variant.color %>
+                                                                </div>
+                                                                <% } %>
+                                                                    <div class="product-price">
+                                                                        ₹<%= item.price.toLocaleString() %> each
+                                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="me-3">
+                                                <div class="quantity-badge">
+                                                    <%= item.quantity %>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fw-bold text-primary">
+                                                    ₹<%= (item.price * item.quantity).toLocaleString() %>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <% if (item.status==='Cancelled' ) { %>
+                                                        <button class="btn btn-sm btn-secondary" disabled
+                                                            style="cursor: not-allowed; opacity: 0.6;">
+                                                            <i class="fas fa-ban me-1"></i>Cancelled
+                                                        </button>
+                                                        <% } else if ((order.status==='Pending' ||
+                                                            order.status==='Processing' ) && item.status!=='Cancelled' )
+                                                            { %>
+                                                            <button class="btn btn-sm btn-outline-danger"
+                                                                onclick="cancelOrderItem('<%= order._id %>','<%= item._id %>')">
+                                                                <i class="fas fa-times me-1"></i>Cancel Item
+                                                            </button>
+                                                            <% } %>
+                                                                <% if (order.status==='Delivered' &&
+                                                                    item.status==='Active' && item.returnStatus==='None'
+                                                                    ) { %>
+                                                                    <button class="btn btn-sm btn-outline-primary mt-1"
+                                                                        onclick="requestItemReturn('<%= order._id %>','<%= item._id %>')">
+                                                                        <i class="fas fa-undo me-1"></i>Return Item
+                                                                    </button>
+                                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                                            <% }) %>
+                            </div>
+
+                            <!-- Delivery Address -->
+                            <div class="order-card">
+                                <h4 class="section-title">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Delivery Address
+                                </h4>
+
+                                <div class="address-card">
+                                    <h6><i class="fas fa-home me-2"></i>Delivery Details</h6>
+                                    <div class="address-details">
+                                        <strong>
+                                            <%= order.address.name %>
+                                        </strong><br>
+                                        <%= order.address.landmark %><br>
+                                            <%= order.address.city %>, <%= order.address.state %><br>
+                                                    <i class="fas fa-phone me-1"></i>
+                                                    <%= order.address.phone %>
+                                                        <% if (order.address.altPhone && order.address.altPhone
+                                                            !==order.address.phone) { %>
+                                                            <br><i class="fas fa-phone me-1"></i>
+                                                            <%= order.address.altPhone %> (Alt)
+                                                                <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Price Summary & Actions -->
+                        <div class="col-lg-4">
+                            <!-- Price Summary -->
+                            <div class="order-card">
+                                <h4 class="section-title">
+                                    <i class="fas fa-calculator me-2"></i>Price Summary
+                                </h4>
+
+                                <div class="price-summary">
+                                    <div class="summary-row">
+                                        <span>Subtotal:</span>
+                                        <span>₹<%= order.totalPrice.toLocaleString() %></span>
+                                    </div>
+
+                                    <% if (order.discount> 0) { %>
+                                        <div class="summary-row discount">
+                                            <span>Discount:</span>
+                                            <span>-₹<%= order.discount.toLocaleString() %></span>
+                                        </div>
+                                        <% } %>
+
+                                            <% if (order.tax> 0) { %>
+                                                <div class="summary-row">
+                                                    <span>Tax (GST):</span>
+                                                    <span>₹<%= order.tax.toLocaleString() %></span>
+                                                </div>
+                                                <% } %>
+
+                                                    <% if (order.shippingFee> 0) { %>
+                                                        <div class="summary-row">
+                                                            <span>Shipping:</span>
+                                                            <span>₹<%= order.shippingFee.toLocaleString() %></span>
+                                                        </div>
+                                                        <% } else { %>
+                                                            <div class="summary-row">
+                                                                <span>Shipping:</span>
+                                                                <span class="text-success">Free</span>
+                                                            </div>
+                                                            <% } %>
+
+                                                                <div class="summary-row total">
+                                                                    <span>Total Paid:</span>
+                                                                    <span>₹<%=
+                                                                            parseInt(order.finalAmount).toLocaleString()
+                                                                            %>
+                                                                    </span>
+                                                                </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="order-card">
+                                <h4 class="section-title">
+                                    <i class="fas fa-cogs me-2"></i>Actions
+                                </h4>
+
+                                <div class="action-buttons">
+                                    <% if (order.paymentMethod !=='COD' && (order.paymentStatus==='Failed' ||
+                                        order.paymentStatus==='Pending' ) && (order.status==='Pending' ||
+                                        order.status==='Failed' )) { %>
+                                        <button class="btn-primary-custom" onclick="retryPayment('<%= order._id %>')"
+                                            style="background: #dc3545; border: none;">
+                                            <i class="fas fa-redo me-2"></i>
+                                            Retry Payment
+                                        </button>
+                                        <% } %>
+
+                                            <% if (order.status==='Cancelled' ) { %>
+                                                <button class="btn-secondary" disabled style="cursor: not-allowed;">
+                                                    <i class="fas fa-ban me-2"></i>
+                                                    Cancelled
+                                                </button>
+                                                <% } else if (order.status==='Failed' ) { %>
+                                                    <!-- For failed orders, only show retry payment, no cancel button -->
+                                                    <% if (order.paymentMethod !=='COD' ) { %>
+                                                        <button class="btn-primary-custom" onclick="retryPayment('<%= order._id %>')"
+                                                            style="background: #dc3545; border: none;">
+                                                            <i class="fas fa-redo me-2"></i>
+                                                            Retry Payment
+                                                        </button>
+                                                    <% } %>
+                                                <% } else if (order.status==='Pending' || order.status==='Processing' ) { %>
+                                                    <!-- Only show cancel if payment is not failed/pending -->
+                                                    <% if (!(order.paymentMethod !=='COD' && (order.paymentStatus==='Failed' || order.paymentStatus==='Pending'))) { %>
+                                                        <button class="btn-danger-custom"
+                                                            onclick="cancelOrder('<%= order._id %>')">
+                                                            <i class="fas fa-times me-2"></i>
+                                                            Cancel Order
+                                                        </button>
+                                                    <% } %>
+                                                <% } else if (order.status==='Delivered' ) { %>
+                                                    <button class="btn-primary-custom"
+                                                        onclick="requestReturn('<%= order._id %>')">
+                                                        <i class="fas fa-undo me-2"></i>
+                                                        Request Return
+                                                    </button>
+                                                <% } %>
+
+                                                <a href="/shop" class="btn-success-custom">
+                                                    <i class="fas fa-shopping-bag me-2"></i>
+                                                    Continue Shopping
+                                                </a>
+
+                                                <a href="/profile" class="btn-primary-custom">
+                                                    <i class="fas fa-user me-2"></i>
+                                                    View All Orders
+                                                </a>
+                                </div>
+
+                                <div class="mt-3 text-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-headset me-1"></i>
+                                        Need help? Contact our customer support
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        </div>
+
+
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <!-- Razorpay SDK -->
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+        <script>
+            // Replace the old cancelOrder with this SweetAlert2 based function:
+            async function cancelOrder(orderId) {
+                try {
+                    const { value: reason } = await Swal.fire({
+                        title: 'Cancel order? (Reason optional)',
+                        input: 'textarea',
+                        inputPlaceholder: 'You can provide a reason (optional)',
+                        inputAttributes: {
+                            'aria-label': 'Reason for cancellation (optional)',
+                            maxlength: 1000
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: 'Cancel order',
+                        cancelButtonText: 'Keep order',
+                        focusCancel: true
+                    });
+
+                    // If user closed dialog without confirming
+                    if (reason === undefined) return;
+
+                    Swal.fire({
+                        title: 'Cancelling order...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+                    const response = await fetch(`/cancel-order/${orderId}`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({ reason: (reason || '').trim() })
+                    });
+
+                    if (!response.ok) {
+                        const txt = await response.text().catch(() => '');
+                        throw new Error(txt || `Network error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    Swal.close();
+
+                    if (data.success) {
+                        // Show success with refund info
+                        let message = data.message || 'Order cancelled successfully';
+                        if (data.refunded && data.refundAmount > 0) {
+                            message += `\n\n₹${data.refundAmount.toLocaleString()} has been refunded to your wallet!`;
+                        }
+
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Order Cancelled!',
+                            text: message,
+                            confirmButtonColor: '#10b981'
+                        });
+
+                        location.reload();
+                    } else {
+                        showAlert(data.message || 'Failed to cancel order', 'error');
+                    }
+                } catch (err) {
+                    console.error('Error cancelling order:', err);
+                    Swal.close();
+                    showAlert('Failed to cancel order', 'error');
+                }
+            }
+
+            async function cancelOrderItem(orderId, itemId) {
+                try {
+                    const { value: reason } = await Swal.fire({
+                        title: 'Cancel item? (Reason optional)',
+                        input: 'textarea',
+                        inputPlaceholder: 'You can provide a reason (optional)',
+                        inputAttributes: { maxlength: 1000 },
+                        showCancelButton: true,
+                        confirmButtonText: 'Cancel item',
+                        cancelButtonText: 'Keep item',
+                        focusCancel: true
+                    });
+                    if (reason === undefined) return;
+
+                    Swal.fire({ title: 'Cancelling item...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    const res = await fetch(`/order/${orderId}/item/${itemId}/cancel`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reason: (reason || '').trim() })
+                    });
+                    const data = await res.json();
+                    Swal.close();
+                    if (data.success) {
+                        // Show success with refund info
+                        let message = data.message || 'Item cancelled successfully';
+                        if (data.refunded && data.refundAmount > 0) {
+                            message += `\n\n₹${data.refundAmount.toLocaleString()} has been refunded to your wallet!`;
+                        }
+
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Item Cancelled!',
+                            text: message,
+                            confirmButtonColor: '#10b981'
+                        });
+
+                        location.reload();
+                    } else {
+                        showAlert(data.message || 'Failed to cancel item', 'error');
+                    }
+                } catch (err) {
+                    console.error('Cancel item error:', err);
+                    Swal.close();
+                    showAlert('Failed to cancel item', 'error');
+                }
+            }
+
+            async function requestReturn(orderId) {
+                try {
+                    const { value: reason } = await Swal.fire({
+                        title: 'Request Return',
+                        html: `
+                        <div class="text-start">
+                            <label class="form-label fw-bold mb-2">Select reason for return:</label>
+                            <select id="returnReason" class="form-select">
+                                <option value="">-- Select a reason --</option>
+                                <option value="Product damaged or defective">Product damaged or defective</option>
+                                <option value="Wrong product delivered">Wrong product delivered</option>
+                                <option value="Product not as described">Product not as described</option>
+                                <option value="Missing parts or accessories">Missing parts or accessories</option>
+                                <option value="Quality not satisfactory">Quality not satisfactory</option>
+                                <option value="Performance issues">Performance issues</option>
+                                <option value="Changed my mind">Changed my mind</option>
+                                <option value="Found better price elsewhere">Found better price elsewhere</option>
+                                <option value="Ordered by mistake">Ordered by mistake</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div id="otherReasonContainer" style="display: none; margin-top: 10px;">
+                                <label class="form-label fw-bold mb-2">Please specify:</label>
+                                <textarea id="otherReason" class="form-control" rows="3" maxlength="500" placeholder="Enter your reason..."></textarea>
+                            </div>
+                        </div>
+                    `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit Request',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#dc3545',
+                        didOpen: () => {
+                            const select = document.getElementById('returnReason');
+                            const otherContainer = document.getElementById('otherReasonContainer');
+
+                            select.addEventListener('change', function () {
+                                if (this.value === 'Other') {
+                                    otherContainer.style.display = 'block';
+                                } else {
+                                    otherContainer.style.display = 'none';
+                                }
+                            });
+                        },
+                        preConfirm: () => {
+                            const selectedReason = document.getElementById('returnReason').value;
+                            const otherReason = document.getElementById('otherReason').value.trim();
+
+                            if (!selectedReason) {
+                                Swal.showValidationMessage('Please select a reason for return');
+                                return false;
+                            }
+
+                            if (selectedReason === 'Other' && !otherReason) {
+                                Swal.showValidationMessage('Please specify your reason');
+                                return false;
+                            }
+
+                            return selectedReason === 'Other' ? otherReason : selectedReason;
+                        }
+                    });
+
+                    if (!reason) return;
+
+                    Swal.fire({
+                        title: 'Submitting return request...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    const res = await fetch(`/order/${orderId}/return`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reason })
+                    });
+                    const data = await res.json();
+                    Swal.close();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Return Requested!',
+                            text: data.message || 'Your return request has been submitted successfully',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        showAlert(data.message || 'Failed to request return', 'error');
+                    }
+                } catch (err) {
+                    console.error('Return order error:', err);
+                    Swal.close();
+                    showAlert('Failed to request return', 'error');
+                }
+            }
+
+            async function requestItemReturn(orderId, itemId) {
+                try {
+                    const { value: reason } = await Swal.fire({
+                        title: 'Return This Item',
+                        html: `
+                        <div class="text-start">
+                            <label class="form-label fw-bold mb-2">Select reason for return:</label>
+                            <select id="returnReason" class="form-select">
+                                <option value="">-- Select a reason --</option>
+                                <option value="Product damaged or defective">Product damaged or defective</option>
+                                <option value="Wrong product delivered">Wrong product delivered</option>
+                                <option value="Product not as described">Product not as described</option>
+                                <option value="Missing parts or accessories">Missing parts or accessories</option>
+                                <option value="Quality not satisfactory">Quality not satisfactory</option>
+                                <option value="Performance issues">Performance issues</option>
+                                <option value="Changed my mind">Changed my mind</option>
+                                <option value="Found better price elsewhere">Found better price elsewhere</option>
+                                <option value="Ordered by mistake">Ordered by mistake</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div id="otherReasonContainer" style="display: none; margin-top: 10px;">
+                                <label class="form-label fw-bold mb-2">Please specify:</label>
+                                <textarea id="otherReason" class="form-control" rows="3" maxlength="500" placeholder="Enter your reason..."></textarea>
+                            </div>
+                        </div>
+                    `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit Request',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#dc3545',
+                        didOpen: () => {
+                            const select = document.getElementById('returnReason');
+                            const otherContainer = document.getElementById('otherReasonContainer');
+
+                            select.addEventListener('change', function () {
+                                if (this.value === 'Other') {
+                                    otherContainer.style.display = 'block';
+                                } else {
+                                    otherContainer.style.display = 'none';
+                                }
+                            });
+                        },
+                        preConfirm: () => {
+                            const selectedReason = document.getElementById('returnReason').value;
+                            const otherReason = document.getElementById('otherReason').value.trim();
+
+                            if (!selectedReason) {
+                                Swal.showValidationMessage('Please select a reason for return');
+                                return false;
+                            }
+
+                            if (selectedReason === 'Other' && !otherReason) {
+                                Swal.showValidationMessage('Please specify your reason');
+                                return false;
+                            }
+
+                            return selectedReason === 'Other' ? otherReason : selectedReason;
+                        }
+                    });
+
+                    if (!reason) return;
+
+                    Swal.fire({
+                        title: 'Submitting return request...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    const res = await fetch(`/order/${orderId}/item/${itemId}/return`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ reason })
+                    });
+                    const data = await res.json();
+                    Swal.close();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Return Requested!',
+                            text: data.message || 'Your return request has been submitted successfully',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        showAlert(data.message || 'Failed to request return', 'error');
+                    }
+                } catch (err) {
+                    console.error('Return item error:', err);
+                    Swal.close();
+                    showAlert('Failed to request return', 'error');
+                }
+            }
+
+            function showAlert(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+                alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+                document.body.appendChild(alertDiv);
+
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 5000);
+            }
+
+            // Retry payment function for failed orders
+            async function retryPayment(orderId) {
+                try {
+                    Swal.fire({
+                        title: 'Initiating Payment...',
+                        text: 'Please wait while we prepare your payment',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    // Call retry payment endpoint
+                    const response = await fetch(`/payment/razorpay/retry/${orderId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const data = await response.json();
+                    Swal.close();
+
+                    if (!data.success) {
+                        showAlert(data.message || 'Failed to initiate payment', 'error');
+                        return;
+                    }
+
+                    // Initialize Razorpay payment
+                    const options = {
+                        key: data.keyId,
+                        amount: data.amount,
+                        currency: data.currency,
+                        name: 'LapTique',
+                        description: `Order ${data.orderNumber}`,
+                        order_id: data.razorpayOrderId,
+                        handler: async function (response) {
+                            try {
+                                Swal.fire({
+                                    title: 'Verifying Payment...',
+                                    text: 'Please wait',
+                                    allowOutsideClick: false,
+                                    didOpen: () => Swal.showLoading()
+                                });
+
+                                const verifyRes = await fetch('/payment/razorpay/verify', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_signature: response.razorpay_signature,
+                                        orderId: data.orderId
+                                    })
+                                });
+
+                                const verifyData = await verifyRes.json();
+                                Swal.close();
+
+                                if (verifyData.success) {
+                                    await Swal.fire({
+                                        icon: 'success',
+                                        title: 'Payment Successful!',
+                                        text: 'Your order has been confirmed',
+                                        confirmButtonColor: '#10b981'
+                                    });
+                                    window.location.href = verifyData.redirectUrl || `/order-success/${data.orderId}`;
+                                } else {
+                                    showAlert(verifyData.message || 'Payment verification failed', 'error');
+                                    if (verifyData.redirectUrl) {
+                                        setTimeout(() => {
+                                            window.location.href = verifyData.redirectUrl;
+                                        }, 2000);
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('Verification error:', err);
+                                Swal.close();
+                                showAlert('Payment verification failed', 'error');
+                            }
+                        },
+                        modal: {
+                            ondismiss: function () {
+                                showAlert('Payment cancelled. You can retry anytime from order details.', 'warning');
+                            }
+                        },
+                        theme: {
+                            color: '#3399cc'
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+
+                    rzp.on('payment.failed', function (response) {
+                        console.error('Payment failed:', response.error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Payment Failed',
+                            text: response.error.description || 'Payment could not be processed',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    });
+
+                    rzp.open();
+
+                } catch (error) {
+                    console.error('Error retrying payment:', error);
+                    Swal.close();
+                    showAlert('Failed to initiate payment. Please try again.', 'error');
+                }
+            }
+
+            // Add some interactive effects
+            document.addEventListener('DOMContentLoaded', function () {
+                // Add hover effects to product items
+                document.querySelectorAll('.product-item').forEach(item => {
+                    item.addEventListener('mouseenter', function () {
+                        this.style.transform = 'translateY(-2px)';
+                    });
+
+                    item.addEventListener('mouseleave', function () {
+                        this.style.transform = 'translateY(0)';
+                    });
+                });
+
+                // Add click effects to buttons
+                document.querySelectorAll('.btn-primary-custom, .btn-danger-custom, .btn-success-custom').forEach(btn => {
+                    btn.addEventListener('click', function (e) {
+                        // Create ripple effect
+                        const ripple = document.createElement('span');
+                        const rect = this.getBoundingClientRect();
+                        const size = Math.max(rect.width, rect.height);
+                        const x = e.clientX - rect.left - size / 2;
+                        const y = e.clientY - rect.top - size / 2;
+
+                        ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        pointer-events: none;
+                    `;
+
+                        this.style.position = 'relative';
+                        this.style.overflow = 'hidden';
+                        this.appendChild(ripple);
+
+                        setTimeout(() => {
+                            ripple.remove();
+                        }, 600);
+                    });
+                });
+            });
+
+            // Add ripple animation CSS
+            const style = document.createElement('style');
+            style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+            document.head.appendChild(style);
+        </script>
+        <%-include("../../views/parsuals/user/footer")%>

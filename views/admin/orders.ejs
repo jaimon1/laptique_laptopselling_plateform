@@ -1,0 +1,2067 @@
+<%-include(".. /../views/parsuals/admin/header")%>
+
+    <div class="col-md-10 p-0">
+        <!-- Ultra Modern Premium Header -->
+        <div class="premium-header">
+            <div class="header-background">
+                <div class="gradient-orb orb-1"></div>
+                <div class="gradient-orb orb-2"></div>
+                <div class="gradient-orb orb-3"></div>
+            </div>
+
+            <div class="header-container">
+                <div class="header-main">
+                    <div class="icon-wrapper"></div>
+                    <div class="icon-glow"></div>
+                    <div class="icon-circle"></div>
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+            </div>
+
+            <div class="header-content">
+                <div class="breadcrumb-nav">
+                    <span class="breadcrumb-item">Admin</span>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                    <span class="breadcrumb-item active">Orders</span>
+                </div>
+                <h1 class="header-title">
+                    Order Management
+                    <span class="title-decoration"></span>
+                </h1>
+                <p class="header-description">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Monitor, track, and manage all customer orders in real-time
+                </p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <a href="/admin" class="action-btn btn-dashboard">
+                <span class="btn-icon">
+                    <i class="fas fa-home"></i>
+                </span>
+                <span class="btn-text">Dashboard</span>
+                <span class="btn-shine"></span>
+            </a>
+        </div>
+    </div>
+    </div>
+
+    <div class="container-fluid py-4"></div>div></a>div></div>
+    <!-- Order Statistics -->
+    <% if (orderStats && orderStats.length> 0) { %>
+        <div class="row mb-4">
+            <% orderStats.forEach(stat=> { %>
+                <div class="col-md-3 mb-3">
+                    <div class="stats-card-mini">
+                        <div
+                            class="stats-icon-mini <%= stat._id === 'Pending' ? 'bg-gradient-warning' : 
+                                                        stat._id === 'Processing' ? 'bg-gradient-info' :
+                                                        stat._id === 'Shipped' ? 'bg-gradient-primary' :
+                                                        stat._id === 'Delivered' ? 'bg-gradient-success' :
+                                                        stat._id === 'Cancelled' ? 'bg-gradient-danger' : 
+                                                        stat._id === 'Returned' ? 'bg-gradient-secondary' : 'bg-gradient-dark' %>">
+                            <i class="fas fa-<%= stat._id === 'Pending' ? 'clock' : 
+                                                    stat._id === 'Processing' ? 'cog' :
+                                                    stat._id === 'Shipped' ? 'shipping-fast' :
+                                                    stat._id === 'Delivered' ? 'check-circle' :
+                                                    stat._id === 'Cancelled' ? 'times-circle' : 
+                                                    stat._id === 'Returned' ? 'undo' : 'box' %>"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3>
+                                <%= stat.count %>
+                            </h3>
+                            <p>
+                                <%= stat._id %>
+                            </p>
+                            <small class="text-success fw-bold">₹<%= stat.totalAmount.toLocaleString() %>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+        </div>
+        <% } %>
+
+            <!-- Filters -->
+            <div class="modern-card mb-4">
+                <div class="card-header-modern">
+                    <h5><i class="fas fa-filter me-2"></i>Filter Orders</h5>
+                </div>
+                <div class="p-4">
+                    <form method="GET" action="/admin/orders">
+                        <div class="row align-items-end">
+                            <div class="col-md-3">
+                                <label for="search" class="form-label">Search</label>
+                                <input type="text" class="form-control" id="search" name="search" value="<%= search %>"
+                                    placeholder="Order ID, Customer Name, Phone">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="">All Status</option>
+                                    <option value="Pending" <%=status==='Pending' ? 'selected' : '' %>>Pending
+                                    </option>
+                                    <option value="Processing" <%=status==='Processing' ? 'selected' : '' %>
+                                        >Processing
+                                    </option>
+                                    <option value="Shipped" <%=status==='Shipped' ? 'selected' : '' %>>Shipped
+                                    </option>
+                                    <option value="Out for Delivery" <%=status==='Out for Delivery' ? 'selected' : '' %>
+                                        >Out for Delivery</option>
+                                    <option value="Delivered" <%=status==='Delivered' ? 'selected' : '' %>
+                                        >Delivered
+                                    </option>
+                                    <option value="Cancelled" <%=status==='Cancelled' ? 'selected' : '' %>
+                                        >Cancelled
+                                    </option>
+                                    <option value="Return Request" <%=status==='Return Request' ? 'selected' : '' %>
+                                        >Return Request</option>
+                                    <option value="Returned" <%=status==='Returned' ? 'selected' : '' %>
+                                        >Returned
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sortBy" class="form-label">Sort By</label>
+                                <select class="form-select" id="sortBy" name="sortBy">
+                                    <option value="createdOn" <%=sortBy==='createdOn' ? 'selected' : '' %>>Order
+                                        Date
+                                    </option>
+                                    <option value="finalAmount" <%=sortBy==='finalAmount' ? 'selected' : '' %>
+                                        >Amount
+                                    </option>
+                                    <option value="status" <%=sortBy==='status' ? 'selected' : '' %>>Status
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sortOrder" class="form-label">Order</label>
+                                <select class="form-select" id="sortOrder" name="sortOrder">
+                                    <option value="desc" <%=sortOrder==='desc' ? 'selected' : '' %>>Descending
+                                    </option>
+                                    <option value="asc" <%=sortOrder==='asc' ? 'selected' : '' %>>Ascending
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary flex-fill">
+                                        <i class="fas fa-search me-2"></i>Filter
+                                    </button>
+                                    <% if (search || status || sortBy !=='createdOn' || sortOrder !=='desc' ) { %>
+                                        <a href="/admin/orders/clear-filters" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                        <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </div>
+
+            <!-- Orders Table -->
+            <% if (orders && orders.length> 0) { %>
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <h5><i class="fas fa-list me-2"></i>Orders List</h5>
+                        <span class="badge bg-primary">Total: <%= totalOrders %> orders</span>
+                    </div>
+                    <div class="table-container">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class="th-content"><i class="fas fa-hashtag me-2"></i>Order ID</div>
+                                    </th>
+                                    <th>
+                                        <div class="th-content"><i class="fas fa-user me-2"></i>Customer</div>
+                                    </th>
+                                    <th>
+                                        <div class="th-content"><i class="fas fa-calendar me-2"></i>Date</div>
+                                    </th>
+                                    <th>
+                                        <div class="th-content"><i class="fas fa-box me-2"></i>Items</div>
+                                    </th>
+                                    <th>
+                                        <div class="th-content"><i class="fas fa-rupee-sign me-2"></i>Amount</div>
+                                    </th>
+                                    <th>
+                                        <div class="th-content"><i class="fas fa-info-circle me-2"></i>Status</div>
+                                    </th>
+                                    <th>
+                                        <div class="th-content"><i class="fas fa-cog me-2"></i>Actions</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% orders.forEach(order=> { %>
+                                    <tr>
+                                        <td>
+                                            <span class="order-id">#<%= order.orderId %></span>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong>
+                                                    <%= order.userId.name %>
+                                                </strong><br>
+                                                <small class="text-muted">
+                                                    <%= order.userId.email %>
+                                                </small><br>
+                                                <small class="text-muted">
+                                                    <%= order.address.phone %>
+                                                </small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <%= new Date(order.createdOn).toLocaleDateString('en-IN', { year: 'numeric'
+                                                , month: 'short' , day: 'numeric' }) %>
+                                                <br>
+                                                <small class="text-muted">
+                                                    <%= new Date(order.createdOn).toLocaleTimeString('en-IN', {
+                                                        hour: '2-digit' , minute: '2-digit' }) %>
+                                                </small>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <% if (order.orderItems[0] && order.orderItems[0].product) { %>
+                                                    <img src="/uploads/re-images/<%= order.orderItems[0].product.ProductImages[0] %>"
+                                                        alt="Product" class="me-2"
+                                                        style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px;">
+                                                    <% } %>
+                                                        <div>
+                                                            <strong>
+                                                                <%= order.orderItems.reduce((total, item)=> total +
+                                                                    item.quantity, 0) %>
+                                                            </strong>
+                                                            <small class="text-muted d-block">items</small>
+                                                        </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>₹<%= parseInt(order.finalAmount).toLocaleString() %></strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                <%= order.paymentMethod %>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="status-badge status-<%= order.status.toLowerCase().replace(/\s+/g, '-') %>">
+                                                <%= order.status %>
+                                            </span>
+                                            <% if (order.returnStatus==='Requested' ) { %>
+                                                <br><small class="text-warning mt-1 d-block">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>Return Pending
+                                                </small>
+                                                <% } %>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column gap-1">
+                                                <a href="/admin/order/<%= order._id %>"
+                                                    class="btn btn-primary btn-sm-custom">
+                                                    <i class="fas fa-eye me-1"></i>View
+                                                </a>
+                                                <% if (!['Cancelled', 'Returned' , 'Delivered' ].includes(order.status))
+                                                    { %>
+                                                    <button class="btn btn-warning btn-sm-custom"
+                                                        onclick="updateStatus('<%= order._id %>')">
+                                                        <i class="fas fa-edit me-1"></i>Status
+                                                    </button>
+                                                    <% } %>
+                                                        <% if (order.returnStatus==='Requested' ) { %>
+                                                            <button class="btn btn-info btn-sm-custom"
+                                                                onclick="handleReturn('<%= order._id %>')">
+                                                                <i class="fas fa-undo me-1"></i>Return
+                                                            </button>
+                                                            <% } %>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Order Cards (visible only on mobile) -->
+                    <div class="mobile-orders-container">
+                        <% orders.forEach(order=> { %>
+                            <div class="mobile-order-card">
+                                <div class="mobile-order-header">
+                                    <span class="mobile-order-id">#<%= order.orderId %></span>
+                                    <span
+                                        class="status-badge status-<%= order.status.toLowerCase().replace(/\s+/g, '-') %>">
+                                        <%= order.status %>
+                                    </span>
+                                </div>
+                                <div class="mobile-order-body">
+                                    <div class="mobile-order-row">
+                                        <span class="mobile-order-label"><i class="fas fa-user me-1"></i>Customer</span>
+                                        <span class="mobile-order-value">
+                                            <%= order.userId.name %>
+                                        </span>
+                                    </div>
+                                    <div class="mobile-order-row">
+                                        <span class="mobile-order-label"><i class="fas fa-calendar me-1"></i>Date</span>
+                                        <span class="mobile-order-value">
+                                            <%= new Date(order.createdOn).toLocaleDateString('en-IN', { month: 'short' ,
+                                                day: 'numeric' }) %>
+                                        </span>
+                                    </div>
+                                    <div class="mobile-order-row">
+                                        <span class="mobile-order-label"><i class="fas fa-box me-1"></i>Items</span>
+                                        <span class="mobile-order-value">
+                                            <%= order.orderItems.reduce((total, item)=> total + item.quantity, 0) %>
+                                                items
+                                        </span>
+                                    </div>
+                                    <div class="mobile-order-row">
+                                        <span class="mobile-order-label"><i
+                                                class="fas fa-rupee-sign me-1"></i>Amount</span>
+                                        <span class="mobile-order-value">₹<%=
+                                                parseInt(order.finalAmount).toLocaleString() %></span>
+                                    </div>
+                                    <div class="mobile-order-row">
+                                        <span class="mobile-order-label"><i
+                                                class="fas fa-credit-card me-1"></i>Payment</span>
+                                        <span class="mobile-order-value">
+                                            <%= order.paymentMethod %>
+                                        </span>
+                                    </div>
+                                    <% if (order.returnStatus==='Requested' ) { %>
+                                        <div class="mobile-order-row">
+                                            <span class="text-warning small">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>Return Pending
+                                            </span>
+                                        </div>
+                                        <% } %>
+                                </div>
+                                <div class="mobile-order-actions">
+                                    <a href="/admin/order/<%= order._id %>" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </a>
+                                    <% if (!['Cancelled', 'Returned' , 'Delivered' ].includes(order.status)) { %>
+                                        <button class="btn btn-warning btn-sm"
+                                            onclick="updateStatus('<%= order._id %>')">
+                                            <i class="fas fa-edit me-1"></i>Status
+                                        </button>
+                                        <% } %>
+                                            <% if (order.returnStatus==='Requested' ) { %>
+                                                <button class="btn btn-info btn-sm"
+                                                    onclick="handleReturn('<%= order._id %>')">
+                                                    <i class="fas fa-undo me-1"></i>Return
+                                                </button>
+                                                <% } %>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <% if (totalPages> 1) { %>
+                    <nav aria-label="Orders pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            <% if (currentPage> 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="/admin/orders?page=<%= currentPage - 1 %><%= search ? '&search=' + encodeURIComponent(search) : '' %><%= status ? '&status=' + encodeURIComponent(status) : '' %><%= sortBy !== 'createdOn' ? '&sortBy=' + sortBy : '' %><%= sortOrder !== 'desc' ? '&sortOrder=' + sortOrder : '' %>">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                                <% } %>
+
+                                    <% for (let i=Math.max(1, currentPage - 2); i <=Math.min(totalPages, currentPage +
+                                        2); i++) { %>
+                                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                            <a class="page-link"
+                                                href="/admin/orders?page=<%= i %><%= search ? '&search=' + encodeURIComponent(search) : '' %><%= status ? '&status=' + encodeURIComponent(status) : '' %><%= sortBy !== 'createdOn' ? '&sortBy=' + sortBy : '' %><%= sortOrder !== 'desc' ? '&sortOrder=' + sortOrder : '' %>">
+                                                <%= i %>
+                                            </a>
+                                        </li>
+                                        <% } %>
+
+                                            <% if (currentPage < totalPages) { %>
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                        href="/admin/orders?page=<%= currentPage + 1 %><%= search ? '&search=' + encodeURIComponent(search) : '' %><%= status ? '&status=' + encodeURIComponent(status) : '' %><%= sortBy !== 'createdOn' ? '&sortBy=' + sortBy : '' %><%= sortOrder !== 'desc' ? '&sortOrder=' + sortOrder : '' %>">
+                                                        <i class="fas fa-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                                <% } %>
+                        </ul>
+                    </nav>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Showing <%= (currentPage - 1) * 10 + 1 %> to <%= Math.min(currentPage * 10, totalOrders) %>
+                                    of
+                                    <%= totalOrders %> orders
+                        </small>
+                    </div>
+                    <% } %>
+
+                        <% } else { %>
+                            <!-- Empty State -->
+                            <div class="modern-card">
+                                <div class="empty-state text-center py-5">
+                                    <i class="fas fa-shopping-bag fa-4x text-muted mb-4"></i>
+                                    <h3 class="mb-3">No orders found</h3>
+                                    <p class="text-muted mb-4">
+                                        <% if (search || status) { %>
+                                            No orders match your current filters. Try adjusting your search criteria.
+                                            <% } else { %>
+                                                No orders have been placed yet.
+                                                <% } %>
+                                    </p>
+                                    <% if (search || status) { %>
+                                        <a href="/admin/orders" class="btn btn-primary">
+                                            <i class="fas fa-list me-2"></i>View All Orders
+                                        </a>
+                                        <% } %>
+                                </div>
+                            </div>
+                            <% } %>
+                                </div>
+                                </div>
+                                </div>
+
+                                <!-- Status Update Modal -->
+                                <div class="modal fade" id="statusModal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Update Order Status</h5>
+                                                <button type="button" class="btn-close"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="statusForm">
+                                                    <div class="mb-3">
+                                                        <label for="newStatus" class="form-label">New Status</label>
+                                                        <select class="form-select" id="newStatus" required>
+                                                            <option value="">Select Status</option>
+                                                            <option value="Pending">Pending</option>
+                                                            <option value="Processing">Processing</option>
+                                                            <option value="Shipped">Shipped</option>
+                                                            <option value="Out for Delivery">Out for Delivery</option>
+                                                            <option value="Delivered">Delivered</option>
+                                                            <option value="Cancelled">Cancelled</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="statusNote" class="form-label">Note
+                                                            (Optional)</label>
+                                                        <textarea class="form-control" id="statusNote" rows="3"
+                                                            placeholder="Add a note about this status change"></textarea>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="button" class="btn btn-primary"
+                                                    onclick="submitStatusUpdate()">Update Status</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Return Request Modal -->
+                                <div class="modal fade" id="returnModal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Handle Return Request</h5>
+                                                <button type="button" class="btn-close"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="returnForm">
+                                                    <div class="mb-3">
+                                                        <label for="returnAction" class="form-label">Action</label>
+                                                        <select class="form-select" id="returnAction" required>
+                                                            <option value="">Select Action</option>
+                                                            <option value="approve">Approve Return</option>
+                                                            <option value="reject">Reject Return</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="returnNote" class="form-label">Note</label>
+                                                        <textarea class="form-control" id="returnNote" rows="3"
+                                                            placeholder="Add a note about this decision"
+                                                            required></textarea>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="button" class="btn btn-primary"
+                                                    onclick="submitReturnDecision()">Submit</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bootstrap JS -->
+                                <script
+                                    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+                                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+                                <script>
+                                    let currentOrderId = null;
+                                    let currentFilters = {
+                                        search: '<%= search || "" %>',
+                                        status: '<%= status || "" %>',
+                                        sortBy: '<%= sortBy || "createdOn" %>',
+                                        sortOrder: '<%= sortOrder || "desc" %>',
+                                        page: <%= currentPage || 1 %>
+        };
+
+                                    // AJAX: Load orders with filters
+                                    async function loadOrders(page = 1, updateUrl = true) {
+                                        const params = new URLSearchParams({
+                                            page: page,
+                                            search: currentFilters.search,
+                                            status: currentFilters.status,
+                                            sortBy: currentFilters.sortBy,
+                                            sortOrder: currentFilters.sortOrder
+                                        });
+
+                                        // Show loading state
+                                        showLoading();
+
+                                        try {
+                                            const response = await fetch(`/admin/orders?${params.toString()}`, {
+                                                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                                            });
+
+                                            if (response.ok) {
+                                                const html = await response.text();
+                                                const parser = new DOMParser();
+                                                const doc = parser.parseFromString(html, 'text/html');
+
+                                                // Update stats
+                                                const newStats = doc.querySelector('.row.mb-4');
+                                                const currentStats = document.querySelector('.row.mb-4');
+                                                if (newStats && currentStats) {
+                                                    currentStats.innerHTML = newStats.innerHTML;
+                                                }
+
+                                                // Update table
+                                                const newTable = doc.querySelector('.table-container');
+                                                const currentTable = document.querySelector('.table-container');
+                                                if (newTable && currentTable) {
+                                                    currentTable.innerHTML = newTable.innerHTML;
+                                                }
+
+                                                // Update mobile cards
+                                                const newMobileCards = doc.querySelector('.mobile-orders-container');
+                                                const currentMobileCards = document.querySelector('.mobile-orders-container');
+                                                if (newMobileCards && currentMobileCards) {
+                                                    currentMobileCards.innerHTML = newMobileCards.innerHTML;
+                                                }
+
+                                                // Update pagination
+                                                const newPagination = doc.querySelector('nav[aria-label="Orders pagination"]');
+                                                const currentPagination = document.querySelector('nav[aria-label="Orders pagination"]');
+                                                if (newPagination && currentPagination) {
+                                                    currentPagination.parentElement.innerHTML = newPagination.parentElement.innerHTML;
+                                                }
+
+                                                // Update URL
+                                                if (updateUrl) {
+                                                    const newUrl = `/admin/orders?${params.toString()}`;
+                                                    window.history.pushState({ page, filters: currentFilters }, '', newUrl);
+                                                }
+
+                                                currentFilters.page = page;
+                                                hideLoading();
+                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                            } else {
+                                                throw new Error('Failed to load orders');
+                                            }
+                                        } catch (error) {
+                                            console.error('Error loading orders:', error);
+                                            hideLoading();
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error!',
+                                                text: 'Failed to load orders. Please try again.',
+                                                confirmButtonColor: '#ef4444'
+                                            });
+                                        }
+                                    }
+
+                                    // AJAX: Apply filters
+                                    function applyFilters(event) {
+                                        if (event) event.preventDefault();
+
+                                        currentFilters.search = document.getElementById('search').value.trim();
+                                        currentFilters.status = document.getElementById('status').value;
+                                        currentFilters.sortBy = document.getElementById('sortBy').value;
+                                        currentFilters.sortOrder = document.getElementById('sortOrder').value;
+
+                                        loadOrders(1);
+                                    }
+
+                                    // AJAX: Pagination
+                                    function goToPage(page, event) {
+                                        if (event) event.preventDefault();
+                                        loadOrders(page);
+                                    }
+
+                                    // Update order status
+                                    function updateStatus(orderId) {
+                                        currentOrderId = orderId;
+                                        const modal = new bootstrap.Modal(document.getElementById('statusModal'));
+                                        modal.show();
+                                    }
+
+                                    async function submitStatusUpdate() {
+                                        const status = document.getElementById('newStatus').value;
+                                        const note = document.getElementById('statusNote').value;
+
+                                        if (!status) {
+                                            Swal.fire({
+                                                icon: 'warning',
+                                                title: 'Missing Status',
+                                                text: 'Please select a status',
+                                                confirmButtonColor: '#f59e0b'
+                                            });
+                                            return;
+                                        }
+
+                                        // Show loading
+                                        Swal.fire({
+                                            title: 'Updating...',
+                                            text: 'Please wait while we update the order status',
+                                            allowOutsideClick: false,
+                                            didOpen: () => {
+                                                Swal.showLoading();
+                                            }
+                                        });
+
+                                        try {
+                                            const response = await fetch(`/admin/order/${currentOrderId}/status`, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({ status, note })
+                                            });
+
+                                            const data = await response.json();
+
+                                            if (data.success) {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Success!',
+                                                    text: data.message,
+                                                    timer: 2000,
+                                                    showConfirmButton: false
+                                                });
+
+                                                bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+
+                                                // Reload orders with AJAX
+                                                setTimeout(() => {
+                                                    loadOrders(currentFilters.page, false);
+                                                }, 2000);
+                                            } else {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error!',
+                                                    text: data.message,
+                                                    confirmButtonColor: '#ef4444'
+                                                });
+                                            }
+                                        } catch (error) {
+                                            console.error('Error updating status:', error);
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error!',
+                                                text: 'Failed to update status. Please try again.',
+                                                confirmButtonColor: '#ef4444'
+                                            });
+                                        }
+                                    }
+
+                                    // Handle return request
+                                    function handleReturn(orderId) {
+                                        currentOrderId = orderId;
+                                        const modal = new bootstrap.Modal(document.getElementById('returnModal'));
+                                        modal.show();
+                                    }
+
+                                    async function submitReturnDecision() {
+                                        const action = document.getElementById('returnAction').value;
+                                        const note = document.getElementById('returnNote').value;
+
+                                        if (!action || !note.trim()) {
+                                            Swal.fire({
+                                                icon: 'warning',
+                                                title: 'Missing Information',
+                                                text: 'Please fill all required fields',
+                                                confirmButtonColor: '#f59e0b'
+                                            });
+                                            return;
+                                        }
+
+                                        // Show loading
+                                        Swal.fire({
+                                            title: 'Processing...',
+                                            text: 'Please wait while we process the return request',
+                                            allowOutsideClick: false,
+                                            didOpen: () => {
+                                                Swal.showLoading();
+                                            }
+                                        });
+
+                                        try {
+                                            const response = await fetch(`/admin/order/${currentOrderId}/return`, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({ action, note: note.trim() })
+                                            });
+
+                                            const data = await response.json();
+
+                                            if (data.success) {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Success!',
+                                                    text: data.message,
+                                                    timer: 2000,
+                                                    showConfirmButton: false
+                                                });
+
+                                                bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
+
+                                                // Reload orders with AJAX
+                                                setTimeout(() => {
+                                                    loadOrders(currentFilters.page, false);
+                                                }, 2000);
+                                            } else {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error!',
+                                                    text: data.message,
+                                                    confirmButtonColor: '#ef4444'
+                                                });
+                                            }
+                                        } catch (error) {
+                                            console.error('Error handling return:', error);
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error!',
+                                                text: 'Failed to process return request. Please try again.',
+                                                confirmButtonColor: '#ef4444'
+                                            });
+                                        }
+                                    }
+
+                                    // Loading state
+                                    function showLoading() {
+                                        const container = document.querySelector('.container-fluid');
+                                        if (container) {
+                                            const loader = document.createElement('div');
+                                            loader.id = 'ajax-loader';
+                                            loader.className = 'ajax-loader';
+                                            loader.innerHTML = `
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading orders...</p>
+                `;
+                                            container.style.position = 'relative';
+                                            container.style.opacity = '0.6';
+                                            container.appendChild(loader);
+                                        }
+                                    }
+
+                                    function hideLoading() {
+                                        const loader = document.getElementById('ajax-loader');
+                                        const container = document.querySelector('.container-fluid');
+                                        if (loader) loader.remove();
+                                        if (container) container.style.opacity = '1';
+                                    }
+
+                                    // Initialize on page load
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        // Handle filter form submission
+                                        const filterForm = document.querySelector('form[action="/admin/orders"]');
+                                        if (filterForm) {
+                                            filterForm.addEventListener('submit', applyFilters);
+                                        }
+
+                                        // Handle Enter key in search
+                                        const searchInput = document.getElementById('search');
+                                        if (searchInput) {
+                                            searchInput.addEventListener('keypress', function (e) {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    applyFilters();
+                                                }
+                                            });
+                                        }
+
+                                        // Handle pagination clicks
+                                        document.addEventListener('click', function (e) {
+                                            if (e.target.closest('.pagination .page-link')) {
+                                                e.preventDefault();
+                                                const link = e.target.closest('.page-link');
+                                                const href = link.getAttribute('href');
+                                                if (href && href.includes('page=')) {
+                                                    const urlParams = new URLSearchParams(href.split('?')[1]);
+                                                    const page = parseInt(urlParams.get('page'));
+                                                    if (page) goToPage(page, e);
+                                                }
+                                            }
+                                        });
+
+                                        // Clear forms when modals are hidden
+                                        document.getElementById('statusModal').addEventListener('hidden.bs.modal', function () {
+                                            document.getElementById('statusForm').reset();
+                                        });
+
+                                        document.getElementById('returnModal').addEventListener('hidden.bs.modal', function () {
+                                            document.getElementById('returnForm').reset();
+                                        });
+                                    });
+
+                                    // Handle browser back/forward
+                                    window.addEventListener('popstate', function (event) {
+                                        if (event.state && event.state.page) {
+                                            currentFilters = event.state.filters || currentFilters;
+                                            loadOrders(event.state.page, false);
+                                        }
+                                    });
+                                </script>
+
+                                <style>
+                                    /* Modern Stats Cards */
+                                    .stats-card-mini {
+                                        background: white;
+                                        border-radius: 16px;
+                                        padding: 24px;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 20px;
+                                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+                                        transition: all 0.3s;
+                                        border: 1px solid #f1f5f9;
+                                    }
+
+                                    .stats-card-mini:hover {
+                                        transform: translateY(-4px);
+                                        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+                                    }
+
+                                    .stats-icon-mini {
+                                        width: 60px;
+                                        height: 60px;
+                                        border-radius: 14px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 24px;
+                                        color: white;
+                                        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+                                    }
+
+                                    .bg-gradient-primary {
+                                        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+                                    }
+
+                                    .bg-gradient-success {
+                                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                                    }
+
+                                    .bg-gradient-danger {
+                                        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                                    }
+
+                                    .bg-gradient-warning {
+                                        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                                    }
+
+                                    .bg-gradient-info {
+                                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                                    }
+
+                                    .bg-gradient-secondary {
+                                        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+                                    }
+
+                                    .bg-gradient-dark {
+                                        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+                                    }
+
+                                    .stats-content h3 {
+                                        font-size: 32px;
+                                        font-weight: 900;
+                                        color: #0f172a;
+                                        margin: 0;
+                                        letter-spacing: -1px;
+                                    }
+
+                                    .stats-content p {
+                                        font-size: 13px;
+                                        color: #64748b;
+                                        margin: 0;
+                                        font-weight: 600;
+                                    }
+
+                                    /* Modern Card */
+                                    .modern-card {
+                                        background: white;
+                                        border-radius: 20px;
+                                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+                                        border: 1px solid #f1f5f9;
+                                        overflow: hidden;
+                                    }
+
+                                    .card-header-modern {
+                                        padding: 24px 28px;
+                                        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                                        border-bottom: 2px solid #e2e8f0;
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+                                    }
+
+                                    .card-header-modern h5 {
+                                        margin: 0;
+                                        font-size: 20px;
+                                        font-weight: 800;
+                                        color: #0f172a;
+                                    }
+
+                                    /* Modern Table */
+                                    .modern-table {
+                                        width: 100%;
+                                        border-collapse: separate;
+                                        border-spacing: 0;
+                                    }
+
+                                    .modern-table thead th {
+                                        padding: 20px 16px;
+                                        border-bottom: 2px solid #e2e8f0;
+                                        font-weight: 800;
+                                        font-size: 11px;
+                                        text-transform: uppercase;
+                                        letter-spacing: 1px;
+                                        color: #475569;
+                                        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                                    }
+
+                                    .th-content {
+                                        display: flex;
+                                        align-items: center;
+                                    }
+
+                                    .modern-table tbody tr {
+                                        transition: all 0.3s;
+                                        border-bottom: 1px solid #f1f5f9;
+                                    }
+
+                                    .modern-table tbody tr:hover {
+                                        background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+                                        transform: scale(1.001);
+                                    }
+
+                                    .modern-table tbody td {
+                                        padding: 16px;
+                                        vertical-align: middle;
+                                    }
+
+                                    .order-id {
+                                        font-weight: 700;
+                                        color: #6366f1;
+                                        font-size: 14px;
+                                    }
+
+                                    .status-badge {
+                                        display: inline-flex;
+                                        align-items: center;
+                                        padding: 6px 12px;
+                                        border-radius: 100px;
+                                        font-size: 11px;
+                                        font-weight: 800;
+                                        text-transform: uppercase;
+                                        letter-spacing: 0.5px;
+                                    }
+
+                                    .status-pending {
+                                        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                                        color: #92400e;
+                                    }
+
+                                    .status-processing {
+                                        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+                                        color: #1e40af;
+                                    }
+
+                                    .status-shipped {
+                                        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+                                        color: #4338ca;
+                                    }
+
+                                    .status-out-for-delivery {
+                                        background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+                                        color: #6b21a8;
+                                    }
+
+                                    .status-delivered {
+                                        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+                                        color: #065f46;
+                                    }
+
+                                    .status-cancelled {
+                                        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+                                        color: #991b1b;
+                                    }
+
+                                    .status-return-request {
+                                        background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+                                        color: #92400e;
+                                    }
+
+                                    .status-returned {
+                                        background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+                                        color: #374151;
+                                    }
+
+                                    .btn-sm-custom {
+                                        padding: 6px 12px;
+                                        font-size: 12px;
+                                        font-weight: 600;
+                                        border-radius: 8px;
+                                        transition: all 0.3s;
+                                    }
+
+                                    .btn-sm-custom:hover {
+                                        transform: translateY(-2px);
+                                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                                    }
+
+                                    .empty-state {
+                                        padding: 60px 20px;
+                                    }
+
+                                    .pagination .page-link {
+                                        border-radius: 10px;
+                                        margin: 0 4px;
+                                        border: 2px solid #e2e8f0;
+                                        color: #6366f1;
+                                        font-weight: 600;
+                                    }
+
+                                    .pagination .page-item.active .page-link {
+                                        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+                                        border-color: #6366f1;
+                                    }
+
+                                    .table-container {
+                                        overflow-x: auto;
+                                        -webkit-overflow-scrolling: touch;
+                                    }
+
+                                    /* Responsive Design */
+                                    @media (max-width: 1200px) {
+                                        .stats-card-mini {
+                                            padding: 20px;
+                                            gap: 15px;
+                                        }
+
+                                        .stats-icon-mini {
+                                            width: 50px;
+                                            height: 50px;
+                                            font-size: 20px;
+                                        }
+
+                                        .stats-content h3 {
+                                            font-size: 28px;
+                                        }
+                                    }
+
+                                    @media (max-width: 992px) {
+                                        .topbar h4 {
+                                            font-size: 20px;
+                                        }
+
+                                        .stats-card-mini {
+                                            padding: 16px;
+                                            gap: 12px;
+                                        }
+
+                                        .stats-icon-mini {
+                                            width: 45px;
+                                            height: 45px;
+                                            font-size: 18px;
+                                        }
+
+                                        .stats-content h3 {
+                                            font-size: 24px;
+                                        }
+
+                                        .stats-content p {
+                                            font-size: 12px;
+                                        }
+
+                                        .card-header-modern {
+                                            padding: 20px;
+                                            flex-direction: column;
+                                            gap: 10px;
+                                            align-items: flex-start;
+                                        }
+
+                                        .modern-table thead th {
+                                            padding: 16px 12px;
+                                            font-size: 10px;
+                                        }
+
+                                        .modern-table tbody td {
+                                            padding: 12px;
+                                            font-size: 13px;
+                                        }
+                                    }
+
+                                    @media (max-width: 768px) {
+                                        .container-fluid {
+                                            padding: 15px !important;
+                                        }
+
+                                        .topbar {
+                                            padding: 15px !important;
+                                        }
+
+                                        .topbar .d-flex {
+                                            flex-direction: column;
+                                            gap: 15px;
+                                            align-items: flex-start !important;
+                                        }
+
+                                        .topbar h4 {
+                                            font-size: 18px;
+                                        }
+
+                                        /* Stack stats cards on mobile */
+                                        .row.mb-4 {
+                                            margin-bottom: 20px !important;
+                                        }
+
+                                        .col-md-3.mb-3 {
+                                            margin-bottom: 15px !important;
+                                        }
+
+                                        .stats-card-mini {
+                                            padding: 16px;
+                                            gap: 15px;
+                                        }
+
+                                        .stats-icon-mini {
+                                            width: 50px;
+                                            height: 50px;
+                                            font-size: 20px;
+                                        }
+
+                                        .stats-content h3 {
+                                            font-size: 26px;
+                                        }
+
+                                        .stats-content p {
+                                            font-size: 12px;
+                                        }
+
+                                        /* Filter form responsive */
+                                        .modern-card .p-4 {
+                                            padding: 20px !important;
+                                        }
+
+                                        .card-header-modern h5 {
+                                            font-size: 16px;
+                                        }
+
+                                        .form-label {
+                                            font-size: 13px;
+                                            margin-bottom: 6px;
+                                        }
+
+                                        .form-control,
+                                        .form-select {
+                                            font-size: 14px;
+                                            padding: 10px;
+                                        }
+
+                                        /* Hide table on mobile, show cards instead */
+                                        .table-container {
+                                            display: none;
+                                        }
+
+                                        /* Mobile order cards */
+                                        .mobile-order-card {
+                                            background: white;
+                                            border-radius: 16px;
+                                            padding: 20px;
+                                            margin-bottom: 15px;
+                                            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+                                            border: 1px solid #f1f5f9;
+                                        }
+
+                                        .mobile-order-header {
+                                            display: flex;
+                                            justify-content: space-between;
+                                            align-items: center;
+                                            margin-bottom: 15px;
+                                            padding-bottom: 15px;
+                                            border-bottom: 2px solid #f1f5f9;
+                                        }
+
+                                        .mobile-order-id {
+                                            font-weight: 800;
+                                            color: #6366f1;
+                                            font-size: 16px;
+                                        }
+
+                                        .mobile-order-body {
+                                            display: flex;
+                                            flex-direction: column;
+                                            gap: 12px;
+                                        }
+
+                                        .mobile-order-row {
+                                            display: flex;
+                                            justify-content: space-between;
+                                            align-items: center;
+                                        }
+
+                                        .mobile-order-label {
+                                            font-size: 12px;
+                                            color: #64748b;
+                                            font-weight: 600;
+                                            text-transform: uppercase;
+                                            letter-spacing: 0.5px;
+                                        }
+
+                                        .mobile-order-value {
+                                            font-size: 14px;
+                                            color: #0f172a;
+                                            font-weight: 600;
+                                            text-align: right;
+                                        }
+
+                                        .mobile-order-actions {
+                                            display: flex;
+                                            gap: 8px;
+                                            margin-top: 15px;
+                                            padding-top: 15px;
+                                            border-top: 2px solid #f1f5f9;
+                                        }
+
+                                        .mobile-order-actions .btn {
+                                            flex: 1;
+                                            font-size: 12px;
+                                            padding: 10px;
+                                        }
+
+                                        /* Pagination responsive */
+                                        .pagination {
+                                            flex-wrap: wrap;
+                                            gap: 5px;
+                                        }
+
+                                        .pagination .page-link {
+                                            padding: 8px 12px;
+                                            font-size: 13px;
+                                            margin: 2px;
+                                        }
+
+                                        /* Modal responsive */
+                                        .modal-dialog {
+                                            margin: 10px;
+                                        }
+
+                                        .modal-content {
+                                            border-radius: 16px;
+                                        }
+
+                                        .modal-header,
+                                        .modal-body,
+                                        .modal-footer {
+                                            padding: 20px;
+                                        }
+
+                                        .modal-title {
+                                            font-size: 18px;
+                                        }
+                                    }
+
+                                    @media (max-width: 576px) {
+                                        .topbar h4 {
+                                            font-size: 16px;
+                                        }
+
+                                        .btn {
+                                            font-size: 13px;
+                                            padding: 8px 16px;
+                                        }
+
+                                        .stats-card-mini {
+                                            padding: 14px;
+                                        }
+
+                                        .stats-icon-mini {
+                                            width: 45px;
+                                            height: 45px;
+                                            font-size: 18px;
+                                        }
+
+                                        .stats-content h3 {
+                                            font-size: 22px;
+                                        }
+
+                                        .stats-content p {
+                                            font-size: 11px;
+                                        }
+
+                                        .card-header-modern h5 {
+                                            font-size: 15px;
+                                        }
+
+                                        .badge {
+                                            font-size: 10px;
+                                            padding: 4px 8px;
+                                        }
+
+                                        .mobile-order-card {
+                                            padding: 16px;
+                                        }
+
+                                        .mobile-order-id {
+                                            font-size: 14px;
+                                        }
+
+                                        .mobile-order-label {
+                                            font-size: 11px;
+                                        }
+
+                                        .mobile-order-value {
+                                            font-size: 13px;
+                                        }
+
+                                        .status-badge {
+                                            font-size: 10px;
+                                            padding: 5px 10px;
+                                        }
+
+                                        .empty-state {
+                                            padding: 40px 15px;
+                                        }
+
+                                        .empty-state i {
+                                            font-size: 3rem !important;
+                                        }
+
+                                        .empty-state h3 {
+                                            font-size: 20px;
+                                        }
+
+                                        .empty-state p {
+                                            font-size: 14px;
+                                        }
+                                    }
+
+                                    /* Desktop: Show table, hide mobile cards */
+                                    @media (min-width: 769px) {
+                                        .mobile-orders-container {
+                                            display: none;
+                                        }
+                                    }
+
+                                    /* Mobile: Hide table, show cards */
+                                    @media (max-width: 768px) {
+                                        .table-container {
+                                            display: none !important;
+                                        }
+
+                                        .mobile-orders-container {
+                                            display: block;
+                                            padding: 0 5px;
+                                        }
+                                    }
+
+                                    /* AJAX Loading State */
+                                    .ajax-loader {
+                                        position: absolute;
+                                        top: 50%;
+                                        left: 50%;
+                                        transform: translate(-50%, -50%);
+                                        z-index: 1000;
+                                        text-align: center;
+                                        background: white;
+                                        padding: 30px;
+                                        border-radius: 16px;
+                                        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+                                    }
+
+                                    .ajax-loader .spinner-border {
+                                        width: 3rem;
+                                        height: 3rem;
+                                    }
+
+                                    /* Smooth transitions */
+                                    .modern-table tbody tr,
+                                    .mobile-order-card,
+                                    .stats-card-mini {
+                                        animation: fadeIn 0.3s ease-in;
+                                    }
+
+                                    @keyframes fadeIn {
+                                        from {
+                                            opacity: 0;
+                                            transform: translateY(10px);
+                                        }
+
+                                        to {
+                                            opacity: 1;
+                                            transform: translateY(0);
+                                        }
+                                    }
+
+                                    /* Pagination hover effects */
+                                    .pagination .page-link {
+                                        transition: all 0.3s ease;
+                                    }
+
+                                    .pagination .page-link:hover {
+                                        transform: translateY(-2px);
+                                        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+                                    }
+
+                                    /* Modern Topbar Styles */
+                                    .modern-topbar {
+                                        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
+                                        padding: 40px 50px;
+                                        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                                        position: relative;
+                                        overflow: hidden;
+                                        border-bottom: 4px solid rgba(255, 255, 255, 0.2);
+                                    }
+
+                                    .modern-topbar::before {
+                                        content: '';
+                                        position: absolute;
+                                        top: -50%;
+                                        right: -10%;
+                                        width: 500px;
+                                        height: 500px;
+                                        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+                                        border-radius: 50%;
+                                        animation: pulse 4s ease-in-out infinite;
+                                    }
+
+                                    .modern-topbar::after {
+                                        content: '';
+                                        position: absolute;
+                                        bottom: -30%;
+                                        left: -5%;
+                                        width: 400px;
+                                        height: 400px;
+                                        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+                                        border-radius: 50%;
+                                    }
+
+                                    @keyframes pulse {
+
+                                        0%,
+                                        100% {
+                                            transform: scale(1);
+                                            opacity: 0.5;
+                                        }
+
+                                        50% {
+                                            transform: scale(1.1);
+                                            opacity: 0.8;
+                                        }
+                                    }
+
+                                    .topbar-content {
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+                                        position: relative;
+                                        z-index: 1;
+                                    }
+
+                                    .topbar-left {
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 20px;
+                                    }
+
+                                    .topbar-icon {
+                                        width: 80px;
+                                        height: 80px;
+                                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+                                        backdrop-filter: blur(20px);
+                                        border-radius: 20px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 38px;
+                                        color: white;
+                                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+                                        border: 3px solid rgba(255, 255, 255, 0.4);
+                                        animation: iconFloat 3s ease-in-out infinite;
+                                    }
+
+                                    @keyframes iconFloat {
+
+                                        0%,
+                                        100% {
+                                            transform: translateY(0px);
+                                        }
+
+                                        50% {
+                                            transform: translateY(-5px);
+                                        }
+                                    }
+
+                                    .topbar-text {
+                                        color: white;
+                                    }
+
+                                    .topbar-title {
+                                        font-size: 32px;
+                                        font-weight: 900;
+                                        margin: 0;
+                                        color: white;
+                                        letter-spacing: -1px;
+                                        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+                                        animation: slideInLeft 0.6s ease-out;
+                                    }
+
+                                    .topbar-subtitle {
+                                        font-size: 15px;
+                                        margin: 8px 0 0 0;
+                                        color: rgba(255, 255, 255, 0.95);
+                                        font-weight: 600;
+                                        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                                        animation: slideInLeft 0.8s ease-out;
+                                    }
+
+                                    @keyframes slideInLeft {
+                                        from {
+                                            opacity: 0;
+                                            transform: translateX(-30px);
+                                        }
+
+                                        to {
+                                            opacity: 1;
+                                            transform: translateX(0);
+                                        }
+                                    }
+
+                                    .topbar-right {
+                                        display: flex;
+                                        gap: 12px;
+                                    }
+
+                                    .btn-modern-primary {
+                                        background: white;
+                                        color: #1e3a8a;
+                                        border: none;
+                                        padding: 14px 28px;
+                                        border-radius: 14px;
+                                        font-weight: 800;
+                                        font-size: 15px;
+                                        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                                        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                                        display: flex;
+                                        align-items: center;
+                                        text-decoration: none;
+                                        position: relative;
+                                        overflow: hidden;
+                                    }
+
+                                    .btn-modern-primary::before {
+                                        content: '';
+                                        position: absolute;
+                                        top: 50%;
+                                        left: 50%;
+                                        width: 0;
+                                        height: 0;
+                                        border-radius: 50%;
+                                        background: rgba(30, 58, 138, 0.1);
+                                        transform: translate(-50%, -50%);
+                                        transition: width 0.6s, height 0.6s;
+                                    }
+
+                                    .btn-modern-primary:hover::before {
+                                        width: 300px;
+                                        height: 300px;
+                                    }
+
+                                    .btn-modern-primary:hover {
+                                        transform: translateY(-3px) scale(1.05);
+                                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                                        color: #1e3a8a;
+                                    }
+
+                                    .btn-modern-primary:active {
+                                        transform: translateY(-1px) scale(1.02);
+                                    }
+
+                                    /* Responsive Modern Topbar */
+                                    @media (max-width: 768px) {
+                                        .modern-topbar {
+                                            padding: 20px;
+                                        }
+
+                                        .topbar-content {
+                                            flex-direction: column;
+                                            gap: 20px;
+                                            align-items: flex-start;
+                                        }
+
+                                        .topbar-left {
+                                            gap: 15px;
+                                        }
+
+                                        .topbar-icon {
+                                            width: 60px;
+                                            height: 60px;
+                                            font-size: 28px;
+                                        }
+
+                                        .topbar-title {
+                                            font-size: 22px;
+                                        }
+
+                                        .topbar-subtitle {
+                                            font-size: 13px;
+                                        }
+
+                                        .topbar-right {
+                                            width: 100%;
+                                        }
+
+                                        .btn-modern-primary {
+                                            width: 100%;
+                                            justify-content: center;
+                                        }
+                                    }
+
+                                    @media (max-width: 576px) {
+                                        .topbar-icon {
+                                            width: 50px;
+                                            height: 50px;
+                                            font-size: 24px;
+                                        }
+
+                                        .topbar-title {
+                                            font-size: 20px;
+                                        }
+
+                                        .topbar-subtitle {
+                                            font-size: 12px;
+                                        }
+                                    }
+
+                                    /* ========== ULTRA PREMIUM HEADER DESIGN ========== */
+                                    .premium-header {
+                                        position: relative;
+                                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                        padding: 50px 40px;
+                                        overflow: hidden;
+                                        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                                    }
+
+                                    .header-background {
+                                        position: absolute;
+                                        top: 0;
+                                        left: 0;
+                                        right: 0;
+                                        bottom: 0;
+                                        overflow: hidden;
+                                    }
+
+                                    .gradient-orb {
+                                        position: absolute;
+                                        border-radius: 50%;
+                                        filter: blur(80px);
+                                        opacity: 0.6;
+                                        animation: float 20s ease-in-out infinite;
+                                    }
+
+                                    .orb-1 {
+                                        width: 400px;
+                                        height: 400px;
+                                        background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+                                        top: -200px;
+                                        right: -100px;
+                                        animation-delay: 0s;
+                                    }
+
+                                    .orb-2 {
+                                        width: 300px;
+                                        height: 300px;
+                                        background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+                                        bottom: -150px;
+                                        left: -50px;
+                                        animation-delay: 7s;
+                                    }
+
+                                    .orb-3 {
+                                        width: 250px;
+                                        height: 250px;
+                                        background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%);
+                                        top: 50%;
+                                        left: 50%;
+                                        animation-delay: 14s;
+                                    }
+
+                                    @keyframes float {
+
+                                        0%,
+                                        100% {
+                                            transform: translate(0, 0) scale(1);
+                                        }
+
+                                        33% {
+                                            transform: translate(30px, -30px) scale(1.1);
+                                        }
+
+                                        66% {
+                                            transform: translate(-20px, 20px) scale(0.9);
+                                        }
+                                    }
+
+                                    .header-container {
+                                        position: relative;
+                                        z-index: 2;
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+                                        max-width: 1400px;
+                                        margin: 0 auto;
+                                    }
+
+                                    .header-main {
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 30px;
+                                    }
+
+                                    .icon-wrapper {
+                                        position: relative;
+                                    }
+
+                                    .icon-glow {
+                                        position: absolute;
+                                        top: 50%;
+                                        left: 50%;
+                                        transform: translate(-50%, -50%);
+                                        width: 120px;
+                                        height: 120px;
+                                        background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+                                        border-radius: 50%;
+                                        animation: pulse-glow 3s ease-in-out infinite;
+                                    }
+
+                                    @keyframes pulse-glow {
+
+                                        0%,
+                                        100% {
+                                            transform: translate(-50%, -50%) scale(1);
+                                            opacity: 0.5;
+                                        }
+
+                                        50% {
+                                            transform: translate(-50%, -50%) scale(1.2);
+                                            opacity: 0.8;
+                                        }
+                                    }
+
+                                    .icon-circle {
+                                        position: relative;
+                                        width: 90px;
+                                        height: 90px;
+                                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+                                        backdrop-filter: blur(20px);
+                                        border-radius: 24px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 42px;
+                                        color: white;
+                                        box-shadow:
+                                            0 20px 60px rgba(0, 0, 0, 0.3),
+                                            inset 0 1px 0 rgba(255, 255, 255, 0.5),
+                                            inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+                                        border: 2px solid rgba(255, 255, 255, 0.3);
+                                        animation: icon-bounce 4s ease-in-out infinite;
+                                    }
+
+                                    @keyframes icon-bounce {
+
+                                        0%,
+                                        100% {
+                                            transform: translateY(0) rotate(0deg);
+                                        }
+
+                                        25% {
+                                            transform: translateY(-10px) rotate(-5deg);
+                                        }
+
+                                        75% {
+                                            transform: translateY(-5px) rotate(5deg);
+                                        }
+                                    }
+
+                                    .header-content {
+                                        color: white;
+                                    }
+
+                                    .breadcrumb-nav {
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 8px;
+                                        margin-bottom: 12px;
+                                        font-size: 13px;
+                                        font-weight: 600;
+                                        opacity: 0;
+                                        animation: fade-in-up 0.6s ease-out 0.2s forwards;
+                                    }
+
+                                    .breadcrumb-item {
+                                        color: rgba(255, 255, 255, 0.8);
+                                        transition: color 0.3s;
+                                    }
+
+                                    .breadcrumb-item.active {
+                                        color: white;
+                                    }
+
+                                    .breadcrumb-separator {
+                                        font-size: 10px;
+                                        color: rgba(255, 255, 255, 0.5);
+                                    }
+
+                                    .header-title {
+                                        font-size: 42px;
+                                        font-weight: 900;
+                                        margin: 0 0 12px 0;
+                                        color: white;
+                                        letter-spacing: -2px;
+                                        line-height: 1.1;
+                                        text-shadow:
+                                            0 2px 10px rgba(0, 0, 0, 0.3),
+                                            0 4px 20px rgba(0, 0, 0, 0.2);
+                                        position: relative;
+                                        display: inline-block;
+                                        opacity: 0;
+                                        animation: fade-in-up 0.6s ease-out 0.4s forwards;
+                                    }
+
+                                    .title-decoration {
+                                        position: absolute;
+                                        bottom: -8px;
+                                        left: 0;
+                                        width: 60px;
+                                        height: 4px;
+                                        background: linear-gradient(90deg, white 0%, transparent 100%);
+                                        border-radius: 2px;
+                                    }
+
+                                    .header-description {
+                                        font-size: 16px;
+                                        color: rgba(255, 255, 255, 0.95);
+                                        font-weight: 500;
+                                        margin: 0;
+                                        display: flex;
+                                        align-items: center;
+                                        opacity: 0;
+                                        animation: fade-in-up 0.6s ease-out 0.6s forwards;
+                                    }
+
+                                    @keyframes fade-in-up {
+                                        from {
+                                            opacity: 0;
+                                            transform: translateY(20px);
+                                        }
+
+                                        to {
+                                            opacity: 1;
+                                            transform: translateY(0);
+                                        }
+                                    }
+
+                                    .header-actions {
+                                        opacity: 0;
+                                        animation: fade-in-up 0.6s ease-out 0.8s forwards;
+                                    }
+
+                                    .action-btn {
+                                        position: relative;
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 12px;
+                                        padding: 16px 32px;
+                                        background: white;
+                                        color: #667eea;
+                                        border-radius: 16px;
+                                        font-weight: 800;
+                                        font-size: 15px;
+                                        text-decoration: none;
+                                        overflow: hidden;
+                                        box-shadow:
+                                            0 10px 30px rgba(0, 0, 0, 0.3),
+                                            inset 0 1px 0 rgba(255, 255, 255, 1);
+                                        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                                    }
+
+                                    .btn-icon {
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        width: 24px;
+                                        height: 24px;
+                                        font-size: 16px;
+                                        transition: transform 0.4s;
+                                    }
+
+                                    .btn-text {
+                                        position: relative;
+                                        z-index: 2;
+                                    }
+
+                                    .btn-shine {
+                                        position: absolute;
+                                        top: 0;
+                                        left: -100%;
+                                        width: 100%;
+                                        height: 100%;
+                                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                                        transition: left 0.6s;
+                                    }
+
+                                    .action-btn:hover {
+                                        transform: translateY(-4px) scale(1.05);
+                                        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+                                        color: #667eea;
+                                    }
+
+                                    .action-btn:hover .btn-icon {
+                                        transform: scale(1.2) rotate(5deg);
+                                    }
+
+                                    .action-btn:hover .btn-shine {
+                                        left: 100%;
+                                    }
+
+                                    .action-btn:active {
+                                        transform: translateY(-2px) scale(1.02);
+                                    }
+
+                                    /* Responsive Premium Header */
+                                    @media (max-width: 992px) {
+                                        .premium-header {
+                                            padding: 40px 30px;
+                                        }
+
+                                        .header-container {
+                                            flex-direction: column;
+                                            gap: 30px;
+                                            align-items: flex-start;
+                                        }
+
+                                        .header-main {
+                                            gap: 20px;
+                                        }
+
+                                        .icon-circle {
+                                            width: 75px;
+                                            height: 75px;
+                                            font-size: 36px;
+                                        }
+
+                                        .header-title {
+                                            font-size: 36px;
+                                        }
+
+                                        .header-description {
+                                            font-size: 15px;
+                                        }
+
+                                        .header-actions {
+                                            width: 100%;
+                                        }
+
+                                        .action-btn {
+                                            width: 100%;
+                                            justify-content: center;
+                                        }
+                                    }
+
+                                    @media (max-width: 768px) {
+                                        .premium-header {
+                                            padding: 30px 20px;
+                                        }
+
+                                        .header-main {
+                                            flex-direction: column;
+                                            align-items: flex-start;
+                                            gap: 20px;
+                                        }
+
+                                        .icon-circle {
+                                            width: 70px;
+                                            height: 70px;
+                                            font-size: 32px;
+                                        }
+
+                                        .header-title {
+                                            font-size: 28px;
+                                            letter-spacing: -1px;
+                                        }
+
+                                        .breadcrumb-nav {
+                                            font-size: 12px;
+                                        }
+
+                                        .header-description {
+                                            font-size: 14px;
+                                        }
+
+                                        .action-btn {
+                                            padding: 14px 24px;
+                                            font-size: 14px;
+                                        }
+                                    }
+
+                                    @media (max-width: 576px) {
+                                        .icon-circle {
+                                            width: 60px;
+                                            height: 60px;
+                                            font-size: 28px;
+                                        }
+
+                                        .header-title {
+                                            font-size: 24px;
+                                        }
+
+                                        .header-description {
+                                            font-size: 13px;
+                                        }
+                                    }
+                                </style>
+
+                                <%-include(".. /../views/parsuals/admin/footer")%>
