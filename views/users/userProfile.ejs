@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <!-- Navigation -->
+
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="#">
@@ -54,7 +54,7 @@
         </div>
     </nav>
     <%-include("../../views/parsuals/user/header")%>
-        <!-- Profile Header -->
+
         <div class="profile-header">
             <div class="container">
                 <div class="row align-items-center">
@@ -85,9 +85,9 @@
         <div class="container">
 
             <div class="row">
-                <!-- Left Column -->
+              
                 <div class="col-lg-4">
-                    <!-- Profile Details -->
+                
                     <div class="profile-card">
                         <h5><i class="fas fa-user me-2"></i>Profile Details</h5>
 
@@ -118,7 +118,7 @@
                         </div>
                     </div>
 
-                    <!-- Wallet Quick Access -->
+          
                     <div class="profile-card" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white;">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -131,7 +131,7 @@
                         </div>
                     </div>
 
-                    <!-- Referral Program -->
+          
                     <div class="profile-card" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
                         <h5 class="mb-3"><i class="fas fa-gift me-2"></i>Refer & Earn</h5>
                         <p class="mb-3 opacity-90">Invite friends and earn ₹100 wallet cash when they make their first purchase!</p>
@@ -167,7 +167,7 @@
                         </div>
                     </div>
 
-                    <!-- Address Management -->
+             
                     <div class="profile-card">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5><i class="fas fa-map-marker-alt me-2"></i>Shipping Addresses</h5>
@@ -233,7 +233,7 @@
                         </div>
                     </div>
 
-                    <!-- Quick Actions -->
+           
                     <div class="profile-card">
                         <h5><i class="fas fa-cog me-2"></i>Account Settings</h5>
                         <div class="d-grid gap-2">
@@ -244,9 +244,9 @@
                     </div>
                 </div>
 
-                <!-- Right Column -->
+            
                 <div class="col-lg-8">
-                    <!-- Recent Orders -->
+          
                     <div class="profile-card">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5><i class="fas fa-shopping-bag me-2"></i>Recent Orders</h5>
@@ -278,7 +278,7 @@
                                             </h6>
                                             <p class="text-muted mb-1">
                                                 Order #<%= order.orderId %>
-                                                <!-- Return Rejected Badge -->
+                                            
                                                 <% if (order.returnStatus === 'Rejected') { %>
                                                     <span class="badge bg-danger ms-2" style="font-size: 0.7rem;">
                                                         <i class="fas fa-times-circle me-1"></i>Return Rejected
@@ -326,7 +326,7 @@
                                         <% } %>
                     </div>
 
-                    <!-- Order History -->
+              
                     <div class="profile-card">
                         <h5><i class="fas fa-history me-2"></i>Order History</h5>
                         <div class="table-responsive">
@@ -347,7 +347,7 @@
                                             <tr>
                                                 <td>
                                                     #<%= order.orderId %>
-                                                    <!-- Return Rejected Badge -->
+                                         
                                                     <% if (order.returnStatus === 'Rejected') { %>
                                                         <br>
                                                         <span class="badge bg-danger mt-1" style="font-size: 0.7rem;">
@@ -391,8 +391,7 @@
             </div>
         </div>
 
-        <!-- Modals -->
-        <!-- Change Password Modal -->
+
         <div class="modal fade" id="changePasswordModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -425,7 +424,7 @@
                                     Password must be 8-50 characters with at least one uppercase, lowercase, number, and special character
                                 </small>
                                 <div class="invalid-feedback" id="newPasswordFeedback">Please enter a valid password</div>
-                                <!-- Password strength indicator -->
+                   
                                 <div class="mt-2" id="passwordStrength" style="display: none;">
                                     <div class="progress" style="height: 5px;">
                                         <div class="progress-bar" id="strengthBar" role="progressbar" style="width: 0%"></div>
@@ -456,7 +455,7 @@
             </div>
         </div>
 
-        <!-- Cancel Order Modal -->
+
         <div class="modal fade" id="cancelOrderModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -487,7 +486,7 @@
             </div>
         </div>
 
-        <!-- Add Address Modal -->
+
         <div class="modal fade" id="addAddressModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -555,7 +554,7 @@
             </div>
         </div>
 
-        <!-- Edit Address Modal -->
+  
         <div class="modal fade" id="editAddressModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -625,7 +624,7 @@
             </div>
         </div>
 
-        <!-- Email Verification Modal -->
+      
         <div class="modal fade" id="emailVerificationModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -687,7 +686,7 @@
                 const phone = document.getElementById('editPhone').value;
                 const dob = document.getElementById('editDob').value;
 
-                // Update display values
+
                 document.getElementById('viewName').textContent = name;
                 document.getElementById('viewEmail').textContent = email;
                 document.getElementById('viewPhone').textContent = phone;
@@ -697,7 +696,7 @@
                     day: 'numeric'
                 });
 
-                // Update header
+
                 document.getElementById('displayName').textContent = name;
                 document.getElementById('displayEmail').textContent = email;
 
@@ -706,7 +705,7 @@
             }
 
             function cancelEdit() {
-                // Reset form values
+               
                 document.getElementById('editName').value = document.getElementById('viewName').textContent;
                 document.getElementById('editEmail').value = document.getElementById('viewEmail').textContent;
                 document.getElementById('editPhone').value = document.getElementById('viewPhone').textContent;
@@ -747,7 +746,7 @@
                 modal.show();
             }
 
-            // Toggle password visibility
+ 
             function togglePasswordVisibility(inputId, button) {
                 const input = document.getElementById(inputId);
                 const icon = button.querySelector('i');
@@ -763,7 +762,7 @@
                 }
             }
 
-            // Password strength checker
+
             function checkPasswordStrength(password) {
                 let strength = 0;
                 const strengthBar = document.getElementById('strengthBar');
@@ -777,17 +776,17 @@
                 
                 strengthContainer.style.display = 'block';
                 
-                // Length check
+          
                 if (password.length >= 8) strength += 20;
                 if (password.length >= 12) strength += 10;
                 
-                // Character variety checks
+          
                 if (/[a-z]/.test(password)) strength += 20;
                 if (/[A-Z]/.test(password)) strength += 20;
                 if (/[0-9]/.test(password)) strength += 15;
                 if (/[^a-zA-Z0-9]/.test(password)) strength += 15;
                 
-                // Update progress bar
+                
                 strengthBar.style.width = strength + '%';
                 
                 if (strength < 40) {
@@ -805,7 +804,7 @@
                 }
             }
 
-            // Add event listener for password strength
+      
             document.addEventListener('DOMContentLoaded', function() {
                 const newPasswordInput = document.getElementById('newPassword');
                 if (newPasswordInput) {
@@ -823,17 +822,17 @@
                 const newPass = document.getElementById('newPassword').value.trim();
                 const confirm = document.getElementById('confirmPassword').value.trim();
 
-                // Comprehensive validation
+          
                 let errors = [];
 
-                // Current password validation
+             
                 if (!current) {
                     errors.push('Current password is required');
                 } else if (current.length < 6) {
                     errors.push('Current password must be at least 6 characters');
                 }
 
-                // New password validation
+          
                 if (!newPass) {
                     errors.push('New password is required');
                 } else {
@@ -857,19 +856,19 @@
                     }
                 }
 
-                // Confirm password validation
+       
                 if (!confirm) {
                     errors.push('Please confirm your new password');
                 } else if (newPass !== confirm) {
                     errors.push('New passwords do not match');
                 }
 
-                // Check if new password is same as current
+          
                 if (current && newPass && current === newPass) {
                     errors.push('New password must be different from current password');
                 }
 
-                // Show errors if any
+           
                 if (errors.length > 0) {
                     form.classList.add('was-validated');
                     Swal.fire({
@@ -881,7 +880,7 @@
                     return;
                 }
 
-                // Show loading
+         
                 Swal.fire({
                     title: 'Updating Password...',
                     text: 'Please wait',
@@ -891,7 +890,7 @@
                     }
                 });
 
-                // Send request to server
+   
                 fetch('/change-password', {
                     method: 'POST',
                     headers: {
@@ -981,9 +980,9 @@
                 }
             }
 
-            // Alert system
+       
             function showAlert(message, type) {
-                // Remove existing alerts
+          
                 const existingAlert = document.querySelector('.alert');
                 if (existingAlert) {
                     existingAlert.remove();
@@ -997,11 +996,11 @@
                 </div>
             `;
 
-                // Insert alert at the top of the container
+            
                 const container = document.querySelector('.container');
                 container.insertAdjacentHTML('afterbegin', alertHTML);
 
-                // Auto-dismiss after 5 seconds
+            
                 setTimeout(() => {
                     const alert = document.querySelector('.alert');
                     if (alert) {
@@ -1021,24 +1020,24 @@
                 }
             }
 
-            // Additional functionality for enhanced user experience
+        
             document.addEventListener('DOMContentLoaded', function () {
-                // Initialize tooltips if any
+             
                 const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                 const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
 
-                // Add click handlers for navigation
+            
                 document.querySelector('.navbar-brand').addEventListener('click', function (e) {
                     e.preventDefault();
                     window.location.href = 'index.html';
                 });
             });
 
-            // Keyboard shortcuts
+      
             document.addEventListener('keydown', function (e) {
-                // Escape key to close modals
+             
                 if (e.key === 'Escape') {
                     const openModal = document.querySelector('.modal.show');
                     if (openModal) {
@@ -1050,7 +1049,7 @@
                 }
             });
 
-            // Form validation helpers
+          
             function validateEmail(email) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 return emailRegex.test(email);
@@ -1061,13 +1060,13 @@
                 return phoneRegex.test(phone);
             }
 
-            // Enhanced profile editing with validation
+            
             function saveProfileWithValidation() {
                 const name = document.getElementById('editName').value.trim();
                 const email = document.getElementById('editEmail').value.trim();
                 const phone = document.getElementById('editPhone').value.trim();
 
-                // Validation
+          
                 if (!name) {
                     showAlert('Please enter a valid name', 'danger');
                     return;
@@ -1086,10 +1085,10 @@
                 saveProfile();
             }
 
-            // Order management functions
+            
             function viewOrderDetails(orderId) {
                 showAlert(`Viewing details for order ${orderId}`, 'info');
-                // In a real application, this would navigate to order details page
+             
             }
 
             function reorderItem(orderId) {
@@ -1100,27 +1099,27 @@
 
             function downloadInvoice(orderId) {
                 showAlert(`Downloading invoice for order ${orderId}...`, 'info');
-                // In a real application, this would trigger file download
+                
             }
 
-            // Search functionality for orders
+        
             function searchOrders() {
                 const searchTerm = prompt('Enter order ID or product name to search:');
                 if (searchTerm) {
                     showAlert(`Searching for: ${searchTerm}`, 'info');
-                    // In a real application, this would filter the orders
+                   
                 }
             }
 
-            // Export order history
+     
             function exportOrderHistory() {
                 if (confirm('Export order history as CSV?')) {
                     showAlert('Order history exported successfully!', 'success');
-                    // In a real application, this would generate and download CSV
+                  
                 }
             }
 
-            // Address Management Functions
+        
             function showAddAddressModal() {
                 const modal = new bootstrap.Modal(document.getElementById('addAddressModal'));
                 modal.show();
@@ -1129,7 +1128,7 @@
             function saveNewAddress() {
                 const form = document.getElementById('addAddressForm');
                 
-                // Reset validation states
+             
                 form.classList.remove('was-validated');
                 
                 const addressType = document.getElementById('addAddressType').value.trim();
@@ -1140,15 +1139,14 @@
                 const phone = document.getElementById('addPhone').value.trim();
                 const altPhone = document.getElementById('addAltPhone').value.trim();
 
-                // Comprehensive validation
+          
                 let errors = [];
 
-                // Address Type validation
                 if (!addressType) {
                     errors.push('Please select an address type');
                 }
 
-                // Name validation
+          
                 if (!name) {
                     errors.push('Name is required');
                 } else if (name.length < 3 || name.length > 50) {
@@ -1157,14 +1155,14 @@
                     errors.push('Name must contain only letters and spaces');
                 }
 
-                // Landmark validation
+    
                 if (!landmark) {
                     errors.push('Landmark/Address is required');
                 } else if (landmark.length < 3 || landmark.length > 100) {
                     errors.push('Landmark must be between 3 and 100 characters');
                 }
 
-                // City validation
+
                 if (!city) {
                     errors.push('City is required');
                 } else if (city.length < 2 || city.length > 50) {
@@ -1173,7 +1171,7 @@
                     errors.push('City must contain only letters and spaces');
                 }
 
-                // State validation
+          
                 if (!state) {
                     errors.push('State is required');
                 } else if (state.length < 2 || state.length > 50) {
@@ -1182,24 +1180,24 @@
                     errors.push('State must contain only letters and spaces');
                 }
 
-                // Phone validation
+                
                 if (!phone) {
                     errors.push('Phone number is required');
                 } else if (!/^[6-9]\d{9}$/.test(phone)) {
                     errors.push('Please enter a valid 10-digit Indian mobile number starting with 6-9');
                 }
 
-                // Alternative phone validation (optional)
+              
                 if (altPhone && !/^[6-9]\d{9}$/.test(altPhone)) {
                     errors.push('Alternative phone must be a valid 10-digit Indian mobile number starting with 6-9');
                 }
 
-                // Check if phone and altPhone are the same
+       
                 if (altPhone && phone === altPhone) {
                     errors.push('Alternative phone number must be different from primary phone number');
                 }
 
-                // Show errors if any
+             
                 if (errors.length > 0) {
                     form.classList.add('was-validated');
                     Swal.fire({
@@ -1211,7 +1209,7 @@
                     return;
                 }
 
-                // Show loading
+                
                 Swal.fire({
                     title: 'Adding Address...',
                     text: 'Please wait',
@@ -1248,7 +1246,7 @@
                                 showConfirmButton: false
                             });
                             document.getElementById('addAddressForm').reset();
-                            // Reload page to show new address
+
                             setTimeout(() => location.reload(), 2000);
                         } else {
                             Swal.fire({
@@ -1271,7 +1269,7 @@
             }
 
             function editAddressModal(addressId) {
-                // Find the address data from the DOM
+   
                 const addressElement = document.querySelector(`[data-address-id="${addressId}"]`);
                 if (!addressElement) return;
 
@@ -1287,7 +1285,7 @@
                         addressElement.querySelectorAll('p')[5].textContent.replace('Alt Phone: ', '') : ''
                 };
 
-                // Populate edit form
+          
                 document.getElementById('editAddressId').value = addressData.id;
                 document.getElementById('editAddressType').value = addressData.type;
                 document.getElementById('editName').value = addressData.name;
@@ -1304,7 +1302,7 @@
             function saveEditedAddress() {
                 const form = document.getElementById('editAddressForm');
                 
-                // Reset validation states
+
                 form.classList.remove('was-validated');
                 
                 const addressId = document.getElementById('editAddressId').value;
@@ -1316,15 +1314,14 @@
                 const phone = document.getElementById('editPhone').value.trim();
                 const altPhone = document.getElementById('editAltPhone').value.trim();
 
-                // Comprehensive validation
+             
                 let errors = [];
 
-                // Address Type validation
                 if (!addressType) {
                     errors.push('Please select an address type');
                 }
 
-                // Name validation
+     
                 if (!name) {
                     errors.push('Name is required');
                 } else if (name.length < 3 || name.length > 50) {
@@ -1333,14 +1330,14 @@
                     errors.push('Name must contain only letters and spaces');
                 }
 
-                // Landmark validation
+        
                 if (!landmark) {
                     errors.push('Landmark/Address is required');
                 } else if (landmark.length < 3 || landmark.length > 100) {
                     errors.push('Landmark must be between 3 and 100 characters');
                 }
 
-                // City validation
+             
                 if (!city) {
                     errors.push('City is required');
                 } else if (city.length < 2 || city.length > 50) {
@@ -1349,7 +1346,7 @@
                     errors.push('City must contain only letters and spaces');
                 }
 
-                // State validation
+              
                 if (!state) {
                     errors.push('State is required');
                 } else if (state.length < 2 || state.length > 50) {
@@ -1358,24 +1355,24 @@
                     errors.push('State must contain only letters and spaces');
                 }
 
-                // Phone validation
+                
                 if (!phone) {
                     errors.push('Phone number is required');
                 } else if (!/^[6-9]\d{9}$/.test(phone)) {
                     errors.push('Please enter a valid 10-digit Indian mobile number starting with 6-9');
                 }
 
-                // Alternative phone validation (optional)
+          
                 if (altPhone && !/^[6-9]\d{9}$/.test(altPhone)) {
                     errors.push('Alternative phone must be a valid 10-digit Indian mobile number starting with 6-9');
                 }
 
-                // Check if phone and altPhone are the same
+              
                 if (altPhone && phone === altPhone) {
                     errors.push('Alternative phone number must be different from primary phone number');
                 }
 
-                // Show errors if any
+                
                 if (errors.length > 0) {
                     form.classList.add('was-validated');
                     Swal.fire({
@@ -1387,7 +1384,7 @@
                     return;
                 }
 
-                // Show loading
+        
                 Swal.fire({
                     title: 'Updating Address...',
                     text: 'Please wait',
@@ -1423,7 +1420,7 @@
                                 timer: 2000,
                                 showConfirmButton: false
                             });
-                            // Reload page to show updated address
+                         
                             setTimeout(() => location.reload(), 2000);
                         } else {
                             Swal.fire({
@@ -1445,9 +1442,9 @@
                     });
             }
 
-            // drop-in SweetAlert2 version (works with your inline onclick)
+            
             async function deleteAddress(addressId) {
-                // 1) confirm with SweetAlert2
+             
                 console.log("this is alert")
                 const result = await Swal.fire({
                     title: 'Delete this address?',
@@ -1459,9 +1456,9 @@
                     focusCancel: true
                 });
 
-                if (!result.isConfirmed) return; // user cancelled
+                if (!result.isConfirmed) return; 
 
-                // 2) show loading overlay
+               
                 Swal.fire({
                     title: 'Deleting...',
                     allowOutsideClick: false,
@@ -1474,20 +1471,20 @@
                         headers: { 'Accept': 'application/json' }
                     });
 
-                    // optional: check http status
+                   
                     if (!res.ok) {
                         const text = await res.text();
                         throw new Error(text || `Network error: ${res.status}`);
                     }
 
                     const data = await res.json();
-                    Swal.close(); // close loading
+                    Swal.close(); 
 
                     if (data.success) {
-                        // success toast
+                       
                         await Swal.fire('Deleted!', 'Address deleted successfully.', 'success');
 
-                        // remove DOM node (make sure wrapper has data-address-id)
+                       
                         const addressElement = document.querySelector(`[data-address-id="${addressId}"]`);
                         if (addressElement) addressElement.remove();
                     } else {
@@ -1501,7 +1498,7 @@
             }
 
 
-            // Email Verification Functions
+   
             function showEmailVerificationModal() {
                 const modal = new bootstrap.Modal(document.getElementById('emailVerificationModal'));
                 modal.show();
@@ -1559,10 +1556,10 @@
                         if (data.success) {
                             bootstrap.Modal.getInstance(document.getElementById('emailVerificationModal')).hide();
                             showAlert('Email verified and updated successfully!', 'success');
-                            // Update email display
+                            
                             document.getElementById('viewEmail').textContent = email;
                             document.getElementById('displayEmail').textContent = email;
-                            // Reset modal
+                            
                             document.getElementById('emailVerificationStep1').style.display = 'block';
                             document.getElementById('emailVerificationStep2').style.display = 'none';
                             document.getElementById('newEmailAddress').value = '';
@@ -1601,7 +1598,7 @@
                     });
             }
 
-            // Referral Functions
+
             function loadReferralData() {
                 fetch('/referral/data')
                     .then(response => response.json())
@@ -1620,12 +1617,12 @@
             function copyReferralCode() {
                 const codeInput = document.getElementById('referralCodeDisplay');
                 codeInput.select();
-                codeInput.setSelectionRange(0, 99999); // For mobile devices
+                codeInput.setSelectionRange(0, 99999); 
                 
                 navigator.clipboard.writeText(codeInput.value).then(() => {
                     showAlert('Referral code copied to clipboard!', 'success');
                 }).catch(err => {
-                    // Fallback for older browsers
+                  
                     document.execCommand('copy');
                     showAlert('Referral code copied to clipboard!', 'success');
                 });
@@ -1634,18 +1631,19 @@
             function copyReferralLink() {
                 const linkInput = document.getElementById('referralLinkDisplay');
                 linkInput.select();
-                linkInput.setSelectionRange(0, 99999); // For mobile devices
+                linkInput.setSelectionRange(0, 99999); 
                 
                 navigator.clipboard.writeText(linkInput.value).then(() => {
                     showAlert('Referral link copied to clipboard!', 'success');
                 }).catch(err => {
-                    // Fallback for older browsers
+                 
                     document.execCommand('copy');
                     showAlert('Referral link copied to clipboard!', 'success');
                 });
             }
 
-            // Load referral data on page load
+        
+            
             document.addEventListener('DOMContentLoaded', function() {
                 loadReferralData();
             });

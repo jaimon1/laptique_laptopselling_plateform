@@ -1,29 +1,26 @@
-// ========================================
-// 🎨 BRAND MANAGEMENT AJAX FUNCTIONALITY
-// ========================================
 
 let currentPage = 1;
 let currentSearch = '';
 
-// Initialize on page load
+
 document.addEventListener('DOMContentLoaded', function() {
     initializeBrandManagement();
     checkUrlMessages();
 });
 
 function initializeBrandManagement() {
-    // Get current page and search from URL
+
     const urlParams = new URLSearchParams(window.location.search);
     currentPage = parseInt(urlParams.get('page')) || 1;
     currentSearch = urlParams.get('search') || '';
 
-    // Setup event listeners
+
     setupSearchForm();
     setupPaginationLinks();
     setupClearSearch();
 }
 
-// Setup search form
+
 function setupSearchForm() {
     const searchForm = document.getElementById('searchForm');
     if (searchForm) {
@@ -35,7 +32,7 @@ function setupSearchForm() {
     }
 }
 
-// Setup clear search button
+
 function setupClearSearch() {
     const clearBtn = document.getElementById('clearSearchBtn');
     if (clearBtn) {
@@ -46,7 +43,7 @@ function setupClearSearch() {
     }
 }
 
-// Setup pagination links
+
 function setupPaginationLinks() {
     document.addEventListener('click', function(e) {
         if (e.target.closest('.page-link-brand')) {
@@ -64,16 +61,15 @@ function setupPaginationLinks() {
     });
 }
 
-// Load brands with AJAX
 async function loadBrands(page, search) {
     try {
-        // Show loading state
+
         showLoadingState();
 
-        // Build URL
+
         const url = `/admin/brands?page=${page}${search ? '&search=' + encodeURIComponent(search) : ''}`;
 
-        // Fetch data
+  
         const response = await fetch(url, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -86,28 +82,28 @@ async function loadBrands(page, search) {
 
         const html = await response.text();
         
-        // Parse HTML
+        
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        // Update stats
+        
         updateStats(doc);
 
-        // Update brands grid
+       
         updateBrandsGrid(doc);
 
-        // Update pagination
+    
         updatePagination(doc);
 
-        // Update header counts
+       
         updateHeaderCounts(doc);
 
-        // Update URL
+ 
         currentPage = page;
         currentSearch = search;
         window.history.pushState({}, '', url);
 
-        // Scroll to top smoothly
+    
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (error) {
@@ -123,7 +119,7 @@ async function loadBrands(page, search) {
     }
 }
 
-// Show loading state
+
 function showLoadingState() {
     const brandsGrid = document.getElementById('brandsGrid');
     if (brandsGrid) {
@@ -139,7 +135,7 @@ function showLoadingState() {
     }
 }
 
-// Hide loading state
+
 function hideLoadingState() {
     const brandsGrid = document.getElementById('brandsGrid');
     if (brandsGrid) {
@@ -147,7 +143,7 @@ function hideLoadingState() {
     }
 }
 
-// Update stats
+
 function updateStats(doc) {
     const totalCount = doc.getElementById('totalBrandsCount');
     const activeCount = doc.getElementById('activeBrandsCount');
@@ -164,7 +160,7 @@ function updateStats(doc) {
     }
 }
 
-// Animate count change
+
 function animateCount(elementId, newValue) {
     const element = document.getElementById(elementId);
     if (!element) return;
@@ -189,7 +185,7 @@ function animateCount(elementId, newValue) {
     }, stepDuration);
 }
 
-// Update brands grid
+
 function updateBrandsGrid(doc) {
     const newGrid = doc.getElementById('brandsGrid');
     const currentGrid = document.getElementById('brandsGrid');
@@ -199,7 +195,7 @@ function updateBrandsGrid(doc) {
     }
 }
 
-// Update pagination
+
 function updatePagination(doc) {
     const newPagination = doc.getElementById('paginationWrapper');
     const currentPagination = document.getElementById('paginationWrapper');
@@ -209,7 +205,7 @@ function updatePagination(doc) {
     } else if (!newPagination && currentPagination) {
         currentPagination.style.display = 'none';
     } else if (newPagination && !currentPagination) {
-        // Pagination appeared, reload page to show it properly
+        
         const paginationParent = document.querySelector('.professional-card-brand');
         if (paginationParent) {
             paginationParent.innerHTML += newPagination.outerHTML;
@@ -217,7 +213,7 @@ function updatePagination(doc) {
     }
 }
 
-// Update header counts
+
 function updateHeaderCounts(doc) {
     const newShowingCount = doc.getElementById('showingCount');
     const newRecordsBadge = doc.getElementById('recordsBadge');
@@ -237,7 +233,6 @@ function updateHeaderCounts(doc) {
     }
 }
 
-// Block brand with AJAX
 async function blockBrandAjax(brandId, brandName) {
     const result = await Swal.fire({
         title: 'Block Brand?',
@@ -261,9 +256,10 @@ async function blockBrandAjax(brandId, brandName) {
             });
 
             const response = await fetch(`/admin/blockBrand?id=${brandId}&page=${currentPage}`, {
-                method: 'GET',
+                method: 'PATCH',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
                 }
             });
 
@@ -291,7 +287,6 @@ async function blockBrandAjax(brandId, brandName) {
     }
 }
 
-// Unblock brand with AJAX
 async function unblockBrandAjax(brandId, brandName) {
     const result = await Swal.fire({
         title: 'Unblock Brand?',
@@ -315,9 +310,10 @@ async function unblockBrandAjax(brandId, brandName) {
             });
 
             const response = await fetch(`/admin/unBlockBrand?id=${brandId}&page=${currentPage}`, {
-                method: 'GET',
+                method: 'PATCH',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
                 }
             });
 
@@ -346,7 +342,7 @@ async function unblockBrandAjax(brandId, brandName) {
     }
 }
 
-// Delete brand with AJAX
+
 async function deleteBrandAjax(brandId, brandName) {
     const result = await Swal.fire({
         title: 'Delete Brand?',
@@ -371,9 +367,10 @@ async function deleteBrandAjax(brandId, brandName) {
             });
 
             const response = await fetch(`/admin/deleteBrand?id=${brandId}&page=${currentPage}`, {
-                method: 'GET',
+                method: 'DELETE',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
                 }
             });
 
@@ -401,7 +398,6 @@ async function deleteBrandAjax(brandId, brandName) {
     }
 }
 
-// Check for URL messages
 function checkUrlMessages() {
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
@@ -434,13 +430,12 @@ function checkUrlMessages() {
             showConfirmButton: false
         });
 
-        // Clean URL
         const cleanUrl = window.location.pathname + (currentSearch ? `?search=${currentSearch}` : '');
         window.history.replaceState({}, document.title, cleanUrl);
     }
 }
 
-// Handle browser back/forward
+
 window.addEventListener('popstate', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const page = parseInt(urlParams.get('page')) || 1;

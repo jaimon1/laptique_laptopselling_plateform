@@ -5,13 +5,13 @@
         <div class="offers-container">
 
 
-            <!-- Page Header -->
+          
             <div class="page-header">
                 <h1><i class="fas fa-percent me-3"></i>Offers Management</h1>
                 <p>Manage product and category offers to boost sales</p>
             </div>
 
-            <!-- Product Offers Section -->
+         
             <div class="offer-card">
                 <div class="offer-card-header">
                     <div class="offer-icon product-offer-icon">
@@ -23,13 +23,13 @@
                     </div>
                 </div>
 
-                <!-- Search Box -->
+             
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" id="productSearch" class="form-control" placeholder="Search products...">
                 </div>
 
-                <!-- Loading Spinner -->
+           
                 <div class="loading-spinner" id="productLoading">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -37,7 +37,7 @@
                 </div>
 
 
-                <!-- Products Table -->
+        
                 <div class="table-container">
                     <table class="modern-table table">
                         <thead>
@@ -51,23 +51,23 @@
                             </tr>
                         </thead>
                         <tbody id="productsTableBody">
-                            <!-- Products will be loaded here via AJAX -->
+                          
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Product Pagination -->
+             
                 <div id="productPagination" class="pagination-container" style="display: none;">
                     <div class="pagination-info">
                         <span id="productPaginationInfo"></span>
                     </div>
                     <div class="pagination-buttons" id="productPaginationButtons">
-                        <!-- Pagination buttons will be inserted here -->
+                      
                     </div>
                 </div>
             </div>
 
-            <!-- Category Offers Section -->
+ 
             <div class="offer-card">
                 <div class="offer-card-header">
                     <div class="offer-icon category-offer-icon">
@@ -80,20 +80,20 @@
                 </div>
 
 
-                <!-- Search Box -->
+            
                 <div class="search-box">
                     <i class="fas fa-search"></i>
                     <input type="text" id="categorySearch" class="form-control" placeholder="Search categories...">
                 </div>
 
-                <!-- Loading Spinner -->
+              
                 <div class="loading-spinner" id="categoryLoading">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
 
-                <!-- Categories Table -->
+         
                 <div class="table-container">
                     <table class="modern-table table">
                         <thead>
@@ -106,18 +106,17 @@
                             </tr>
                         </thead>
                         <tbody id="categoriesTableBody">
-                            <!-- Categories will be loaded here via AJAX -->
+    
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Category Pagination -->
                 <div id="categoryPagination" class="pagination-container" style="display: none;">
                     <div class="pagination-info">
                         <span id="categoryPaginationInfo"></span>
                     </div>
                     <div class="pagination-buttons" id="categoryPaginationButtons">
-                        <!-- Pagination buttons will be inserted here -->
+                      
                     </div>
                 </div>
             </div>
@@ -125,7 +124,7 @@
     </div>
 
 
-    <!-- Offer Modal -->
+ 
     <div class="modal fade" id="offerModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border-radius: 15px; border: none;">
@@ -162,11 +161,11 @@
 
     <script>
         let currentOfferId = null;
-        let currentOfferType = null; // 'product' or 'category'
+        let currentOfferType = null; 
         let currentProductPage = 1;
         let currentCategoryPage = 1;
 
-        // Toast Notification Function
+      
         function showToast(message, type = 'success') {
             Swal.fire({
                 toast: true,
@@ -179,7 +178,7 @@
             });
         }
 
-        // Load Products with Pagination
+
         async function loadProducts(search = '', page = 1) {
             document.getElementById('productLoading').style.display = 'block';
             document.getElementById('productsTableBody').innerHTML = '';
@@ -211,7 +210,7 @@
             }
         }
 
-        // Render Products
+
         function renderProducts(products) {
             const tbody = document.getElementById('productsTableBody');
             tbody.innerHTML = products.map(product => {
@@ -221,7 +220,7 @@
                     ? `<span class="offer-badge active">${product.productOffer}% OFF</span>`
                     : `<span class="offer-badge inactive">No Offer</span>`;
 
-                // Get product image - use re-images directory
+         
                 const imagePath = product.ProductImages && product.ProductImages[0] ? product.ProductImages[0] : '';
                 const imageUrl = imagePath ? `/uploads/re-images/${imagePath}` : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="50" height="50"%3E%3Crect fill="%23ddd" width="50" height="50"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-size="12"%3ENo Image%3C/text%3E%3C/svg%3E';
 
@@ -252,7 +251,7 @@
             }).join('');
         }
 
-        // Render Product Pagination
+
         function renderProductPagination(pagination, search) {
             const paginationContainer = document.getElementById('productPagination');
             const paginationInfo = document.getElementById('productPaginationInfo');
@@ -268,14 +267,14 @@
 
             let buttonsHTML = '';
 
-            // Previous button
+
             if (pagination.hasPrevPage) {
                 buttonsHTML += `<button class="pagination-btn" onclick="loadProducts('${search}', ${pagination.currentPage - 1})">
             <i class="fas fa-chevron-left"></i> Previous
         </button>`;
             }
 
-            // Page numbers
+  
             for (let i = 1; i <= pagination.totalPages; i++) {
                 if (i === 1 || i === pagination.totalPages || (i >= pagination.currentPage - 2 && i <= pagination.currentPage + 2)) {
                     buttonsHTML += `<button class="pagination-btn ${i === pagination.currentPage ? 'active' : ''}" 
@@ -285,7 +284,7 @@
                 }
             }
 
-            // Next button
+        
             if (pagination.hasNextPage) {
                 buttonsHTML += `<button class="pagination-btn" onclick="loadProducts('${search}', ${pagination.currentPage + 1})">
             Next <i class="fas fa-chevron-right"></i>
@@ -296,7 +295,7 @@
         }
 
 
-        // Load Categories with Pagination
+   
         async function loadCategories(search = '', page = 1) {
             document.getElementById('categoryLoading').style.display = 'block';
             document.getElementById('categoriesTableBody').innerHTML = '';
@@ -328,7 +327,7 @@
             }
         }
 
-        // Render Categories
+ 
         function renderCategories(categories) {
             const tbody = document.getElementById('categoriesTableBody');
             tbody.innerHTML = categories.map(category => {
@@ -361,7 +360,7 @@
             }).join('');
         }
 
-        // Render Category Pagination
+
         function renderCategoryPagination(pagination, search) {
             const paginationContainer = document.getElementById('categoryPagination');
             const paginationInfo = document.getElementById('categoryPaginationInfo');
@@ -377,14 +376,14 @@
 
             let buttonsHTML = '';
 
-            // Previous button
+          
             if (pagination.hasPrevPage) {
                 buttonsHTML += `<button class="pagination-btn" onclick="loadCategories('${search}', ${pagination.currentPage - 1})">
             <i class="fas fa-chevron-left"></i> Previous
         </button>`;
             }
 
-            // Page numbers
+     
             for (let i = 1; i <= pagination.totalPages; i++) {
                 if (i === 1 || i === pagination.totalPages || (i >= pagination.currentPage - 2 && i <= pagination.currentPage + 2)) {
                     buttonsHTML += `<button class="pagination-btn ${i === pagination.currentPage ? 'active' : ''}" 
@@ -394,7 +393,7 @@
                 }
             }
 
-            // Next button
+            
             if (pagination.hasNextPage) {
                 buttonsHTML += `<button class="pagination-btn" onclick="loadCategories('${search}', ${pagination.currentPage + 1})">
             Next <i class="fas fa-chevron-right"></i>
@@ -405,7 +404,7 @@
         }
 
 
-        // Open Offer Modal
+
         function openOfferModal(id, type, currentOffer = 0) {
             currentOfferId = id;
             currentOfferType = type;
@@ -420,7 +419,7 @@
             modal.show();
         }
 
-        // Offer Percentage Input Change
+        
         document.getElementById('offerPercentage').addEventListener('input', function () {
             const value = parseInt(this.value);
             const preview = document.getElementById('offerPreview');
@@ -435,7 +434,7 @@
         });
 
 
-        // Save Offer
+     
         document.getElementById('saveOfferBtn').addEventListener('click', async function () {
             const percentage = parseInt(document.getElementById('offerPercentage').value);
 
@@ -465,7 +464,7 @@
                     showToast(`Offer ${percentage}% applied successfully!`, 'success');
                     bootstrap.Modal.getInstance(document.getElementById('offerModal')).hide();
 
-                    // Reload the appropriate table
+                    
                     if (currentOfferType === 'product') {
                         loadProducts(document.getElementById('productSearch').value);
                     } else {
@@ -480,7 +479,7 @@
         });
 
 
-        // Remove Offer
+        
         async function removeOffer(id, type) {
             const result = await Swal.fire({
                 title: 'Remove Offer?',
@@ -513,7 +512,7 @@
                     if (data.success || data.status) {
                         showToast('Offer removed successfully!', 'success');
 
-                        // Reload the appropriate table
+                       
                         if (type === 'product') {
                             loadProducts(document.getElementById('productSearch').value);
                         } else {
@@ -529,12 +528,12 @@
         }
 
 
-        // Search Functionality
+       
         let productSearchTimeout;
         document.getElementById('productSearch').addEventListener('input', function () {
             clearTimeout(productSearchTimeout);
             productSearchTimeout = setTimeout(() => {
-                loadProducts(this.value, 1); // Reset to page 1 on search
+                loadProducts(this.value, 1); 
             }, 500);
         });
 
@@ -542,11 +541,11 @@
         document.getElementById('categorySearch').addEventListener('input', function () {
             clearTimeout(categorySearchTimeout);
             categorySearchTimeout = setTimeout(() => {
-                loadCategories(this.value, 1); // Reset to page 1 on search
+                loadCategories(this.value, 1); 
             }, 500);
         });
 
-        // Initial Load
+        
         document.addEventListener('DOMContentLoaded', function () {
             loadProducts('', 1);
             loadCategories('', 1);

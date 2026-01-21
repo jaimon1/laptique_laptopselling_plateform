@@ -8,10 +8,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/editProfile.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
-    <!-- Navigation -->
+  
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="#">
@@ -55,7 +56,7 @@
     </nav>
 
     <%-include("../../views/parsuals/user/header")%>
-        <!-- Page Header -->
+   
         <div class="page-header fade-in">
             <div class="container">
                 <nav aria-label="breadcrumb">
@@ -71,11 +72,11 @@
         </div>
 
         <div class="container">
-            <!-- Alert Messages -->
+            
             <div id="alertContainer"></div>
 
             <div class="row">
-                <!-- Profile Picture Section -->
+                
                 <div class="col-lg-4">
                     <div class="profile-card text-center slide-in">
                         <h5><i class="fas fa-camera me-2"></i>Profile Picture</h5>
@@ -93,10 +94,10 @@
                     </div>
                 </div>
 
-                <!-- Main Edit Form -->
+                
                 <div class="col-lg-8">
                     <form id="editProfileForm" method="post" action="/editProfile">
-                        <!-- Personal Information -->
+                 
                         <div class="profile-card fade-in">
                             <h5><i class="fas fa-user me-2"></i>Personal Information</h5>
 
@@ -164,7 +165,7 @@
                             </div>
                         </div>
 
-                        <!-- Action Buttons -->
+                      
                         <div class="profile-card fade-in">
                             <div class="d-flex flex-column flex-md-row gap-3">
                                 <button type="submit" class="btn btn-primary">
@@ -186,7 +187,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
-            // Form validation and submission
+      
             document.getElementById('editProfileForm').addEventListener('submit', function (e) {
                 if (!validateForm()) {
                     e.preventDefault();
@@ -200,7 +201,7 @@
                 let isValid = true;
                 let errors = [];
 
-                // Name validation
+     
                 const name = document.getElementById('firstName');
                 const nameValue = name.value.trim();
                 if (!nameValue) {
@@ -220,7 +221,7 @@
                     name.classList.add('is-valid');
                 }
 
-                // Email validation
+
                 const email = document.getElementById('email');
                 const emailValue = email.value.trim();
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -237,7 +238,7 @@
                     email.classList.add('is-valid');
                 }
 
-                // Phone validation (Indian mobile number)
+               
                 const phone = document.getElementById('phone');
                 const phoneValue = phone.value.trim();
                 const phoneRegex = /^[6-9]\d{9}$/;
@@ -254,7 +255,7 @@
                     phone.classList.add('is-valid');
                 }
 
-                // Gender validation
+              
                 const gender = document.getElementById('gender');
                 if (!gender.value) {
                     errors.push('Please select your gender');
@@ -265,7 +266,7 @@
                     gender.classList.add('is-valid');
                 }
 
-                // Date of Birth validation (optional but if provided, must be valid)
+           
                 const dob = document.getElementById('dateOfBirth');
                 if (dob.value) {
                     const dobDate = new Date(dob.value);
@@ -286,7 +287,7 @@
                     }
                 }
 
-                // Show errors if any
+          
                 if (!isValid && errors.length > 0) {
                     Swal.fire({
                         icon: 'error',
@@ -300,7 +301,7 @@
             }
 
             function saveProfile() {
-                // Simulate saving with loading state
+
                 const submitBtn = document.querySelector('button[type="submit"]');
                 const originalText = submitBtn.innerHTML;
 
@@ -311,17 +312,17 @@
                 setTimeout(() => {
                     showAlert('Profile updated successfully!', 'success');
 
-                    // Reset button
+        
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
 
-                    // Keep validation classes as they show success state
+                    
                 }, 1500);
             }
 
-            // Drop-in SweetAlert2 replacement for resetForm()
+           
             async function resetForm() {
-                // show SweetAlert2 confirmation modal
+              
                 const result = await Swal.fire({
                     title: 'Reset changes?',
                     text: 'Are you sure you want to reset all changes? This cannot be undone.',
@@ -333,25 +334,24 @@
                     focusCancel: true
                 });
 
-                // if user cancelled, do nothing
+                
                 if (!result.isConfirmed) return;
 
-                // proceed with the same logic you had
+                
                 const form = document.getElementById('editProfileForm');
                 if (form) {
                     form.reset();
                 }
 
-                // remove bootstrap validation classes (same as before)
+             
                 document.querySelectorAll('.is-valid, .is-invalid').forEach(field => {
                     field.classList.remove('is-valid', 'is-invalid');
                 });
 
-                // keep your existing showAlert helper
+              
                 showAlert('Form has been reset', 'info');
 
-                // optional: reset any client-side dirty flag you may have
-                // window.formIsDirty = false;
+            
             }
 
 
@@ -371,17 +371,17 @@
                 }
             }
 
-            // Image upload handling
+         
             function handleImageUpload(event) {
                 const file = event.target.files[0];
                 if (file) {
-                    // Validate file size (max 5MB)
+                  
                     if (file.size > 5 * 1024 * 1024) {
                         showAlert('File size should not exceed 5MB', 'danger');
                         return;
                     }
 
-                    // Validate file type
+                   
                     if (!file.type.startsWith('image/')) {
                         showAlert('Please select a valid image file', 'danger');
                         return;
@@ -418,29 +418,23 @@
                 }
             }
 
-            // Alert system
             function showAlert(message, type) {
-                const alertContainer = document.getElementById('alertContainer');
-                const alertId = 'alert-' + Date.now();
+                const iconMap = {
+                    'success': 'success',
+                    'danger': 'error',
+                    'warning': 'warning',
+                    'info': 'info'
+                };
 
-                const alertHTML = `
-                <div class="alert alert-${type} alert-dismissible fade show" id="${alertId}" role="alert">
-                    <i class="fas fa-${getAlertIcon(type)} me-2"></i>
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-
-                alertContainer.innerHTML = alertHTML;
-
-                // Auto-dismiss after 5 seconds
-                setTimeout(() => {
-                    const alert = document.getElementById(alertId);
-                    if (alert) {
-                        const bsAlert = new bootstrap.Alert(alert);
-                        bsAlert.close();
-                    }
-                }, 5000);
+                Swal.fire({
+                    icon: iconMap[type] || 'info',
+                    title: type === 'success' ? 'Success!' : type === 'danger' ? 'Error!' : 'Notice',
+                    text: message,
+                    timer: 3000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
             }
 
             function getAlertIcon(type) {
@@ -453,17 +447,17 @@
                 }
             }
 
-            // Form field interactions and real-time validation
+  
             document.addEventListener('DOMContentLoaded', function () {
-                // Phone number validation - only allow digits, max 10
+           
                 const phoneInput = document.getElementById('phone');
                 phoneInput.addEventListener('input', function () {
-                    // Remove all non-digit characters
+              
                     let value = this.value.replace(/\D/g, '');
-                    // Limit to 10 digits
+                 
                     this.value = value.substring(0, 10);
                     
-                    // Real-time validation
+               
                     if (value.length === 10 && /^[6-9]\d{9}$/.test(value)) {
                         this.classList.remove('is-invalid');
                         this.classList.add('is-valid');
@@ -473,7 +467,7 @@
                     }
                 });
 
-                // Real-time email validation
+             
                 const emailInput = document.getElementById('email');
                 emailInput.addEventListener('blur', function () {
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -487,13 +481,13 @@
                     }
                 });
 
-                // Name validation (no numbers, only letters and spaces)
+              
                 const nameInput = document.getElementById('firstName');
                 nameInput.addEventListener('input', function () {
-                    // Remove numbers and special characters
+                  
                     this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
                     
-                    // Real-time validation
+                  
                     const value = this.value.trim();
                     if (value.length >= 3 && value.length <= 50) {
                         this.classList.remove('is-invalid');
@@ -504,7 +498,7 @@
                     }
                 });
 
-                // Date of Birth validation
+        
                 const dobInput = document.getElementById('dateOfBirth');
                 dobInput.addEventListener('change', function () {
                     if (this.value) {
@@ -522,7 +516,7 @@
                     }
                 });
 
-                // Gender validation
+            
                 const genderInput = document.getElementById('gender');
                 genderInput.addEventListener('change', function () {
                     if (this.value) {
@@ -531,7 +525,7 @@
                     }
                 });
 
-                // Auto-save indication
+            
                 const formInputs = document.querySelectorAll('#editProfileForm input, #editProfileForm select');
                 let hasChanges = false;
 
@@ -541,7 +535,7 @@
                     });
                 });
 
-                // Warn before leaving if there are unsaved changes
+               
                 window.addEventListener('beforeunload', function (e) {
                     if (hasChanges) {
                         e.preventDefault();
@@ -550,9 +544,9 @@
                 });
             });
 
-            // Keyboard shortcuts
+   
             document.addEventListener('keydown', function (e) {
-                // Ctrl+S to save
+            
                 if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
                     if (validateForm()) {
@@ -560,19 +554,19 @@
                     }
                 }
 
-                // Escape to go back
+              
                 if (e.key === 'Escape') {
                     goBackToProfile();
                 }
             });
 
-            // Initialize tooltips if any
+         
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
-            // Email Verification Functions
+      
             function showEmailVerificationModal() {
                 const modal = new bootstrap.Modal(document.getElementById('emailVerificationModal'));
                 modal.show();
@@ -630,9 +624,9 @@
                         if (data.success) {
                             bootstrap.Modal.getInstance(document.getElementById('emailVerificationModal')).hide();
                             showAlert('Email verified and updated successfully!', 'success');
-                            // Update email field
+                         
                             document.getElementById('email').value = email;
-                            // Reset modal
+                        
                             document.getElementById('emailVerificationStep1').style.display = 'block';
                             document.getElementById('emailVerificationStep2').style.display = 'none';
                             document.getElementById('newEmailAddress').value = '';
@@ -677,7 +671,7 @@
             }
         </script>
 
-        <!-- Email Verification Modal -->
+      
         <div class="modal fade" id="emailVerificationModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">

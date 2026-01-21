@@ -3,7 +3,7 @@ import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
 
-// Load Sales Report Page
+
 export const loadSalesReport = async (req, res) => {
     try {
         res.render('salesReport');
@@ -13,7 +13,7 @@ export const loadSalesReport = async (req, res) => {
     }
 };
 
-// Get Sales Report Data
+
 export const getSalesReportData = async (req, res) => {
     try {
         const { filterType, startDate, endDate, page = 1, limit = 10 } = req.query;
@@ -21,7 +21,7 @@ export const getSalesReportData = async (req, res) => {
         let dateFilter = {};
         const now = new Date();
 
-        // Build date filter based on type
+
         switch (filterType) {
             case 'daily': {
                 dateFilter = {
@@ -76,12 +76,12 @@ export const getSalesReportData = async (req, res) => {
                 break;
             }
             default: {
-                // All time
+              
                 dateFilter = {};
             }
         }
 
-        // Only include delivered orders with completed payments (exclude failed payment orders)
+
         const query = {
             ...dateFilter,
             status: 'Delivered',
@@ -91,7 +91,7 @@ export const getSalesReportData = async (req, res) => {
             ]
         };
 
-        // Get paginated orders
+
         const skip = (page - 1) * limit;
         const orders = await Order.find(query)
             .populate('userId', 'name email')
@@ -102,7 +102,7 @@ export const getSalesReportData = async (req, res) => {
 
         const totalOrders = await Order.countDocuments(query);
 
-        // Calculate overall statistics
+
         const stats = await Order.aggregate([
             { $match: query },
             {
@@ -129,7 +129,7 @@ export const getSalesReportData = async (req, res) => {
             averageOrderValue: 0
         };
 
-        // Get status breakdown
+
         const statusBreakdown = await Order.aggregate([
             { $match: query },
             {
@@ -141,7 +141,7 @@ export const getSalesReportData = async (req, res) => {
             }
         ]);
 
-        // Get payment method breakdown
+
         const paymentBreakdown = await Order.aggregate([
             { $match: query },
             {
@@ -191,7 +191,7 @@ export const getSalesReportData = async (req, res) => {
     }
 };
 
-// Download Sales Report as Excel
+
 export const downloadExcel = async (req, res) => {
     try {
         const { filterType, startDate, endDate } = req.query;
@@ -199,7 +199,7 @@ export const downloadExcel = async (req, res) => {
         let dateFilter = {};
         const now = new Date();
 
-        // Build date filter (same logic as getSalesReportData)
+
         switch (filterType) {
             case 'daily': {
                 dateFilter = {
@@ -254,12 +254,12 @@ export const downloadExcel = async (req, res) => {
                 break;
             }
             default: {
-                // All time
+                
                 dateFilter = {};
             }
         }
 
-        // Only include delivered orders with completed payments (exclude failed payment orders)
+
         const query = {
             ...dateFilter,
             status: 'Delivered',
@@ -274,22 +274,22 @@ export const downloadExcel = async (req, res) => {
             .populate('orderItems.product', 'productName')
             .sort({ createdOn: -1 });
 
-        // Create workbook
+
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
 
-        // Add title
+
         worksheet.mergeCells('A1:J1');
         worksheet.getCell('A1').value = 'LapTique Sales Report';
         worksheet.getCell('A1').font = { size: 16, bold: true };
         worksheet.getCell('A1').alignment = { horizontal: 'center' };
 
-        // Add date range
+
         worksheet.mergeCells('A2:J2');
         worksheet.getCell('A2').value = `Report Generated: ${new Date().toLocaleString()}`;
         worksheet.getCell('A2').alignment = { horizontal: 'center' };
 
-        // Add headers
+
         worksheet.addRow([]);
         const headerRow = worksheet.addRow([
             'Order ID',
@@ -313,7 +313,7 @@ export const downloadExcel = async (req, res) => {
         };
         headerRow.font = { color: { argb: 'FFFFFF' }, bold: true };
 
-        // Add data
+
         orders.forEach(order => {
             worksheet.addRow([
                 order.orderId,
@@ -330,13 +330,13 @@ export const downloadExcel = async (req, res) => {
             ]);
         });
 
-        // Calculate totals
+
         const totalSales = orders.reduce((sum, order) => sum + parseFloat(order.finalAmount), 0);
         const totalDiscount = orders.reduce((sum, order) => sum + order.discount, 0);
         const totalCouponDiscount = orders.reduce((sum, order) =>
             sum + (order.couponApplied ? order.couponDetails?.discount || 0 : 0), 0);
 
-        // Add summary
+
         worksheet.addRow([]);
         worksheet.addRow(['Summary']);
         worksheet.addRow(['Total Orders:', orders.length]);
@@ -344,16 +344,16 @@ export const downloadExcel = async (req, res) => {
         worksheet.addRow(['Total Discount:', totalDiscount.toFixed(2)]);
         worksheet.addRow(['Total Coupon Discount:', totalCouponDiscount.toFixed(2)]);
 
-        // Auto-fit columns
+
         worksheet.columns.forEach(column => {
             column.width = 15;
         });
 
-        // Set response headers
+
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename=sales-report-${Date.now()}.xlsx`);
 
-        // Write to response
+ 
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
@@ -362,7 +362,7 @@ export const downloadExcel = async (req, res) => {
     }
 };
 
-// Download Sales Report as PDF
+
 export const downloadPDF = async (req, res) => {
     try {
         const { filterType, startDate, endDate } = req.query;
@@ -370,7 +370,7 @@ export const downloadPDF = async (req, res) => {
         let dateFilter = {};
         const now = new Date();
 
-        // Build date filter (same logic as getSalesReportData)
+        
         switch (filterType) {
             case 'daily': {
                 dateFilter = {
@@ -426,7 +426,7 @@ export const downloadPDF = async (req, res) => {
             }
         }
 
-        // Only include delivered orders with completed payments (exclude failed payment orders)
+      
         const query = {
             ...dateFilter,
             status: 'Delivered',
@@ -440,28 +440,26 @@ export const downloadPDF = async (req, res) => {
             .populate('userId', 'name email')
             .sort({ createdOn: -1 });
 
-        // Calculate totals
+
         const totalSales = orders.reduce((sum, order) => sum + parseFloat(order.finalAmount), 0);
         const totalDiscount = orders.reduce((sum, order) => sum + order.discount, 0);
         const totalCouponDiscount = orders.reduce((sum, order) =>
             sum + (order.couponApplied ? order.couponDetails?.discount || 0 : 0), 0);
 
-        // Create PDF
         const doc = new PDFDocument({ margin: 50, size: 'A4' });
 
-        // Set response headers
+
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=sales-report-${Date.now()}.pdf`);
 
         doc.pipe(res);
 
-        // Add header
+
         doc.fontSize(20).font('Helvetica-Bold').text('LapTique Sales Report', { align: 'center' });
         doc.moveDown();
         doc.fontSize(10).font('Helvetica').text(`Generated: ${new Date().toLocaleString()}`, { align: 'center' });
         doc.moveDown(2);
 
-        // Add summary
         doc.fontSize(14).font('Helvetica-Bold').text('Summary');
         doc.moveDown(0.5);
         doc.fontSize(10).font('Helvetica');
@@ -472,11 +470,11 @@ export const downloadPDF = async (req, res) => {
         doc.text(`Net Sales: ₹${(totalSales - totalDiscount - totalCouponDiscount).toFixed(2)}`);
         doc.moveDown(2);
 
-        // Add table header
+
         doc.fontSize(12).font('Helvetica-Bold').text('Order Details');
         doc.moveDown(0.5);
 
-        // Table headers
+
         const tableTop = doc.y;
         const col1 = 50;
         const col2 = 150;
@@ -494,7 +492,7 @@ export const downloadPDF = async (req, res) => {
         doc.moveDown();
         let yPosition = doc.y;
 
-        // Add orders
+
         doc.fontSize(8).font('Helvetica');
         orders.forEach((order) => {
             if (yPosition > 700) {

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const couponSchema = new Schema({
-    name: { // coupon code (WELCOME10)
+    name: { 
         type:String,
         unique:true,
         required:true,
@@ -28,11 +28,18 @@ const couponSchema = new Schema({
     },
     discountValue: { 
         type: Number,
-        required: true
+        required: true,
+        min: [0.01, 'Discount value must be greater than 0']
+    },
+    maxDiscountAmount: {
+        type: Number,
+        default: null, 
+        min: [0, 'Maximum discount amount cannot be negative']
     },
     minimumPrice: { 
         type: Number,
-        required: true
+        required: true,
+        min: [0, 'Minimum price cannot be negative']
     },
     isActive: { 
         type: Boolean,
@@ -40,7 +47,8 @@ const couponSchema = new Schema({
     },
     usageLimit: {
         type: Number,
-        default: 1
+        default: 1,
+        min: [1, 'Usage limit must be at least 1']
     },
     usersUsed: [
         {
@@ -48,6 +56,24 @@ const couponSchema = new Schema({
             count: { type: Number, default: 0 }
         }
     ]
+});
+
+
+couponSchema.pre('save', function(next) {
+    if (this.discountType === 'percentage') {
+        if (this.discountValue < 1 || this.discountValue > 50) {
+            return next(new Error('Percentage discount must be between 1% and 50%'));
+        }
+    }
+    
+
+    if (this.discountType === 'fixed') {
+        if (this.discountValue > 5000) {
+            return next(new Error('Fixed discount cannot exceed ₹5,000'));
+        }
+    }
+    
+    next();
 });
 
 const Coupon = mongoose.model("Coupon", couponSchema);

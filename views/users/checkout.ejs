@@ -13,7 +13,7 @@
     <%-include("../../views/parsuals/user/header")%>
     <div style="margin-top: 70px;"></div>
 
-    <!-- Modern Checkout Header -->
+ 
     <div class="checkout-header-modern">
         <div class="container-modern">
             <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -34,10 +34,10 @@
 
     <div class="container-modern checkout-container">
         <div class="row g-4">
-            <!-- Left Column - Main Content -->
+           
             <div class="col-lg-8">
 
-                <!-- Delivery Address Section -->
+               
                 <div class="modern-card">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
@@ -45,13 +45,13 @@
                         </h5>
                     </div>
                     <div class="card-body-modern">
-                        <!-- Add New Address Button -->
+                  
                         <button class="add-address-modern" data-bs-toggle="modal" data-bs-target="#addAddressModal">
                             <i class="fas fa-plus-circle me-2"></i>
                             <span>Add New Address</span>
                         </button>
 
-                        <!-- Existing Addresses -->
+                      
                         <div id="addressList" class="address-grid">
                             <% if (addresses && addresses.length > 0) { %>
                                 <% addresses.forEach((address, index) => { %>
@@ -86,7 +86,7 @@
                 </div>
 </div>
    
-             <!-- Payment Method Section -->
+          
                 <div class="modern-card">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
@@ -137,7 +137,7 @@
                     </div>
                 </div>
 
-                <!-- Coupon Section -->
+          
                 <div class="modern-card">
                     <div class="card-header-modern">
                         <h5 class="card-title-modern">
@@ -209,14 +209,14 @@
                 </div>
             </div>
 
-            <!-- Right Column - Sticky Order Summary -->
+            
             <div class="col-lg-4">
                 <div class="order-summary-modern">
                     <h5 class="summary-title">
                         <i class="fas fa-receipt me-2"></i>Order Summary
                     </h5>
 
-                    <!-- Collapsible Products List -->
+             
                     <div class="products-summary-modern">
                         <div class="products-header-modern" id="productsToggleBtn">
                             <div class="d-flex justify-content-between align-items-center">
@@ -262,7 +262,7 @@
                         </div>
                     </div>
 
-                    <!-- Price Breakdown -->
+                   
                     <div class="price-breakdown">
                         <div class="price-row">
                             <span>Subtotal</span>
@@ -316,10 +316,10 @@
         </div>
     </div>
 
-    <!-- Alert Container for Top Right Notifications -->
+
     <div id="alertContainer" class="alert-container"></div>
 
-    <!-- Mobile Floating Bottom Bar -->
+    
     <div class="mobile-bottom-bar" id="mobileBottomBar">
         <div class="mobile-bar-content">
             <div class="mobile-bar-total">
@@ -337,7 +337,7 @@
         </div>
     </div>
 
-    <!-- Add Address Modal -->
+  
     <div class="modal fade" id="addAddressModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content modern-modal">
@@ -433,14 +433,14 @@
         };
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Show checkout error if exists (as top-right alert)
+          
             <% if (typeof checkoutError !== 'undefined' && checkoutError) { %>
                 setTimeout(function() {
                     showAlert('<%= checkoutError.replace(/'/g, "\\'") %>', 'error');
                 }, 100);
             <% } %>
 
-            // Address selection
+ 
             document.querySelectorAll('.address-card-modern').forEach(card => {
                 card.addEventListener('click', function() {
                     document.querySelectorAll('.address-card-modern').forEach(c => c.classList.remove('selected'));
@@ -450,7 +450,7 @@
                 });
             });
 
-            // Check and disable COD if order is above ₹1000
+
             function checkCODEligibility() {
                 const codMethod = document.getElementById('codPaymentMethod');
                 const codDescription = document.getElementById('codDescription');
@@ -472,7 +472,7 @@
             
             checkCODEligibility();
 
-            // Payment method selection
+           
             document.querySelectorAll('.payment-card-modern').forEach(method => {
                 method.addEventListener('click', function() {
                     if (this.style.opacity === '0.5') return;
@@ -483,7 +483,7 @@
                 });
             });
 
-            // Coupon functionality
+  
             document.getElementById('applyCouponBtn').addEventListener('click', applyCoupon);
             document.getElementById('removeCouponBtn').addEventListener('click', removeCoupon);
             
@@ -505,7 +505,7 @@
                 }
             });
 
-            // Products list toggle
+        
             const toggleBtn = document.getElementById('productsToggleBtn');
             const productsList = document.getElementById('productsListCollapse');
             const toggleIcon = document.getElementById('productsToggleIcon');
@@ -515,7 +515,7 @@
                 toggleIcon.classList.toggle('rotated');
             });
 
-            // Update mobile total when pricing changes
+          
             function updateMobileTotal() {
                 document.getElementById('mobileTotal').textContent = currentPricing.total.toLocaleString();
             }
@@ -567,7 +567,7 @@
         async function removeCoupon() {
             try {
                 const response = await fetch('/checkout/remove-coupon', {
-                    method: 'POST',
+                    method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' }
                 });
 
@@ -853,12 +853,12 @@
         }
 
         function showAlert(message, type) {
-            console.log('showAlert called:', message, type); // Debug log
+            console.log('showAlert called:', message, type); 
             
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade modern-alert-toast`;
             
-            // Add icon based on type
+            
             let icon = '';
             if (type === 'success') {
                 icon = '<i class="fas fa-check-circle me-2"></i>';
@@ -878,17 +878,17 @@
                 </div>
             `;
 
-            // Append to body (will be positioned top-right by CSS)
-            document.body.appendChild(alertDiv);
-            console.log('Alert appended to body'); // Debug log
             
-            // Trigger animation
+            document.body.appendChild(alertDiv);
+            console.log('Alert appended to body'); 
+            
+            
             setTimeout(() => {
                 alertDiv.classList.add('show');
-                console.log('Alert show class added'); // Debug log
+                console.log('Alert show class added'); 
             }, 10);
 
-            // Auto dismiss after 5 seconds
+           
             setTimeout(() => {
                 if (alertDiv.parentNode) {
                     alertDiv.classList.remove('show');
@@ -896,7 +896,7 @@
                 }
             }, 5000);
 
-            // Manual close button
+            
             const closeBtn = alertDiv.querySelector('.btn-close');
             if (closeBtn) {
                 closeBtn.addEventListener('click', () => {

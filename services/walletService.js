@@ -20,7 +20,7 @@ async function getWallet(userId) {
 
 
 async function recordTransaction({ userId, wallet, amount, type, source, referenceModel = 'None', referenceId = null, notes = '', status = 'SUCCESS', currency = 'INR', metadata = {} }) {
-  // Append subdocument to wallet.transactions for compatibility
+  
   const isCredit = type === 'CREDIT' || type === 'REFUND' || type === 'TOPUP';
   const legacyType = isCredit ? 'Credit' : 'Debit';
 
@@ -32,7 +32,7 @@ async function recordTransaction({ userId, wallet, amount, type, source, referen
     status: status === 'SUCCESS' ? 'Completed' : (status === 'PENDING' ? 'Pending' : 'Failed')
   });
 
-  // Snapshot after applying amount already performed by caller
+  
   const tx = new Transaction({
     user: userId,
     wallet: wallet._id,
@@ -59,10 +59,10 @@ async function credit(userId, amount, { source = 'ADJUSTMENT', referenceModel = 
 
   const wallet = await ensureWallet(userId);
 
-  // Update balance first
+
   wallet.balance += value;
 
-  // Record both legacy and normalized transactions
+ 
   const tx = await recordTransaction({
     userId,
     wallet,
@@ -80,9 +80,7 @@ async function credit(userId, amount, { source = 'ADJUSTMENT', referenceModel = 
   return { wallet, tx };
 }
 
-/**
- * Debit wallet
- */
+
 async function debit(userId, amount, { source = 'ORDER_PAYMENT', referenceModel = 'None', referenceId = null, notes = '', metadata = {} } = {}) {
   if (!userId) throw new Error('userId is required');
   const value = Number(amount);
@@ -91,10 +89,10 @@ async function debit(userId, amount, { source = 'ORDER_PAYMENT', referenceModel 
   const wallet = await ensureWallet(userId);
   if (wallet.balance < value) throw new Error('Insufficient wallet balance');
 
-  // Update balance first
+ 
   wallet.balance -= value;
 
-  // Record both legacy and normalized transactions
+
   const tx = await recordTransaction({
     userId,
     wallet,
@@ -115,7 +113,7 @@ async function debit(userId, amount, { source = 'ORDER_PAYMENT', referenceModel 
 
 async function getTransactions(userId, { type, source, from, to, page = 1, limit = 10 } = {}) {
   const query = { user: userId };
-  if (type) query.type = type; // CREDIT | DEBIT | REFUND | TOPUP
+  if (type) query.type = type; 
   if (source) query.source = source;
 
   if (from || to) {
@@ -145,7 +143,7 @@ async function createTopupOrder(userId, amount) {
     notes: { user_id: String(userId), purpose: 'WALLET_TOPUP' },
   });
 
-  return rpOrder; // id, amount, currency, receipt
+  return rpOrder; 
 }
 
 

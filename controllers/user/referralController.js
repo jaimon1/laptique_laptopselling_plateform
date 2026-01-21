@@ -2,19 +2,18 @@ import User from '../../models/userSchema.js';
 import Coupon from '../../models/couponSchema.js';
 import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
 
-// Generate unique referral code
+
 function generateReferralCode(name) {
     const prefix = name.substring(0, 3).toUpperCase();
     const random = Math.random().toString(36).substring(2, 8).toUpperCase();
     return `${prefix}${random}`;
 }
 
-// Generate unique coupon for referrer
 async function generateReferralCoupon(userId, referredUserName) {
     try {
         const couponCode = `REF${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
         const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 30); // 30 days validity
+        expiryDate.setDate(expiryDate.getDate() + 30); 
 
         const newCoupon = new Coupon({
             name: couponCode,
@@ -22,8 +21,8 @@ async function generateReferralCoupon(userId, referredUserName) {
             createdOn: new Date(),
             expireOn: expiryDate,
             discountType: 'fixed',
-            discountValue: 100, // ₹100 discount
-            minimumPrice: 500, // Minimum order ₹500
+            discountValue: 100, 
+            minimumPrice: 500, 
             isActive: true,
             usageLimit: 1,
             usersUsed: []
@@ -37,7 +36,7 @@ async function generateReferralCoupon(userId, referredUserName) {
     }
 }
 
-// Get referral data for profile
+
 const getReferralData = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -58,7 +57,7 @@ const getReferralData = async (req, res) => {
             });
         }
 
-        // Generate referral code if not exists
+        
         if (!user.referralCode) {
             user.referralCode = generateReferralCode(user.name);
             await user.save();
@@ -83,7 +82,7 @@ const getReferralData = async (req, res) => {
     }
 };
 
-// Load referral history page
+
 const loadReferralHistory = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -98,7 +97,7 @@ const loadReferralHistory = async (req, res) => {
             return res.redirect('/');
         }
 
-        // Generate referral code if not exists
+        
         if (!user.referralCode) {
             user.referralCode = generateReferralCode(user.name);
             await user.save();
@@ -106,7 +105,7 @@ const loadReferralHistory = async (req, res) => {
 
         const referralLink = `${req.protocol}://${req.get('host')}/register?ref=${user.referralCode}`;
 
-        // Get coupons earned from referrals
+        
         const referralCoupons = await Coupon.find({
             description: { $regex: /Referral reward/i },
             usersUsed: { $elemMatch: { userId: userId } }
@@ -128,7 +127,7 @@ const loadReferralHistory = async (req, res) => {
     }
 };
 
-// Process referral reward (called when referred user completes first order or registration)
+
 const processReferralReward = async (req, res) => {
     try {
         const { referredUserId } = req.body;
@@ -149,7 +148,7 @@ const processReferralReward = async (req, res) => {
             });
         }
 
-        // Check if reward already given
+        
         const referralEntry = referrer.referrals.find(
             ref => ref.userId.toString() === referredUserId.toString()
         );
@@ -161,7 +160,7 @@ const processReferralReward = async (req, res) => {
             });
         }
 
-        // Generate coupon for referrer
+        
         const couponCode = await generateReferralCoupon(referrer._id, referredUser.name);
 
         if (!couponCode) {
@@ -171,7 +170,7 @@ const processReferralReward = async (req, res) => {
             });
         }
 
-        // Update referral entry to mark reward as given
+        
         await User.findOneAndUpdate(
             { _id: referrer._id, 'referrals.userId': referredUserId },
             { $set: { 'referrals.$.rewardGiven': true } }

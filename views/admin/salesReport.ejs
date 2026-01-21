@@ -1,7 +1,7 @@
 <%-include("../../views/parsuals/admin/header")%>
 
 <div class="col-md-10 p-0">
-    <!-- Modern Header -->
+   
     <div class="sales-report-header">
         <div class="header-content">
             <div class="header-left">
@@ -27,7 +27,7 @@
     </div>
 
     <div class="sales-report-container">
-        <!-- Filters Section -->
+   
         <div class="filters-card">
             <div class="filters-header">
                 <h3><i class="fas fa-filter"></i> Filters</h3>
@@ -77,7 +77,7 @@
             </div>
         </div>
 
-        <!-- Statistics Cards -->
+    
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
                 <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -130,7 +130,6 @@
             </div>
         </div>
 
-        <!-- Orders Table -->
         <div class="table-card">
             <div class="table-header">
                 <h3><i class="fas fa-list"></i> Order Details</h3>
@@ -177,9 +176,9 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
+      
             <div class="pagination-container" id="paginationContainer">
-                <!-- Pagination will be inserted here -->
+
             </div>
         </div>
     </div>
@@ -192,14 +191,14 @@ let currentLimit = 10;
 let startDate = '';
 let endDate = '';
 
-// Initialize
+
 document.addEventListener('DOMContentLoaded', function() {
     loadSalesReport();
     setupFilterButtons();
     setupSearch();
 });
 
-// Setup filter buttons
+
 function setupFilterButtons() {
     const filterBtns = document.querySelectorAll('.filter-btn');
     filterBtns.forEach(btn => {
@@ -219,7 +218,7 @@ function setupFilterButtons() {
     });
 }
 
-// Apply custom filter
+
 function applyCustomFilter() {
     startDate = document.getElementById('startDate').value;
     endDate = document.getElementById('endDate').value;
@@ -246,7 +245,7 @@ function applyCustomFilter() {
     loadSalesReport();
 }
 
-// Load sales report
+
 async function loadSalesReport() {
     try {
         const params = new URLSearchParams({
@@ -278,7 +277,7 @@ async function loadSalesReport() {
     }
 }
 
-// Update statistics
+
 function updateStatistics(stats) {
     document.getElementById('totalOrders').textContent = stats.totalOrders;
     document.getElementById('totalSales').textContent = `₹${stats.totalSales}`;
@@ -287,7 +286,7 @@ function updateStatistics(stats) {
     document.getElementById('avgOrder').textContent = `₹${stats.averageOrderValue}`;
 }
 
-// Update table
+
 function updateTable(orders) {
     const tbody = document.getElementById('ordersTableBody');
 
@@ -332,7 +331,7 @@ function updateTable(orders) {
     `).join('');
 }
 
-// Update pagination
+
 function updatePagination(pagination) {
     const container = document.getElementById('paginationContainer');
     const { currentPage, totalPages, totalOrders, limit } = pagination;
@@ -350,7 +349,7 @@ function updatePagination(pagination) {
             </button>
     `;
 
-    // Page numbers
+
     for (let i = 1; i <= totalPages; i++) {
         if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
             paginationHTML += `
@@ -373,20 +372,20 @@ function updatePagination(pagination) {
     container.innerHTML = paginationHTML;
 }
 
-// Change page
+
 function changePage(page) {
     currentPage = page;
     loadSalesReport();
 }
 
-// Change limit
+
 function changeLimit() {
     currentLimit = parseInt(document.getElementById('limitSelect').value);
     currentPage = 1;
     loadSalesReport();
 }
 
-// Setup search
+
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
     let searchTimeout;
@@ -405,7 +404,7 @@ function setupSearch() {
     });
 }
 
-// Download report
+
 async function downloadReport(format) {
     try {
         const params = new URLSearchParams({

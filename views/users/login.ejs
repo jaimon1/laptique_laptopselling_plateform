@@ -11,7 +11,7 @@
 
 <body>
     <div class="login-wrapper">
-        <!-- Left Side - Illustration -->
+        
         <div class="left-section">
             <div class="logo">LAPTIQUE</div>
             <div class="illustration">
@@ -20,7 +20,6 @@
             </div>
         </div>
 
-        <!-- Right Side - Form -->
         <div class="right-section">
             <div class="form-container">
                 <div class="form-header">
@@ -99,12 +98,12 @@
         const loginForm = document.getElementById('loginForm');
         const togglePassword = document.getElementById('togglePassword');
 
-        // Password visibility toggle
+
         togglePassword.addEventListener('click', function () {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
 
-            // Toggle eye icon
+
             this.textContent = type === 'password' ? '👁️' : '🙈';
         });
 
@@ -133,7 +132,6 @@
             }
         }
 
-        // Real-time validation
         emailInput.addEventListener('blur', emailValidation);
         emailInput.addEventListener('input', function () {
             if (this.value.trim() !== '') {
@@ -148,7 +146,6 @@
             }
         });
 
-        // Form submission validation
         loginForm.addEventListener('submit', function (e) {
             const isEmailValid = emailValidation();
             const isPasswordValid = passwordValidation();
@@ -158,7 +155,7 @@
             }
         });
 
-        // Clear errors when user starts typing
+
         emailInput.addEventListener('focus', function () {
             errorEmail.style.display = "none";
         });

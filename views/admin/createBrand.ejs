@@ -1,8 +1,8 @@
 <%-include("../../views/parsuals/admin/header")%>
 
-<!-- Main Content Area -->
+
 <div class="col-md-10 p-0">
-    <!-- Modern Page Header -->
+    
     <div class="modern-page-header-brand">
         <div class="header-content-brand">
             <div class="header-left-brand">
@@ -23,18 +23,18 @@
         </div>
     </div>
 
-    <!-- Brand Form Container -->
+   
     <div class="brand-form-container">
         <form id="brandForm" action="/admin/createBrand" method="POST" enctype="multipart/form-data" novalidate>
             
-            <!-- Brand Information Card -->
+
             <div class="form-card-brand">
                 <div class="card-header-custom-brand">
                     <i class="fas fa-info-circle"></i>
                     <h3>Brand Information</h3>
                 </div>
                 <div class="card-body-custom-brand">
-                    <!-- Brand Name -->
+                    
                     <div class="form-group-modern-brand">
                         <label for="brandName" class="form-label-modern-brand">
                             <i class="fas fa-tag"></i>
@@ -57,7 +57,7 @@
                         </div>
                     </div>
 
-                    <!-- Brand Logo -->
+                    
                     <div class="form-group-modern-brand">
                         <label for="brandLogo" class="form-label-modern-brand">
                             <i class="fas fa-image"></i>
@@ -100,7 +100,7 @@
                 </div>
             </div>
 
-            <!-- Form Actions -->
+            
             <div class="form-actions-brand">
                 <button type="submit" class="btn-submit-brand" id="submitBtn">
                     <i class="fas fa-check-circle"></i>
@@ -121,7 +121,7 @@
 </div>
 
 <script>
-    // Form validation and submission
+    
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('brandForm');
         const brandNameInput = document.getElementById('brandName');
@@ -135,7 +135,7 @@
         const removeImageBtn = document.getElementById('removeImageBtn');
         const nameCharCount = document.getElementById('nameCharCount');
 
-        // Character counter
+        
         brandNameInput.addEventListener('input', function() {
             const length = this.value.length;
             nameCharCount.textContent = length;
@@ -146,14 +146,14 @@
             }
         });
 
-        // Image upload handling
+        
         imageUploadArea.addEventListener('click', function(e) {
             if (!e.target.closest('.btn-change-image-brand') && !e.target.closest('.btn-remove-image-brand')) {
                 brandLogoInput.click();
             }
         });
 
-        // Drag and drop
+        
         imageUploadArea.addEventListener('dragover', function(e) {
             e.preventDefault();
             this.classList.add('dragover');
@@ -180,21 +180,21 @@
             const file = brandLogoInput.files[0];
             
             if (file) {
-                // Validate file type
+                
                 if (!file.type.match('image.*')) {
                     showError('Please select a valid image file');
                     brandLogoInput.value = '';
                     return;
                 }
 
-                // Validate file size (5MB)
+                
                 if (file.size > 5 * 1024 * 1024) {
                     showError('Image size must be less than 5MB');
                     brandLogoInput.value = '';
                     return;
                 }
 
-                // Show preview
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImg.src = e.target.result;
@@ -219,16 +219,16 @@
             previewImg.src = '';
         });
 
-        // Form validation
+        
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Clear previous errors
+            
             clearErrors();
             
             let isValid = true;
 
-            // Validate brand name
+            
             const brandName = brandNameInput.value.trim();
             if (brandName === '') {
                 showFieldError(brandNameInput, 'Brand name is required');
@@ -244,7 +244,7 @@
                 isValid = false;
             }
 
-            // Validate brand logo
+            
             if (brandLogoInput.files.length === 0) {
                 document.getElementById('imageError').style.display = 'block';
                 document.getElementById('imageError').textContent = 'Brand logo is required';
@@ -255,12 +255,12 @@
                 return false;
             }
 
-            // Show loading state
+            
             submitBtn.disabled = true;
             submitBtn.querySelector('.spinner-border').style.display = 'inline-block';
             submitBtn.querySelector('span').textContent = 'Adding Brand...';
 
-            // Submit form
+            
             form.submit();
         });
 
@@ -293,7 +293,7 @@
             });
         }
 
-        // Check for URL parameters
+        
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('brandadded') === 'success') {
             Swal.fire({

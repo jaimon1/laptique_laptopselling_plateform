@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css">
     
-    <!-- Admin Global CSS -->
+
     <link rel="stylesheet" href="/adminCss/adminGlobal.css?v=<%= Date.now() %>">
     <link rel="stylesheet" href="/adminCss/offers.css?v=<%= Date.now() %>">
     <link rel="stylesheet" href="/adminCss/salesReport.css?v=<%= Date.now() %>">
@@ -36,15 +36,15 @@
             }
         };
         
-        // CSS Loading Verification - Improved version
+     
         (function() {
-            // Hide indicator immediately if CSS is already loaded
+          
             function checkCSSLoaded() {
                 const sidebar = document.querySelector('.modern-sidebar');
                 const indicator = document.getElementById('cssLoadingIndicator');
                 
                 if (sidebar && indicator) {
-                    // Check if CSS is applied by checking computed styles
+                   
                     const sidebarStyles = window.getComputedStyle(sidebar);
                     const hasGradient = sidebarStyles.background.includes('gradient') || 
                                        sidebarStyles.backgroundImage.includes('gradient');
@@ -58,7 +58,7 @@
                 return false;
             }
             
-            // Check immediately
+
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(checkCSSLoaded, 100);
@@ -67,12 +67,12 @@
                 setTimeout(checkCSSLoaded, 100);
             }
             
-            // Also check after window load
+      
             window.addEventListener('load', function() {
                 setTimeout(checkCSSLoaded, 200);
             });
             
-            // Fallback: hide indicator after 2 seconds
+          
             setTimeout(function() {
                 const indicator = document.getElementById('cssLoadingIndicator');
                 if (indicator) {
@@ -84,7 +84,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        /* Critical CSS - Inline fallback to ensure basic layout works */
+ 
         body { 
             margin: 0; 
             padding: 0; 
@@ -115,17 +115,17 @@
 
 <body>
     
-    <!-- Mobile Menu Toggle -->
+
     <button class="mobile-menu-toggle" id="mobileMenuToggle">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Sidebar Overlay for Mobile -->
+
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Modern Sidebar -->
+   
     <aside class="modern-sidebar" id="modernSidebar">
-        <!-- Logo Section -->
+    
         <div class="sidebar-header">
             <div class="logo-container">
                 <div class="logo-icon">
@@ -138,7 +138,6 @@
             </button>
         </div>
 
-        <!-- Navigation Links -->
         <nav class="sidebar-nav">
             <div class="nav-section">
                 <span class="nav-section-title">Main Menu</span>
@@ -223,7 +222,7 @@
             </div>
         </nav>
 
-        <!-- Bottom Actions -->
+  
         <div class="sidebar-footer">
             <a href="#" class="footer-btn settings-btn">
                 <i class="fas fa-cog"></i>
@@ -236,11 +235,11 @@
         </div>
     </aside>
 
-    <!-- Main Content Wrapper -->
+
     <div class="main-content-wrapper">
             
     <script>
-        // Simple Sidebar Navigation - No AJAX
+
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('modernSidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -249,7 +248,7 @@
             const navLinks = document.querySelectorAll('.nav-link-item');
             const currentPath = window.location.pathname;
 
-            // Mobile menu toggle
+
             if (mobileToggle) {
                 mobileToggle.addEventListener('click', function() {
                     sidebar.classList.add('active');
@@ -258,7 +257,7 @@
                 });
             }
 
-            // Close sidebar
+
             function closeSidebar() {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
@@ -273,7 +272,7 @@
                 overlay.addEventListener('click', closeSidebar);
             }
 
-            // Set active navigation based on current URL
+        
             function updateActiveNav(path) {
                 navLinks.forEach(link => link.classList.remove('active'));
                 
@@ -300,10 +299,9 @@
                 }
             }
 
-            // Set initial active state
             updateActiveNav(currentPath);
 
-            // Close mobile sidebar on window resize
+           
             window.addEventListener('resize', function() {
                 if (window.innerWidth > 992) {
                     closeSidebar();

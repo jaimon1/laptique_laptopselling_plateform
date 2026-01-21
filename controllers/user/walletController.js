@@ -1,7 +1,7 @@
 import * as walletService from '../../services/walletService.js';
 import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
 
-// Render wallet page with balance and recent transactions
+
 async function getWalletPage(req, res) {
   try {
     const user = req.session.user || req.user;
@@ -23,7 +23,7 @@ async function getWalletPage(req, res) {
   }
 }
 
-// Render full wallet transaction history with filters
+
 async function getWalletHistory(req, res) {
   try {
     const user = req.session.user || req.user;
@@ -37,7 +37,7 @@ async function getWalletHistory(req, res) {
     const wallet = await walletService.getWallet(userId);
     const result = await walletService.getTransactions(userId, { type, source, from, to, page, limit });
 
-    // Check if AJAX request
+    
     const isAjax = req.xhr || 
                    (req.headers.accept && req.headers.accept.indexOf('json') > -1) || 
                    req.headers['x-requested-with'] === 'XMLHttpRequest';
@@ -85,7 +85,7 @@ async function getWalletHistory(req, res) {
   }
 }
 
-// Initiate Razorpay top-up order
+
 async function postTopupInit(req, res) {
   try {
     const userId = (req.session.user?._id || req.user?._id);
@@ -105,14 +105,14 @@ async function postTopupInit(req, res) {
 
     const rpOrder = await walletService.createTopupOrder(userId, value);
 
-    // Persist mapping in session to protect amount tampering
+    
     req.session.walletTopup = { orderId: rpOrder.id, amount: value };
 
     return res.json({
       success: true,
       keyId: process.env.RAZORPAY_KEY_ID,
       razorpayOrderId: rpOrder.id,
-      amount: rpOrder.amount, // paise
+      amount: rpOrder.amount, 
       currency: rpOrder.currency,
       receipt: rpOrder.receipt,
     });
@@ -125,7 +125,7 @@ async function postTopupInit(req, res) {
   }
 }
 
-// Verify Razorpay top-up and credit wallet
+
 async function postTopupVerify(req, res) {
   try {
     const userId = (req.session.user?._id || req.user?._id);
@@ -146,7 +146,7 @@ async function postTopupVerify(req, res) {
       hasSignature: !!razorpay_signature
     });
 
-    // Validate payment signature
+    
     try {
       const validation = await walletService.verifyTopupPayment({ 
         userId, 
@@ -170,7 +170,7 @@ async function postTopupVerify(req, res) {
       });
     }
     
-    // Retrieve expected amount from session
+    
     const sessionTopup = req.session.walletTopup;
     console.log('Session topup data:', sessionTopup);
     
@@ -194,7 +194,7 @@ async function postTopupVerify(req, res) {
       razorpayPaymentId: razorpay_payment_id,
     });
 
-    // Clear session to prevent replay
+    
     delete req.session.walletTopup;
 
     console.log('Wallet top-up successful. New balance:', wallet.balance);

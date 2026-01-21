@@ -3,7 +3,7 @@ import Product from '../../models/productSchema.js';
 import Wishlist from '../../models/wishlistSchema.js';
 import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
 
-// Load cart page
+
 const loadCart = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -25,7 +25,7 @@ const loadCart = async (req, res) => {
         let totalItems = 0;
 
         if (cart && cart.items.length > 0) {
-            // Filter out items with blocked/unlisted products or categories
+
             cartItems = cart.items.filter(item => {
                 const product = item.productId;
                 return product && 
@@ -35,12 +35,12 @@ const loadCart = async (req, res) => {
                        product.status !== 'Discontinued';
             });
 
-            // Calculate totals and check stock
+
             cartItems = cartItems.map(item => {
                 const product = item.productId;
                 const variant = product.variants.find(v => v.storage === item.variantId) || product.variants[0];
                 
-                // Check if quantity exceeds stock
+
                 const maxQuantity = Math.min(variant.quantity, 5); 
                 const adjustedQuantity = Math.min(item.quantity, maxQuantity);
                 
@@ -84,7 +84,7 @@ const loadCart = async (req, res) => {
     }
 };
 
-// Add product to cart
+
 const addToCart = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -106,7 +106,7 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Validate product and category
+
         const product = await Product.findById(productId).populate('category');
         
         if (!product) {
@@ -123,7 +123,7 @@ const addToCart = async (req, res) => {
             });
         }
 
-        if (!product.category.isListed) {
+        if (!product.category || !product.category.isListed) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
                 success: false, 
                 message: ERROR_MESSAGES.PRODUCT.OUT_OF_STOCK
@@ -137,7 +137,7 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Find the specific variant
+
         const variant = product.variants.find(v => v.storage === variantId);
         if (!variant) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
@@ -153,19 +153,19 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Find or create cart
+
         let cart = await Cart.findOne({ userId });
         if (!cart) {
             cart = new Cart({ userId, items: [] });
         }
 
-        // Check if product already exists in cart
+
         const existingItemIndex = cart.items.findIndex(
             item => item.productId.toString() === productId && item.variantId === variantId
         );
 
         if (existingItemIndex > -1) {
-            // Update existing item
+
             const existingItem = cart.items[existingItemIndex];
             const newQuantity = existingItem.quantity + parseInt(quantity);
             const maxQuantity = Math.min(variant.quantity, 5);
@@ -180,7 +180,7 @@ const addToCart = async (req, res) => {
             existingItem.quantity = newQuantity;
             existingItem.totalPrice = newQuantity * variant.salePrice;
         } else {
-            // Add new item
+
             const maxQuantity = Math.min(variant.quantity, 5);
             if (quantity > maxQuantity) {
                 return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
@@ -200,13 +200,13 @@ const addToCart = async (req, res) => {
 
         await cart.save();
 
-        // Remove from wishlist if exists
+
         await Wishlist.updateOne(
             { userId },
             { $pull: { product: { productId } } }
         );
 
-        // Get updated cart count
+
         const cartCount = cart.items.reduce((total, item) => total + item.quantity, 0);
 
         res.status(HTTP_STATUS.OK).json({ 
@@ -224,7 +224,7 @@ const addToCart = async (req, res) => {
     }
 };
 
-// Update cart item quantity
+
 const updateCartQuantity = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -245,7 +245,7 @@ const updateCartQuantity = async (req, res) => {
             });
         }
 
-        // Find the cart item
+
         const itemIndex = cart.items.findIndex(
             item => item.productId.toString() === productId && item.variantId === variantId
         );
@@ -257,7 +257,7 @@ const updateCartQuantity = async (req, res) => {
             });
         }
 
-        // Validate product and stock
+
         const product = await Product.findById(productId).populate('category');
         if (!product || product.isBlocked || !product.category.isListed) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
@@ -283,13 +283,12 @@ const updateCartQuantity = async (req, res) => {
             });
         }
 
-        // Update the item
+
         cart.items[itemIndex].quantity = parseInt(quantity);
         cart.items[itemIndex].totalPrice = parseInt(quantity) * variant.salePrice;
 
         await cart.save();
 
-        // Calculate new totals
         const cartTotal = cart.items.reduce((total, item) => total + item.totalPrice, 0);
         const cartCount = cart.items.reduce((total, item) => total + item.quantity, 0);
 
@@ -310,7 +309,7 @@ const updateCartQuantity = async (req, res) => {
     }
 };
 
-// Remove item from cart
+
 const removeFromCart = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -325,7 +324,7 @@ const removeFromCart = async (req, res) => {
             });
         }
 
-        // Remove the item
+
         cart.items = cart.items.filter(
             item => !(item.productId.toString() === productId && item.variantId === variantId)
         );
@@ -351,7 +350,7 @@ const removeFromCart = async (req, res) => {
     }
 };
 
-// Clear entire cart
+
 const clearCart = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -375,7 +374,7 @@ const clearCart = async (req, res) => {
     }
 };
 
-// Get cart count for header
+
 const getCartCount = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;

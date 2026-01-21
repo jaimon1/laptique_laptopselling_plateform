@@ -1,6 +1,6 @@
 <%-include("../../views/parsuals/admin/header")%>
 
-    <!-- Main Content -->
+
     <div class="col-md-10 p-0">
         <div class="topbar-modern">
             <div class="topbar-content">
@@ -36,7 +36,7 @@
         </div>
 
         <div class="content-wrapper">
-            <!-- Stats Cards -->
+         
             <div class="stats-grid" id="statsCards">
                 <div class="stats-card-pro">
                     <div class="stats-card-header">
@@ -242,7 +242,7 @@
                 <div class="pagination-wrapper">
                     <nav aria-label="Page navigation" id="paginationNav">
                         <ul class="pagination-pro">
-                            <!-- Previous Button -->
+                          
                             <% if(currentPage> 1){ %>
                                 <li class="page-item-pro">
                                     <a class="page-link-pro page-prev" href="#" onclick="loadPage(<%= currentPage - 1 %>); return false;">
@@ -259,21 +259,21 @@
                                 </li>
                             <% } %>
 
-                            <!-- First Page -->
+                           
                             <% if(totalPages> 0) { %>
                                 <li class="page-item-pro <%= currentPage === 1 ? 'active' : '' %>">
                                     <a class="page-link-pro" href="#" onclick="loadPage(1); return false;">1</a>
                                 </li>
                             <% } %>
 
-                            <!-- Left Ellipsis -->
+                            
                             <% if(currentPage> 3) { %>
                                 <li class="page-item-pro disabled">
                                     <span class="page-link-pro">...</span>
                                 </li>
                             <% } %>
 
-                            <!-- Middle Pages -->
+                        
                             <% let startPage=Math.max(2, currentPage - 1); 
                                let endPage=Math.min(totalPages - 1, currentPage + 1); 
                                for(let i=startPage; i <=endPage; i++) { %>
@@ -284,14 +284,14 @@
                                 </li>
                             <% } %>
 
-                            <!-- Right Ellipsis -->
+                            
                             <% if(currentPage < totalPages - 2) { %>
                                 <li class="page-item-pro disabled">
                                     <span class="page-link-pro">...</span>
                                 </li>
                             <% } %>
 
-                            <!-- Last Page -->
+                         
                             <% if(totalPages> 1) { %>
                                 <li class="page-item-pro <%= currentPage === totalPages ? 'active' : '' %>">
                                     <a class="page-link-pro" href="#" onclick="loadPage(<%= totalPages %>); return false;">
@@ -300,7 +300,7 @@
                                 </li>
                             <% } %>
 
-                            <!-- Next Button -->
+                            
                             <% if(currentPage < totalPages) { %>
                                 <li class="page-item-pro">
                                     <a class="page-link-pro page-next" href="#" onclick="loadPage(<%= currentPage + 1 %>); return false;">
@@ -319,7 +319,7 @@
                         </ul>
                     </nav>
                     
-                    <!-- Page Info -->
+                 
                     <div class="page-info-pro" id="pageInfo">
                         <i class="fas fa-info-circle"></i>
                         <span>Page <strong><%= currentPage %></strong> of <strong><%= totalPages %></strong></span>
@@ -337,7 +337,7 @@
 
 
 
-    <!-- Toast Notification -->
+ 
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
         <div id="statusToast" class="toast align-items-center border-0" role="alert" aria-live="assertive"
             aria-atomic="true">
@@ -350,12 +350,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Load page without refresh
+   
         async function loadPage(pageNumber) {
             const searchValue = document.querySelector('input[name="search"]').value;
             const searchParam = searchValue ? `&search=${encodeURIComponent(searchValue)}` : '';
 
-            // Show loading indicator
+  
             const tableBody = document.querySelector('tbody');
             const originalContent = tableBody.innerHTML;
             tableBody.innerHTML = `
@@ -379,29 +379,29 @@
                 if (response.ok) {
                     const html = await response.text();
 
-                    // Parse the HTML response
+                 
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
 
-                    // Update table body
+                   
                     const newTableBody = doc.querySelector('tbody');
                     if (newTableBody) {
                         tableBody.innerHTML = newTableBody.innerHTML;
                     }
 
-                    // Update stats cards
+             
                     const newStatsCards = doc.querySelector('#statsCards');
                     if (newStatsCards) {
                         document.querySelector('#statsCards').innerHTML = newStatsCards.innerHTML;
                     }
 
-                    // Update pagination
+                
                     const newPagination = doc.querySelector('#paginationNav');
                     if (newPagination) {
                         document.querySelector('#paginationNav').innerHTML = newPagination.innerHTML;
                     }
 
-                    // Update page info
+                
                     const newPageInfo = doc.querySelector('#pageInfo');
                     if (newPageInfo) {
                         const currentPageInfo = document.querySelector('#pageInfo');
@@ -410,7 +410,7 @@
                         }
                     }
 
-                    // Update total badge in header
+                    
                     const newBadge = doc.querySelector('.card-header-modern .badge');
                     if (newBadge) {
                         const currentBadge = document.querySelector('.card-header-modern .badge');
@@ -419,11 +419,11 @@
                         }
                     }
 
-                    // Update URL without refresh
+                  
                     const newUrl = `/admin/users?page=${pageNumber}${searchParam}`;
                     window.history.pushState({ page: pageNumber }, '', newUrl);
 
-                    // Scroll to top smoothly
+
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
                     throw new Error('Failed to load page');
@@ -441,7 +441,7 @@
             }
         }
 
-        // Handle browser back/forward buttons
+    
         window.addEventListener('popstate', function (event) {
             if (event.state && event.state.page) {
                 loadPage(event.state.page);
@@ -450,9 +450,9 @@
             }
         });
 
-        // Update stats counts
+    
         function updateStatsCount(shouldBlock) {
-            // Get current counts by ID
+        
             const activeCountElement = document.getElementById('activeUsersCount');
             const blockedCountElement = document.getElementById('blockedUsersCount');
 
@@ -468,13 +468,13 @@
                     blockedCount--;
                 }
 
-                // Update with animation
+            
                 animateCount(activeCountElement, activeCount);
                 animateCount(blockedCountElement, blockedCount);
             }
         }
 
-        // Animate count change
+
         function animateCount(element, newValue) {
             element.style.transform = 'scale(1.2)';
             element.style.color = '#6366f1';
@@ -486,12 +486,12 @@
             }, 200);
         }
 
-        // Toggle user block/unblock status without page refresh
+       
         async function toggleUserStatus(userId, shouldBlock, buttonElement) {
             const action = shouldBlock ? 'block' : 'unblock';
             const actionText = shouldBlock ? 'Block' : 'Unblock';
 
-            // Show confirmation dialog
+           
             const result = await Swal.fire({
                 title: `${actionText} User?`,
                 text: `Are you sure you want to ${action} this user?`,
@@ -507,7 +507,6 @@
                 return;
             }
 
-            // Disable button and show loading
             buttonElement.disabled = true;
             const originalHTML = buttonElement.innerHTML;
             buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
@@ -518,25 +517,23 @@
                     : `/admin/unBlockCustomer?id=${userId}&page=<%= currentPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>`;
 
                 const response = await fetch(url, {
-                    method: 'GET',
+                    method: 'PATCH',
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
                     }
                 });
 
                 if (response.ok) {
-                    // Find the status badge in the same row
                     const row = buttonElement.closest('tr');
                     const statusCell = row.querySelector('td:nth-child(5)');
 
-                    // Update button appearance with correct class names
                     if (shouldBlock) {
                         buttonElement.className = 'btn-action-pro btn-unblock-pro';
                         buttonElement.innerHTML = '<i class="fas fa-check-circle"></i><span>Unblock</span>';
                         buttonElement.onclick = function () { toggleUserStatus(userId, false, this); };
                         buttonElement.title = 'Unblock this user';
 
-                        // Update status badge
                         if (statusCell) {
                             statusCell.innerHTML = `
                                 <span class="status-badge-pro status-blocked-pro">
@@ -551,7 +548,7 @@
                         buttonElement.onclick = function () { toggleUserStatus(userId, true, this); };
                         buttonElement.title = 'Block this user';
 
-                        // Update status badge
+                       
                         if (statusCell) {
                             statusCell.innerHTML = `
                                 <span class="status-badge-pro status-active-pro">
@@ -563,10 +560,10 @@
                     }
                     buttonElement.disabled = false;
 
-                    // Update stats counts
+                
                     updateStatsCount(shouldBlock);
 
-                    // Show success message
+               
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
@@ -580,11 +577,10 @@
             } catch (error) {
                 console.error('Error:', error);
 
-                // Restore button
+                
                 buttonElement.innerHTML = originalHTML;
                 buttonElement.disabled = false;
 
-                // Show error message
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
@@ -594,7 +590,7 @@
             }
         }
 
-        // Clear search function
+
         function clearSearch() {
             const searchInput = document.querySelector('input[name="search"]');
             if (searchInput) {
@@ -603,13 +599,13 @@
             }
         }
 
-        // Handle search form submission without refresh
+    
         document.querySelector('form').addEventListener('submit', function (e) {
             e.preventDefault();
-            loadPage(1); // Load first page with search
+            loadPage(1); 
         });
 
-        // Optional: Add live search with debounce
+        
         let searchTimeout;
         const searchInput = document.querySelector('input[name="search"]');
 
@@ -617,9 +613,6 @@
             searchInput.addEventListener('input', function () {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    // Auto-submit form after 500ms of no typing
-                    // Uncomment below if you want auto-search
-                    // this.form.submit();
                 }, 500);
             });
         }

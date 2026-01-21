@@ -16,7 +16,7 @@ const userAuth = async (req, res, next) => {
             if (user && !user.isBlocked) {
                 return next();
             } else {
-                // User is blocked - destroy ONLY user session
+                
                 req.session.destroy((err) => {
                     if (err) {
                         console.log("Error destroying session:", err);
@@ -65,13 +65,13 @@ const checkUserBlocked = async (req, res, next) => {
         if (userId) {
             const user = await User.findById(userId);
             if (user && user.isBlocked) {
-                // User is blocked - destroy ONLY user session
+                
                 req.session.destroy((err) => {
                     if (err) {
                         console.log("Error destroying session:", err);
                     }
                 });
-                // Clear the USER cookie with correct path
+                
                 res.clearCookie('user.sid', { path: '/' });
                 if (user.googleId) {
                     return res.redirect('/login?error=google_blocked');
@@ -91,12 +91,12 @@ const checkUserBlocked = async (req, res, next) => {
 const errorHandler = (err, req, res, next) => {
     console.error("Error:", err.stack || err);
 
-    // Check if response has already been sent
+    
     if (res.headersSent) {
         return next(err);
     }
 
-    // Customize based on environment
+    
     const statusCode = res.statusCode && res.statusCode !== HTTP_STATUS.OK ? res.statusCode : HTTP_STATUS.INTERNAL_SERVER_ERROR;
 
     res.status(statusCode).json({

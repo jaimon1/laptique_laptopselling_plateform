@@ -1,9 +1,9 @@
 <%-include("../../views/parsuals/admin/header")%>
   <link rel="stylesheet" href="/adminCss/adminProduct.css">
 
-  <!-- Main Content Area -->
+
   <div class="col-md-10 p-0">
-    <!-- Modern Page Header -->
+
     <div class="modern-page-header">
       <div class="header-content">
         <div class="header-left">
@@ -28,9 +28,9 @@
       </div>
     </div>
 
-    <!-- Product Form Container -->
+
     <div class="product-form-container">
-      <!-- Alerts -->
+
       <div class="alert alert-danger" id="errorAlert" style="display: none;"></div>
       <div class="alert alert-success" id="successAlert" style="display: none;"></div>
 
@@ -39,7 +39,7 @@
           enctype="multipart/form-data" novalidate>
           <input type="hidden" name="variants" id="variantsData">
 
-          <!-- Basic Information Card -->
+
           <div class="form-card">
             <div class="card-header-custom">
               <i class="fas fa-info-circle"></i>
@@ -116,7 +116,7 @@
             </div>
           </div>
 
-          <!-- Product Images Card -->
+  
           <div class="form-card">
             <div class="card-header-custom">
               <i class="fas fa-images"></i>
@@ -138,7 +138,7 @@
             </div>
           </div>
 
-          <!-- Variants Card -->
+
           <div class="form-card">
             <div class="card-header-custom">
               <i class="fas fa-layer-group"></i>
@@ -160,7 +160,7 @@
             </div>
           </div>
 
-          <!-- Form Actions -->
+ 
           <div class="form-actions">
             <button type="button" class="btn-reset" onclick="resetForm()">
               <i class="fas fa-undo"></i>
@@ -176,7 +176,7 @@
     </div>
   </div>
 
-  <!-- Image Cropping Modal -->
+
   <div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
@@ -197,7 +197,7 @@
     </div>
   </div>
 
-  <!-- Loading Overlay -->
+
   <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <p>Processing...</p>
@@ -207,7 +207,7 @@
   <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    // Global variables
+
     let cropper;
     let currentUploadType = "";
     const uploadedImages = {
@@ -215,24 +215,24 @@
     };
     let variantCount = 0;
 
-    // Initialize when DOM is loaded
+
     document.addEventListener('DOMContentLoaded', function () {
-      // Real-time validation for product name
+
       const productName = document.getElementById('productName');
       const nameCharCount = document.getElementById('nameCharCount');
 
       productName.addEventListener('input', function () {
-        // Update character count
+
         nameCharCount.textContent = this.value.length;
 
-        // Enforce max length
+
         if (this.value.length > 100) {
           this.value = this.value.substring(0, 100);
           nameCharCount.textContent = 100;
           showToast('Product name cannot exceed 100 characters', 'warning');
         }
 
-        // Real-time validation
+
         const trimmedLength = this.value.trim().length;
         if (trimmedLength >= 3 && trimmedLength <= 100) {
           this.classList.remove('is-invalid');
@@ -246,10 +246,10 @@
         }
       });
 
-      // Initialize name char count
+
       nameCharCount.textContent = productName.value.length;
 
-      // Character counter for description
+
       const descTextarea = document.getElementById('description');
       const charCount = document.getElementById('descCharCount');
 
@@ -260,7 +260,7 @@
           showToast('Description cannot exceed 500 characters', 'warning');
         }
 
-        // Real-time validation
+
         if (this.value.trim().length >= 10 && this.value.trim().length <= 500) {
           this.classList.remove('is-invalid');
           this.classList.add('is-valid');
@@ -270,10 +270,10 @@
         }
       });
 
-      // Initialize char count
+
       charCount.textContent = descTextarea.value.length;
 
-      // Real-time validation for brand
+
       const brand = document.getElementById('brand');
       brand.addEventListener('change', function () {
         if (this.value) {
@@ -285,7 +285,7 @@
         }
       });
 
-      // Real-time validation for category
+
       const category = document.getElementById('category');
       category.addEventListener('change', function () {
         if (this.value) {
@@ -318,7 +318,7 @@
       }
     });
 
-    // Reset form completely
+
     function resetForm() {
       Swal.fire({
         title: 'Reset Form?',
@@ -338,7 +338,7 @@
           variantCount = 0;
           document.getElementById('descCharCount').textContent = '0';
 
-          // Remove validation classes
+
           document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
           document.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
 
@@ -347,33 +347,33 @@
       });
     }
 
-    // Handle form submission with validation
+
     async function handleFormSubmit(e) {
       e.preventDefault();
       e.stopPropagation();
 
-      // Add Bootstrap validation classes
+
       const form = e.target;
       form.classList.add('was-validated');
 
-      // Custom validation
+
       if (!validateForm()) {
         showToast('Please fix all validation errors', 'error');
         return;
       }
 
-      // Show loading overlay
+
       document.getElementById('loadingOverlay').style.display = 'flex';
 
       try {
-        // Gather all variant data
+
         console.log('Gathering variant data...');
         const variants = gatherVariantData();
 
         console.log('Setting variants data to hidden field...');
         document.getElementById('variantsData').value = JSON.stringify(variants);
 
-        // Create and submit FormData
+
         console.log('Creating form data...');
         const formData = createFormData();
 
@@ -382,7 +382,7 @@
 
         console.log('Response received:', response);
 
-        // Hide loading overlay before showing success message
+
         document.getElementById('loadingOverlay').style.display = 'none';
 
         if (response.success) {
@@ -418,7 +418,7 @@
     function validateForm() {
       let isValid = true;
 
-      // Validate product name
+
       const productName = document.getElementById('productName');
       const trimmedName = productName.value.trim();
       if (trimmedName.length < 3 || trimmedName.length > 50) {
@@ -433,7 +433,7 @@
         productName.classList.add('is-valid');
       }
 
-      // Validate brand
+
       const brand = document.getElementById('brand');
       if (!brand.value) {
         brand.classList.add('is-invalid');
@@ -443,7 +443,7 @@
         brand.classList.add('is-valid');
       }
 
-      // Validate category
+   
       const category = document.getElementById('category');
       if (!category.value) {
         category.classList.add('is-invalid');
@@ -453,7 +453,7 @@
         category.classList.add('is-valid');
       }
 
-      // Validate description
+
       const description = document.getElementById('description');
       const trimmedDesc = description.value.trim();
       if (trimmedDesc.length < 10 || trimmedDesc.length > 500) {
@@ -468,7 +468,7 @@
         description.classList.add('is-valid');
       }
 
-      // Validate images - minimum 3 required
+  
       const imageError = document.getElementById('imageError');
       if (uploadedImages.product.length < 3) {
         imageError.style.display = 'block';
@@ -478,7 +478,7 @@
         imageError.style.display = 'none';
       }
 
-      // Validate variants
+
       const variantError = document.getElementById('variantError');
       const variantCards = document.querySelectorAll('.variant-card');
       if (variantCards.length === 0) {
@@ -487,14 +487,14 @@
       } else {
         variantError.style.display = 'none';
 
-        // Validate each variant
+
         variantCards.forEach((card, index) => {
           const storage = card.querySelector('[name="storage"]');
           const regularPrice = card.querySelector('[name="regularPrice"]');
           const quantity = card.querySelector('[name="quantity"]');
           const productDescription = card.querySelector('[name="productDescription"]');
 
-          // Validate storage
+
           if (!storage.value) {
             storage.classList.add('is-invalid');
             storage.classList.remove('is-valid');
@@ -504,7 +504,7 @@
             storage.classList.add('is-valid');
           }
 
-          // Validate price
+
           const priceValue = parseFloat(regularPrice.value);
           if (!regularPrice.value || priceValue <= 0 || priceValue > 9999999) {
             regularPrice.classList.add('is-invalid');
@@ -515,7 +515,7 @@
             regularPrice.classList.add('is-valid');
           }
 
-          // Validate quantity
+
           const qtyValue = parseInt(quantity.value);
           if (!quantity.value || qtyValue < 0 || qtyValue > 999999) {
             quantity.classList.add('is-invalid');
@@ -526,7 +526,7 @@
             quantity.classList.add('is-valid');
           }
 
-          // Validate variant description
+       
           const trimmedVarDesc = productDescription.value.trim();
           if (!trimmedVarDesc || trimmedVarDesc.length < 10 || trimmedVarDesc.length > 500) {
             productDescription.classList.add('is-invalid');
@@ -566,7 +566,7 @@
         const quantity = parseInt(quantityInput.value);
         const productDescription = descInput.value.trim();
 
-        // Validation
+
         if (!storage) {
           throw new Error(`Storage is required for Variant ${index + 1}`);
         }
@@ -611,13 +611,13 @@
         }
       });
 
-      // Append new product images
+     
       newImages.forEach((imgData, index) => {
         const file = dataURLtoFile(imgData, `product-${index}.jpg`);
         formData.append('productImages', file);
       });
 
-      // Add existing images as a JSON string
+  
       if (existingImages.length > 0) {
         formData.append('existingImages', JSON.stringify(existingImages));
       }
@@ -655,14 +655,14 @@
 
       const file = files[0];
 
-      // Validate file size (5MB)
+     
       if (file.size > 5 * 1024 * 1024) {
         showToast('Image size must be less than 5MB', 'error');
         event.target.value = '';
         return;
       }
 
-      // Validate file type
+      
       if (!file.type.match('image.*')) {
         showToast('Please upload only image files', 'error');
         event.target.value = '';
@@ -715,7 +715,7 @@
         uploadedImages.product.push(imageUrl);
         addImageToPreview(imageUrl, 'productPreview', 'product');
         
-        // Update image count and show message
+   
         const imageCount = uploadedImages.product.length;
         if (imageCount < 3) {
           showToast(`${imageCount}/3 images uploaded. Please add ${3 - imageCount} more image(s).`, 'info');
@@ -731,7 +731,7 @@
       const fileInput = document.getElementById('productImages');
       if (fileInput) fileInput.value = '';
 
-      // Update image error message
+  
       const imageError = document.getElementById('imageError');
       if (uploadedImages.product.length < 3) {
         imageError.style.display = 'block';
@@ -767,7 +767,7 @@
       imgContainer.appendChild(img);
       imgContainer.appendChild(removeBtn);
 
-      // Add main badge to first image
+      
       if (uploadedImages.product.length === 1) {
         imgContainer.appendChild(mainBadge);
       }
@@ -788,7 +788,7 @@
           return img !== imageToRemove && img !== imageUrl;
         });
         
-        // Update image error message after removal
+  
         const imageError = document.getElementById('imageError');
         const imageCount = uploadedImages.product.length;
         if (imageCount < 3) {
@@ -812,11 +812,10 @@
       const quantity = data.quantity || '';
       const productDescription = data.productDescription || '';
 
-      // Hide empty state
+
       const emptyState = document.getElementById('emptyVariants');
       if (emptyState) emptyState.style.display = 'none';
 
-      // Hide variant error
       document.getElementById('variantError').style.display = 'none';
 
       const html = `
@@ -897,7 +896,7 @@
       const container = document.getElementById('variantAccordionArea');
       container.insertAdjacentHTML('beforeend', html);
 
-      // Mark as expanded and rotate toggle icon
+     
       setTimeout(() => {
         const card = document.getElementById(accordionId);
         const toggle = card.querySelector('.variant-toggle');
@@ -940,7 +939,7 @@
             variantElement.remove();
             variantCount--;
 
-            // Show empty state if no variants
+         
             const container = document.getElementById('variantAccordionArea');
             if (container.children.length === 0) {
               document.getElementById('emptyVariants').style.display = 'flex';

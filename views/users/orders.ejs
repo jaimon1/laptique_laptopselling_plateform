@@ -13,7 +13,7 @@
 <body class="orders-page"></body>
     <%-include("../../views/parsuals/user/header")%>
      <div style="margin-top: 70px;"></div>
-    <!-- Orders Header -->
+  
     <div class="orders-header">
         <div class="container">
             <div class="row align-items-center">
@@ -39,7 +39,7 @@
     </div>
 
     <div class="container">
-        <!-- Search Section -->
+
         <div class="search-card">
             <form method="GET" action="/orders">
                 <div class="row align-items-end">
@@ -64,11 +64,10 @@
             </form>
         </div>
 
-        <!-- Orders List -->
         <% if (orders && orders.length> 0) { %>
             <% orders.forEach(order=> { %>
                 <div class="order-card">
-                    <!-- Order Header -->
+                  
                     <div class="order-header">
                         <div>
                             <span class="order-id">#<%= order.orderId %></span>
@@ -77,7 +76,7 @@
                                 <%= new Date(order.createdOn).toLocaleDateString('en-IN', { year: 'numeric' ,
                                     month: 'short' , day: 'numeric' }) %>
                             </small>
-                            <!-- Return Rejected Badge -->
+                         
                             <% if (order.returnStatus === 'Rejected') { %>
                                 <span class="badge bg-danger ms-2" style="font-size: 0.75rem;">
                                     <i class="fas fa-times-circle me-1"></i>Return Rejected
@@ -98,7 +97,7 @@
                         </span>
                     </div>
 
-                    <!-- Order Items -->
+           
                     <div class="order-items">
                         <% order.orderItems.slice(0, 3).forEach(item=> { %>
                             <% if (item.product) { %>
@@ -143,7 +142,7 @@
                                     <% } %>
                     </div>
 
-                    <!-- Order Footer -->
+                
                     <div class="order-footer">
                         <div class="order-total">
                             Total: ₹<%= parseInt(order.finalAmount).toLocaleString() %>
@@ -157,12 +156,12 @@
                             </a>
                             
                             <% if (order.paymentMethod !== 'COD' && (order.paymentStatus === 'Failed' || order.paymentStatus === 'Pending') && (order.status === 'Pending' || order.status === 'Failed')) { %>
-                                <!-- Show Retry Payment for failed payments -->
+                                
                                 <button class="btn btn-danger btn-sm-custom" onclick="retryPayment('<%= order._id %>')">
                                     <i class="fas fa-redo me-1"></i>Retry Payment
                                 </button>
                             <% } else if (['Pending', 'Processing'].includes(order.status)) { %>
-                                <!-- Show Cancel for normal pending/processing orders -->
+                             
                                 <button class="btn btn-danger btn-sm-custom" onclick="cancelOrder('<%= order._id %>')">
                                     <i class="fas fa-times me-1"></i>Cancel
                                 </button>
@@ -175,7 +174,7 @@
                             <% } %>
                             
                             <% if (!(order.paymentMethod !== 'COD' && (order.paymentStatus === 'Failed' || order.paymentStatus === 'Pending'))) { %>
-                                <!-- Only show invoice if payment is not failed/pending -->
+                               
                                 <a href="/order/<%= order._id %>/invoice" class="btn btn-success btn-sm-custom" target="_blank">
                                     <i class="fas fa-download me-1"></i>Invoice
                                 </a>
@@ -185,7 +184,7 @@
                 </div>
                 <% }) %>
 
-                    <!-- Pagination -->
+                  
                     <% if (totalPages> 1) { %>
                         <div class="pagination-card">
                             <nav aria-label="Orders pagination">
@@ -229,7 +228,7 @@
                         <% } %>
 
                             <% } else { %>
-                                <!-- Empty Orders -->
+                                
                                 <div class="order-card">
                                     <div class="empty-orders">
                                         <i class="fas fa-shopping-bag"></i>
@@ -261,11 +260,11 @@
                                 <% } %>
     </div>
 
-    <!-- Bootstrap JS -->
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Retry payment function
+     
         async function retryPayment(orderId) {
             try {
                 const confirmResult = await Swal.fire({
@@ -279,7 +278,7 @@
 
                 if (!confirmResult.isConfirmed) return;
 
-                // Redirect to payment page or initiate payment
+               
                 window.location.href = `/order/${orderId}/retry-payment`;
             } catch (error) {
                 console.error('Error retrying payment:', error);
@@ -291,10 +290,10 @@
             }
         }
 
-        // Cancel order function
+        
         async function cancelOrder(orderId) {
             try {
-                // Step 1: Ask for cancellation reason
+               
                 const { value: reason } = await Swal.fire({
                     title: 'Cancel Order',
                     html: `
@@ -326,10 +325,10 @@
                     }
                 });
 
-                // If user cancelled, stop
+               
                 if (reason === undefined) return;
 
-                // Step 2: Confirm cancellation
+               
                 const confirmResult = await Swal.fire({
                     title: 'Are you sure?',
                     html: `
@@ -358,7 +357,7 @@
 
                 if (!confirmResult.isConfirmed) return;
 
-                // Step 3: Show loading
+       
                 Swal.fire({
                     title: 'Cancelling Order...',
                     html: 'Please wait while we process your cancellation.',
@@ -369,7 +368,7 @@
                     }
                 });
 
-                // Step 4: Send cancellation request
+               
                 const response = await fetch(`/order/${orderId}/cancel`, {
                     method: 'POST',
                     headers: {
@@ -380,7 +379,7 @@
 
                 const data = await response.json();
 
-                // Step 5: Show result
+  
                 if (data.success) {
                     await Swal.fire({
                         icon: 'success',
@@ -410,10 +409,10 @@
             }
         }
 
-        // Request return function
+    
         async function requestReturn(orderId) {
             try {
-                // Step 1: Ask reason
+                
                 const { value: reason } = await Swal.fire({
                     title: 'Return Product',
                     input: 'text',
@@ -428,10 +427,10 @@
                     }
                 });
 
-                // If cancelled or no reason, stop
+        
                 if (!reason) return;
 
-                // Step 2: Confirm return
+              
                 const confirmResult = await Swal.fire({
                     title: 'Are you sure?',
                     text: 'Do you really want to request a return for this order?',
@@ -443,7 +442,7 @@
 
                 if (!confirmResult.isConfirmed) return;
 
-                // Step 3: Send request to server
+                
                 const response = await fetch(`/order/${orderId}/return`, {
                     method: 'POST',
                     headers: {
@@ -454,7 +453,6 @@
 
                 const data = await response.json();
 
-                // Step 4: Show result
                 if (data.success) {
                     await Swal.fire({
                         icon: 'success',
@@ -481,7 +479,7 @@
             }
         }
 
-        // Show alert function
+       
         function showAlert(message, type) {
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
@@ -500,7 +498,7 @@
             }, 5000);
         }
 
-        // Auto-submit search form on Enter
+ 
         document.getElementById('search').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 this.form.submit();

@@ -13,7 +13,7 @@
 </head>
 
 <body>
-    <!-- Navigation -->
+    
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" href="/"><i class="fas fa-laptop me-2"></i>LapTique</a>
@@ -58,7 +58,7 @@
     </nav>
     <%- include("../../views/parsuals/user/header") %>
 
-        <!-- Breadcrumb -->
+
         <section class="breadcrumb-section">
             <div class="container">
                 <nav aria-label="breadcrumb">
@@ -80,11 +80,11 @@
             </div>
         </section>
 
-        <!-- Product Details -->
+      
         <section class="product-section">
             <div class="container">
                 <div class="row">
-                    <!-- Image Gallery -->
+                
                     <div class="col-lg-6">
                         <div class="image-gallery">
                             <div class="image-zoom-wrapper">
@@ -114,7 +114,7 @@
                         </div>
                     </div>
 
-                    <!-- Product Info -->
+              
                     <div class="col-lg-6">
                         <div class="product-info">
                             <div class="product-brand">
@@ -166,7 +166,7 @@
                                     : 'No description available.' %>
                             </div>
 
-                            <!-- Variants -->
+                        
                             <% if (product && product.variants && product.variants.length> 1) { %>
                                 <div class="variants-section">
                                     <div class="variant-title">Storage Options:</div>
@@ -189,7 +189,7 @@
                                 </div>
                                 <% } %>
 
-                                    <!-- Quantity -->
+                               
                                     <div class="quantity-section">
                                         <span class="quantity-label">Quantity:</span>
                                         <div class="quantity-controls">
@@ -215,7 +215,7 @@
                                         </span>
                                     </div>
 
-                                    <!-- Action Buttons -->
+                                  
                                     <div class="action-buttons">
                                         <button class="btn-add-cart" id="addToCartBtn" <%=product && product.variants &&
                                             product.variants.length> 0 && product.variants[0].quantity === 0 ?
@@ -230,7 +230,7 @@
                                         </button>
                                     </div>
 
-                                    <!-- Product Features -->
+                            
                                     <div class="product-features">
                                         <div class="features-title">Product Features:</div>
                                         <div class="feature-item">
@@ -252,7 +252,7 @@
                 </div>
         </section>
 
-        <!-- Related Products -->
+  
         <% if (relatedProducts && Array.isArray(relatedProducts) && relatedProducts.length> 0) { %>
             <section class="related-products">
                 <div class="container">
@@ -268,13 +268,13 @@
                                         class="related-image"
                                         onerror="this.src='/images/placeholder.jpg'; this.onerror=null;">
 
-                                    <!-- Category Badge -->
+                          
                                     <div class="related-category-badge">
                                         <%= relatedProduct && relatedProduct.category && relatedProduct.category.name ?
                                             relatedProduct.category.name : 'Category' %>
                                     </div>
 
-                                    <!-- Discount Badge -->
+                               
                                     <% if (relatedProduct && relatedProduct.hasDiscount &&
                                         relatedProduct.discountPercentage) { %>
                                         <div class="related-discount-badge">
@@ -284,20 +284,19 @@
                                 </div>
 
                                 <div class="related-info">
-                                    <!-- Brand -->
+                                  
                                     <div class="related-brand">
                                         <%= relatedProduct && relatedProduct.brand && relatedProduct.brand.name ?
                                             relatedProduct.brand.name : 'Brand' %>
                                     </div>
 
-                                    <!-- Product Title -->
                                     <a href="/product/<%= relatedProduct && relatedProduct._id ? relatedProduct._id : '#' %>"
                                         class="related-title">
                                         <%= relatedProduct && relatedProduct.productName ? relatedProduct.productName
                                             : 'Product' %>
                                     </a>
 
-                                    <!-- Rating -->
+                        
                                     <div class="related-rating">
                                         <div class="related-stars">
                                             <% for (let i=1; i <=5; i++) { %>
@@ -319,7 +318,7 @@
                                         </span>
                                     </div>
 
-                                    <!-- Price -->
+                              
                                     <div class="related-price-container">
                                         <span class="related-price">
                                             <%= relatedProduct && relatedProduct.minPrice ? '₹' +
@@ -342,7 +341,7 @@
                                                                 <% } %>
                                     </div>
 
-                                    <!-- Action Buttons -->
+                          
                                     <div class="related-actions">
                                         <a href="/product/<%= relatedProduct && relatedProduct._id ? relatedProduct._id : '#' %>"
                                             class="related-btn related-btn-primary">
@@ -358,7 +357,7 @@
                             <% }) %>
                     </div>
 
-                    <!-- View More Button -->
+           
                     <div class="text-center mt-4">
                         <a href="/shop?category=<%= product && product.category && product.category._id ? product.category._id : '' %>"
                             class="related-btn related-btn-outline" style="display: inline-block; padding: 1rem 2rem;">
@@ -389,7 +388,7 @@
                         let productVariants = <%- product && product.variants ? JSON.stringify(product.variants) : '[]' %>;
                         let maxQuantity = productVariants.length > 0 ? productVariants[0].quantity : 0;
 
-                        // Image zoom functionality
+                    
                         function setupLensZoom() {
                             const mainImage = document.getElementById('mainImage');
                             const lens = document.getElementById('imgZoomLens');
@@ -399,19 +398,18 @@
                                 return;
                             }
 
-                            // Remove existing event listeners by cloning
                             const newMainImage = mainImage.cloneNode(true);
                             mainImage.replaceWith(newMainImage);
                             const newLens = lens.cloneNode(true);
                             lens.replaceWith(newLens);
 
-                            // Lens dimensions
+                  
                             const lensWidth = 100;
                             const lensHeight = 100;
                             newLens.style.width = `${lensWidth}px`;
                             newLens.style.height = `${lensHeight}px`;
 
-                            // Compute zoom background when the image is loaded and sizes are known
+                        
                             function computeBackground() {
                                 const resultRect = result.getBoundingClientRect();
                                 const resultWidth = resultRect.width || 400;
@@ -419,29 +417,29 @@
                                 const cx = resultWidth / lensWidth;
                                 const cy = resultHeight / lensHeight;
 
-                                // Container (display) size
+                             
                                 const imgRect = newMainImage.getBoundingClientRect();
                                 const containerW = imgRect.width;
                                 const containerH = imgRect.height;
 
-                                // Natural size
+                              
                                 const naturalW = newMainImage.naturalWidth || containerW;
                                 const naturalH = newMainImage.naturalHeight || containerH;
 
-                                // With object-fit: cover, compute drawn size and crop offset
+                          
                                 const scale = Math.max(containerW / naturalW, containerH / naturalH);
                                 const drawW = naturalW * scale;
                                 const drawH = naturalH * scale;
                                 const offsetX = (drawW - containerW) / 2;
                                 const offsetY = (drawH - containerH) / 2;
 
-                                // Store ratios and offsets for move handler
+                            
                                 result.dataset.cx = cx;
                                 result.dataset.cy = cy;
                                 result.dataset.offsetX = offsetX;
                                 result.dataset.offsetY = offsetY;
 
-                                // Set background image sizing to match drawn image space
+                         
                                 result.style.backgroundImage = `url('${newMainImage.src}')`;
                                 result.style.backgroundSize = `${drawW * cx}px ${drawH * cy}px`;
                             }
@@ -482,7 +480,7 @@
                             }
 
                             function showZoom() {
-                                if (window.innerWidth <= 768) return; // Skip on mobile
+                                if (window.innerWidth <= 768) return; 
                                 computeBackground();
                                 newLens.style.display = 'block';
                                 result.style.display = 'block';
@@ -493,7 +491,7 @@
                                 result.style.display = 'none';
                             }
 
-                            // Event listeners
+                       
                             newMainImage.addEventListener('mousemove', moveLens);
                             newLens.addEventListener('mousemove', moveLens);
                             newMainImage.addEventListener('mouseenter', showZoom);
@@ -501,7 +499,7 @@
                             newMainImage.addEventListener('mouseleave', hideZoom);
                             newLens.addEventListener('mouseleave', hideZoom);
 
-                            // Touch events
+                          
                             newMainImage.addEventListener('touchmove', (e) => {
                                 if (window.innerWidth <= 768) return;
                                 moveLens(e);
@@ -510,7 +508,7 @@
                             newMainImage.addEventListener('touchend', hideZoom);
                         }
 
-                        // Change main image
+                  
                         function changeMainImage(imageSrc, thumbnail) {
                             const mainImage = document.getElementById('mainImage');
                             if (!mainImage) return;
@@ -525,7 +523,7 @@
                             };
                         }
 
-                        // Select variant
+                 
                         function selectVariant(index) {
                             if (!productVariants[index] || productVariants[index].quantity === 0) return;
 
@@ -577,7 +575,7 @@
                             }
                         }
 
-                        // Update stock info
+                    
                         function updateStockInfo(quantity) {
                             const stockInfo = document.getElementById('stockInfo');
                             if (!stockInfo) return;
@@ -591,7 +589,7 @@
                             }
                         }
 
-                        // Quantity controls
+                    
                         function increaseQuantity() {
                             const quantityInput = document.getElementById('quantity');
                             if (!quantityInput) return;
@@ -612,7 +610,7 @@
                             }
                         }
 
-                        // Add to cart
+                       
                         async function addToCart() {
                             const quantityInput = document.getElementById('quantity');
                             const addToCartBtn = document.getElementById('addToCartBtn');
@@ -661,7 +659,7 @@
                                     },
                                     body: JSON.stringify({
                                         productId: '<%= product && product._id ? product._id : '' %>',
-                                        variantId: variant._id || variant.storage, // Use _id if available
+                                        variantId: variant._id || variant.storage,
                                         quantity: quantity
                                     })
                                 });
@@ -699,8 +697,8 @@
                             }
                         }
 
-                        // Add to wishlist
-                        let isInWishlist = false; // Track wishlist state
+                       
+                        let isInWishlist = false; 
 
                         async function addToWishlist() {
                 <% if (!user) { %>
@@ -715,7 +713,7 @@
                             if (!wishlistBtn) return;
 
                             try {
-                                // If already in wishlist, remove it
+                               
                                 if (isInWishlist) {
                                     const response = await fetch('/wishlist/remove', {
                                         method: 'POST',
@@ -743,7 +741,7 @@
                                         showAlert(data.message || 'Failed to remove from wishlist', 'error');
                                     }
                                 } else {
-                                    // Add to wishlist
+                                    
                                     const response = await fetch('/wishlist/add', {
                                         method: 'POST',
                                         headers: {
@@ -776,7 +774,7 @@
                             }
                         }
 
-                        // Add to wishlist from related products
+                      
                         async function addToWishlistFromRelated(productId) {
                             if (!productId) {
                                 showAlert('Invalid product selected', 'error');
@@ -816,7 +814,7 @@
                             }
                         }
 
-                        // Update header cart count
+                        
                         function updateHeaderCartCount(count) {
                             const cartCountElements = document.querySelectorAll('.cart-count');
                             cartCountElements.forEach(element => {
@@ -825,7 +823,7 @@
                             });
                         }
 
-                        // Show alert
+                    
                         function showAlert(message, type) {
                             const existingAlerts = document.querySelectorAll('.custom-alert');
                             existingAlerts.forEach(alert => alert.remove());
@@ -845,7 +843,7 @@
                             }, 5000);
                         }
 
-                        // Initialize page
+                      
                         document.addEventListener('DOMContentLoaded', () => {
                             setupLensZoom();
 

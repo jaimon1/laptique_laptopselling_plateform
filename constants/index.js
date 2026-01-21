@@ -1,7 +1,4 @@
-/**
- * Constants Index
- * Central export point for all application constants
- */
+
 
 import HTTP_STATUS from './httpStatusCodes.js';
 import ERROR_MESSAGES, { getErrorMessage } from './errorMessages.js';
@@ -15,7 +12,7 @@ export {
     getSuccessMessage
 };
 
-// Default export for convenience
+
 export default {
     HTTP_STATUS,
     ERROR_MESSAGES,

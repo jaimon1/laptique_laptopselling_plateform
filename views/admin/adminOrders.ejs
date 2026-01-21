@@ -1,6 +1,6 @@
 <%-include("../../views/parsuals/admin/header")%>
 
-    <!-- Main Content -->
+
     <div class="col-md-10 p-0">
         <div class="admin-header">
             <div class="container-fluid">
@@ -23,7 +23,7 @@
         </div>
 
         <div class="container-fluid p-4">
-            <!-- Order Statistics -->
+
             <% if (orderStats && orderStats.length> 0) { %>
                 <div class="row mb-4">
                     <% orderStats.forEach(stat=> { %>
@@ -53,7 +53,6 @@
                 </div>
                 <% } %>
 
-                    <!-- Filters -->
                     <div class="filter-card">
                         <form method="GET" action="/admin/orders">
                             <div class="row align-items-end">
@@ -118,7 +117,7 @@
                         </form>
                     </div>
 
-                    <!-- Orders Table -->
+
                     <% if (orders && orders.length> 0) { %>
                         <div class="orders-table">
                             <div class="table-responsive">
@@ -235,7 +234,6 @@
                             </div>
                         </div>
 
-                        <!-- Pagination -->
                         <% if (totalPages> 1) { %>
                             <div class="pagination-card mt-3">
                                 <nav aria-label="Orders pagination">
@@ -279,7 +277,7 @@
                             <% } %>
 
                                 <% } else { %>
-                                    <!-- Empty State -->
+
                                     <div class="orders-table">
                                         <div class="empty-state">
                                             <i class="fas fa-shopping-bag"></i>
@@ -305,7 +303,7 @@
     </div>
     </div>
 
-    <!-- Status Update Modal -->
+
     <div class="modal fade" id="statusModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -342,7 +340,7 @@
         </div>
     </div>
 
-    <!-- Return Request Modal -->
+
     <div class="modal fade" id="returnModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -375,13 +373,13 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
         let currentOrderId = null;
 
-        // Update order status
+
         function updateStatus(orderId) {
             currentOrderId = orderId;
             const modal = new bootstrap.Modal(document.getElementById('statusModal'));
@@ -424,7 +422,7 @@
             bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
         }
 
-        // Handle return request
+
         function handleReturn(orderId) {
             currentOrderId = orderId;
             const modal = new bootstrap.Modal(document.getElementById('returnModal'));
@@ -467,7 +465,7 @@
             bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
         }
 
-        // Show alert function
+
         function showAlert(message, type) {
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
@@ -486,7 +484,7 @@
             }, 5000);
         }
 
-        // Clear forms when modals are hidden
+
         document.getElementById('statusModal').addEventListener('hidden.bs.modal', function () {
             document.getElementById('statusForm').reset();
         });

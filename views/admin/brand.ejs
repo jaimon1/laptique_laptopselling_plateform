@@ -1,5 +1,5 @@
 <%-include("../../views/parsuals/admin/header")%>
-    <!-- Main Content -->
+
     <div class="col-md-10 p-0">
         <div class="topbar-brand">
             <div class="topbar-content-brand">
@@ -39,7 +39,7 @@
         </div>
 
         <div class="content-wrapper-brand">
-            <!-- Stats Cards -->
+
             <div class="stats-grid-brand" id="statsGrid">
                 <div class="stats-card-brand">
                     <div class="stats-card-header-brand">
@@ -96,7 +96,7 @@
                 </div>
             </div>
 
-            <!-- Brand List Card -->
+         
             <div class="professional-card-brand">
                 <div class="card-header-brand" id="cardHeader">
                     <div class="header-left-brand">
@@ -179,12 +179,12 @@
                     <% } %>
                 </div>
 
-                <!-- Pagination -->
+               
                 <% if(totalPage > 1) { %>
                     <div class="pagination-wrapper-brand" id="paginationWrapper">
                         <nav aria-label="Brand pagination">
                             <ul class="pagination-brand" id="paginationList">
-                                <!-- Previous Button -->
+                         
                                 <% if(currentPages > 1) { %>
                                     <li class="page-item-brand">
                                         <a class="page-link-brand page-prev-brand" 
@@ -202,21 +202,21 @@
                                     </li>
                                 <% } %>
 
-                                <!-- First Page -->
+                               
                                 <% if(totalPage > 0) { %>
                                     <li class="page-item-brand <%= currentPages === 1 ? 'active' : '' %>">
                                         <a class="page-link-brand" href="?page=1<%= search ? '&search=' + search : '' %>">1</a>
                                     </li>
                                 <% } %>
 
-                                <!-- Left Ellipsis -->
+                         
                                 <% if(currentPages > 3) { %>
                                     <li class="page-item-brand disabled">
                                         <span class="page-link-brand">...</span>
                                     </li>
                                 <% } %>
 
-                                <!-- Middle Pages -->
+                           
                                 <% 
                                     let startPage = Math.max(2, currentPages - 1);
                                     let endPage = Math.min(totalPage - 1, currentPages + 1);
@@ -229,14 +229,14 @@
                                     </li>
                                 <% } %>
 
-                                <!-- Right Ellipsis -->
+                            
                                 <% if(currentPages < totalPage - 2) { %>
                                     <li class="page-item-brand disabled">
                                         <span class="page-link-brand">...</span>
                                     </li>
                                 <% } %>
 
-                                <!-- Last Page -->
+                          
                                 <% if(totalPage > 1) { %>
                                     <li class="page-item-brand <%= currentPages === totalPage ? 'active' : '' %>">
                                         <a class="page-link-brand" href="?page=<%= totalPage %><%= search ? '&search=' + search : '' %>">
@@ -245,7 +245,7 @@
                                     </li>
                                 <% } %>
 
-                                <!-- Next Button -->
+                            
                                 <% if(currentPages < totalPage) { %>
                                     <li class="page-item-brand">
                                         <a class="page-link-brand page-next-brand" 
@@ -265,7 +265,7 @@
                             </ul>
                         </nav>
                         
-                        <!-- Page Info -->
+                    
                         <div class="page-info-brand">
                             <i class="fas fa-info-circle"></i>
                             <span>Page <strong><%= currentPages %></strong> of <strong><%= totalPage %></strong></span>
@@ -280,7 +280,7 @@
     </div>
     </div>
 
-    <!-- Brand AJAX Script -->
+
     <script src="/js/brandAjax.js"></script>
 
     <script>
@@ -292,7 +292,7 @@
             }
         }
 
-        // SweetAlert for Block Brand
+
         function confirmBlockBrand(brandId, page, brandName) {
             Swal.fire({
                 title: 'Block Brand?',
@@ -310,7 +310,7 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Show loading
+                    
                     Swal.fire({
                         title: 'Blocking Brand...',
                         html: 'Please wait while we process your request.',
@@ -321,13 +321,13 @@
                         }
                     });
                     
-                    // Redirect to block endpoint
+                   
                     window.location.href = `/admin/blockBrand?id=${brandId}&page=${page}`;
                 }
             });
         }
 
-        // SweetAlert for Unblock Brand
+  
         function confirmUnblockBrand(brandId, page, brandName) {
             Swal.fire({
                 title: 'Unblock Brand?',
@@ -345,7 +345,7 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Show loading
+                 
                     Swal.fire({
                         title: 'Unblocking Brand...',
                         html: 'Please wait while we process your request.',
@@ -356,13 +356,13 @@
                         }
                     });
                     
-                    // Redirect to unblock endpoint
+                    
                     window.location.href = `/admin/unBlockBrand?id=${brandId}&page=${page}`;
                 }
             });
         }
 
-        // SweetAlert for Delete Brand
+        
         function confirmDeleteBrand(brandId, page, brandName) {
             Swal.fire({
                 title: 'Delete Brand?',
@@ -381,7 +381,7 @@
                 footer: '<span style="color: #ef4444;">⚠️ Warning: All products associated with this brand may be affected.</span>'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Show loading
+            
                     Swal.fire({
                         title: 'Deleting Brand...',
                         html: 'Please wait while we process your request.',
@@ -392,13 +392,13 @@
                         }
                     });
                     
-                    // Redirect to delete endpoint
+                    
                     window.location.href = `/admin/deleteBrand?id=${brandId}&page=${page}`;
                 }
             });
         }
 
-        // Check for success/error messages in URL
+      
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const status = urlParams.get('status');
@@ -431,14 +431,14 @@
                     showConfirmButton: false
                 });
 
-                // Clean URL
+         
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         });
     </script>
 
     <style>
-        /* SweetAlert Custom Styles */
+        
         .btn-swal-confirm,
         .btn-swal-cancel {
             padding: 10px 24px !important;

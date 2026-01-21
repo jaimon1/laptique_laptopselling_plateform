@@ -308,7 +308,7 @@
 <body>
     <%- include("../../views/parsuals/user/header") %>
 
-        <!-- Page Header -->
+  
         <div class="page-header">
             <div class="container">
                 <div class="row align-items-center">
@@ -327,9 +327,8 @@
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="container pb-5">
-            <!-- Stats Cards -->
+        
             <div class="row mb-4" id="statsCards">
                 <div class="col-md-4 mb-3">
                     <div class="stats-card">
@@ -362,7 +361,6 @@
                 </div>
             </div>
 
-            <!-- Filter Card -->
             <div class="filter-card">
                 <div class="filter-title">
                     <i class="fas fa-filter"></i>
@@ -405,7 +403,7 @@
                 </form>
             </div>
 
-            <!-- Transactions Table -->
+
             <div class="transaction-table">
                 <div class="table-responsive">
                     <table class="table">
@@ -474,7 +472,7 @@
                     </table>
                 </div>
 
-                <!-- Pagination -->
+     
                 <% if (totalPages> 1) { %>
                     <div class="p-4">
                         <nav>
@@ -510,7 +508,7 @@
             </div>
         </div>
 
-        <!-- Loading Overlay -->
+
         <div class="loading-overlay" id="loadingOverlay">
             <div class="loading-spinner"></div>
         </div>
@@ -527,23 +525,22 @@
                     page: <%= currentPage %>
         };
 
-                // Initialize
                 document.addEventListener('DOMContentLoaded', function () {
                     calculateStats();
                     setupEventListeners();
                 });
 
                 function setupEventListeners() {
-                    // Filter form
+               
                     document.getElementById('filterForm').addEventListener('submit', function (e) {
                         e.preventDefault();
                         applyFilters();
                     });
 
-                    // Clear button
+              
                     document.getElementById('clearBtn').addEventListener('click', clearFilters);
 
-                    // Pagination
+            
                     document.querySelectorAll('#pagination .page-link').forEach(link => {
                         link.addEventListener('click', function (e) {
                             e.preventDefault();
@@ -604,7 +601,7 @@
                             updatePagination(data);
                             calculateStats();
 
-                            // Update URL
+                      
                             const newUrl = `/wallet/history?${params.toString()}`;
                             window.history.pushState({}, '', newUrl);
                         }
@@ -710,7 +707,7 @@
 
                     paginationContainer.innerHTML = html;
 
-                    // Re-attach event listeners
+                 
                     paginationContainer.querySelectorAll('.page-link').forEach(link => {
                         link.addEventListener('click', function (e) {
                             e.preventDefault();

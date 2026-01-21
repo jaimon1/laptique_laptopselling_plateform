@@ -95,11 +95,27 @@ const addProduct = async (req, res) => {
 const blockProduct = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page;
         await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: 'Product blocked successfully' 
+            });
+        }
+        
+        const page = req.query.page || 1;
         res.redirect(`/admin/loadProduct?page=${page}`);
     } catch (error) {
         console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
         res.redirect('/admin/pageError');
     }
 }
@@ -107,11 +123,27 @@ const blockProduct = async (req, res) => {
 const unblockProduct = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page;
         await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: 'Product unblocked successfully' 
+            });
+        }
+        
+        const page = req.query.page || 1;
         res.redirect(`/admin/loadProduct?page=${page}`);
     } catch (error) {
         console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
         res.redirect('/admin/pageError');
     }
 }
@@ -119,11 +151,27 @@ const unblockProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page;
         await Product.deleteOne({ _id: id });
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: SUCCESS_MESSAGES.PRODUCT.DELETED 
+            });
+        }
+        
+        const page = req.query.page || 1;
         res.redirect(`/admin/loadProduct?page=${page}`);
     } catch (error) {
         console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
         res.redirect('/admin/pageError');
     }
 }

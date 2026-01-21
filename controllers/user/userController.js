@@ -134,7 +134,7 @@ const registration = async (req, res) => {
             return res.render('Signup', { msg: "Email Already Exists", referralCode: referralCode || '' });
         }
 
-        // Validate referral code if provided
+        
         let referrer = null;
         if (referralCode && referralCode.trim()) {
             referrer = await User.findOne({ referralCode: referralCode.trim().toUpperCase() });
@@ -180,7 +180,7 @@ const verifyOtp = async function (req, res) {
             const user = req.session.userData;
             const hashedPassword = await secretPassword(user.password);
 
-            // Generate unique referral code
+            
             let referralCode = generateReferralCode(user.username);
             let isUnique = false;
             while (!isUnique) {
@@ -202,7 +202,7 @@ const verifyOtp = async function (req, res) {
             });
             await newUser.save();
 
-            // If user was referred, update referrer's referrals array AND create welcome coupon
+            
             if (user.referrerId) {
                 await User.findByIdAndUpdate(user.referrerId, {
                     $push: {
@@ -214,12 +214,12 @@ const verifyOtp = async function (req, res) {
                     }
                 });
 
-                // Create welcome bonus coupon for referred user ONLY
+                
                 try {
                     const settings = await ReferralSettings.getSettings();
                     const couponCode = `WELCOME${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
                     const expiryDate = new Date();
-                    expiryDate.setDate(expiryDate.getDate() + 30); // 30 days validity
+                    expiryDate.setDate(expiryDate.getDate() + 30); 
 
                     const welcomeCoupon = new Coupon({
                         name: couponCode,
@@ -227,13 +227,13 @@ const verifyOtp = async function (req, res) {
                         createdOn: new Date(),
                         expireOn: expiryDate,
                         discountType: 'fixed',
-                        discountValue: settings.bonusCouponAmount, // Use admin-configured amount
+                        discountValue: settings.bonusCouponAmount, 
                         minimumPrice: settings.minimumPurchaseAmount,
                         isActive: true,
                         usageLimit: 1,
                         usersUsed: [{
                             userId: newUser._id,
-                            count: 0 // Not used yet, but assigned to this user only
+                            count: 0 
                         }]
                     });
 
@@ -241,11 +241,11 @@ const verifyOtp = async function (req, res) {
                     
                 } catch (couponError) {
                     console.error(' Error creating welcome coupon:', couponError);
-                    // Don't block registration if coupon creation fails
+                    
                 }
             }
 
-            // Regenerate session after registration to prevent session fixation
+         
             req.session.regenerate((err) => {
                 if (err) {
                     console.error('Session regeneration error:', err);
@@ -255,10 +255,10 @@ const verifyOtp = async function (req, res) {
                     });
                 }
 
-                // Set user in the new session
+          
                 req.session.user = newUser;
 
-                // Save session explicitly
+      
                 req.session.save((err) => {
                     if (err) {
                         console.error('Session save error:', err);
@@ -360,17 +360,16 @@ const loginRegister = async (req, res) => {
             return res.render('login', { msg: "Password Not Match", success: null });
         }
 
-        // Regenerate session to prevent session fixation attacks
         req.session.regenerate((err) => {
             if (err) {
                 console.error('Session regeneration error:', err);
                 return res.render('login', { msg: "Login failed. Please try again.", success: null });
             }
 
-            // Set user in the new session
+            
             req.session.user = findUser;
 
-            // Save session explicitly before redirect
+       
             req.session.save((err) => {
                 if (err) {
                     console.error('Session save error:', err);
@@ -389,13 +388,13 @@ const logout = (req, res, next) => {
         console.log('User logout initiated');
         console.log('User session before destroy:', req.session.user);
 
-        // Logout from passport (for Google OAuth)
+
         req.logout(function (err) {
             if (err) {
                 console.log('Passport logout error:', err);
             }
 
-            // Destroy only the user session
+        
             req.session.destroy((err) => {
                 if (err) {
                     console.log('User session destroy error:', err);
@@ -404,7 +403,7 @@ const logout = (req, res, next) => {
 
                 console.log('User session destroyed successfully');
 
-                // Clear ONLY the user cookie (not admin cookie)
+       
                 res.clearCookie('user.sid', {
                     path: '/'
                 });
@@ -509,13 +508,13 @@ const forgotPassword = async (req, res) => {
 
         req.session.forgotPasswordOtp = otp;
         req.session.forgotPasswordEmail = email;
-        req.session.forgotPasswordOtpExpiry = Date.now() + 600000; // 10 minutes
+        req.session.forgotPasswordOtpExpiry = Date.now() + 600000; 
 
 
         const emailSent = await sendForgotPasswordOtp(email, otp, user.name);
 
         if (emailSent) {
-            console.log(`Forgot Password OTP sent: ${otp}`); // For development
+            console.log(`Forgot Password OTP sent: ${otp}`); 
             res.render('forgotPasswordOtp');
         } else {
             res.render('forgotPassword', {
@@ -593,12 +592,12 @@ const resendForgotPasswordOtp = async (req, res) => {
         const otp = genarateOtp();
 
         req.session.forgotPasswordOtp = otp;
-        req.session.forgotPasswordOtpExpiry = Date.now() + 600000; // 10 minutes
+        req.session.forgotPasswordOtpExpiry = Date.now() + 600000; 
 
         const emailSent = await sendForgotPasswordOtp(email, otp, user.name);
 
         if (emailSent) {
-            console.log(`Forgot Password OTP resent: ${otp}`); // For development
+            console.log(`Forgot Password OTP resent: ${otp}`); 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
                 msg: SUCCESS_MESSAGES.AUTH.EMAIL_VERIFIED
@@ -621,7 +620,7 @@ const resendForgotPasswordOtp = async (req, res) => {
 
 const loadResetPasswordWithOtp = async (req, res) => {
     try {
-        // Check if user has verified OTP
+        
         if (!req.session.forgotPasswordVerified || !req.session.forgotPasswordEmail) {
             return res.redirect('/forgot-password');
         }
@@ -641,7 +640,7 @@ const resetPasswordWithOtp = async (req, res) => {
     try {
         const { password, confirmPassword } = req.body;
 
-        // Check if user has verified OTP
+        
         if (!req.session.forgotPasswordVerified || !req.session.forgotPasswordEmail) {
             return res.render('resetPassword', {
                 msg: "Session expired. Please start the process again.",

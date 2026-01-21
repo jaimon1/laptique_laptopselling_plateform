@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="signup-wrapper">
-        <!-- Left Side - Illustration -->
+      
         <div class="left-section">
             <div class="logo">LAPTIQUE</div>
             <div class="illustration">
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <!-- Right Side - Form -->
+        
         <div class="right-section">
             <div class="form-container">
                 <div class="form-header">
@@ -119,7 +119,7 @@
         const togglePassword = document.getElementById('togglePassword');
         const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
 
-        // Password visibility toggles
+ 
         togglePassword.addEventListener('click', function() {
             const type = passId.getAttribute('type') === 'password' ? 'text' : 'password';
             passId.setAttribute('type', type);
@@ -201,7 +201,7 @@
             const password1 = passId.value;
             const password2 = passId2.value;
             
-            // Check password requirements
+    
             if (password1.length < 8) {
                 error4Id.style.display = "block";
                 error4Id.innerHTML = "Password must be at least 8 characters long";
@@ -227,7 +227,7 @@
                 error4Id.innerHTML = "";
             }
 
-            // Check password confirmation
+  
             if (password2 === "") {
                 error5Id.style.display = "block";
                 error5Id.innerHTML = "Please confirm your password";
@@ -243,7 +243,7 @@
             }
         }
 
-        // Real-time validation with proper error handling
+        
         userId.addEventListener('blur', nameValidation);
         userId.addEventListener('input', function() {
             if (this.value.trim() !== '') {
@@ -299,7 +299,7 @@
             }
         });
 
-        // Clear errors when user starts typing
+ 
         userId.addEventListener('focus', function() {
             error1Id.style.display = "none";
         });
@@ -320,7 +320,7 @@
             error5Id.style.display = "none";
         });
 
-        // Form submission validation
+     
         document.addEventListener("DOMContentLoaded", function() {
             formSubId.addEventListener('submit', (e) => {
                 const isNameValid = nameValidation();

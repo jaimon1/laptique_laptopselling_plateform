@@ -25,7 +25,7 @@ const loadProfile = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
-        res.status(500).render('pageNotFound');
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('pageNotFound');
     }
 }
 
@@ -49,22 +49,22 @@ const editprofile = async (req, res) => {
         const orEmail = await User.findOne({_id}); 
         let { firstName, email, phone, dateOfBirth, gender } = req.body;
 
-        // Trim inputs
+        
         firstName = firstName?.trim();
         email = email?.trim();
         phone = phone?.trim();
         gender = gender?.trim();
 
-        // Comprehensive validation
+        
         const errors = [];
 
-        // Required fields
+        
         if (!firstName) errors.push("Name is required");
         if (!email) errors.push("Email is required");
         if (!phone) errors.push("Phone number is required");
         if (!gender) errors.push("Gender is required");
 
-        // Name validation
+        
         if (firstName) {
             if (firstName.length < 3 || firstName.length > 50) {
                 errors.push("Name must be between 3 and 50 characters");
@@ -74,13 +74,13 @@ const editprofile = async (req, res) => {
             }
         }
 
-        // Email validation
+        
         if (email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 errors.push("Please enter a valid email address");
             } else {
-                // Check if email already exists for another user
+                
                 const isHasemail = await User.findOne({ email });
                 if (isHasemail && orEmail.email != email) {
                     errors.push("Email already exists");
@@ -88,19 +88,19 @@ const editprofile = async (req, res) => {
             }
         }
 
-        // Phone validation (Indian mobile number)
+        
         if (phone) {
             if (!/^[6-9]\d{9}$/.test(phone)) {
                 errors.push("Phone must be a valid 10-digit Indian mobile number starting with 6-9");
             }
         }
 
-        // Gender validation
+        
         if (gender && !['male', 'female', 'other', 'prefer-not-to-say'].includes(gender)) {
             errors.push("Invalid gender selection");
         }
 
-        // Date of Birth validation (optional but if provided, must be valid)
+        
         if (dateOfBirth) {
             const dobDate = new Date(dateOfBirth);
             const today = new Date();
@@ -113,7 +113,7 @@ const editprofile = async (req, res) => {
             }
         }
 
-        // Return errors if any
+        
         if (errors.length > 0) {
             console.log("Validation errors:", errors);
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
@@ -122,7 +122,7 @@ const editprofile = async (req, res) => {
             });
         }
 
-        // Update user
+        
         await User.findByIdAndUpdate(userId, {
             name: firstName,
             email: email,
@@ -131,7 +131,7 @@ const editprofile = async (req, res) => {
             gender: gender
         });
 
-        // Update session
+        
         if (req.session.user) {
             req.session.user.name = firstName;
             req.session.user.email = email;
@@ -179,13 +179,13 @@ const uploadImage = async(req,res)=>{
     }
 }
 
-// Email verification for profile update
+
 const sendEmailVerificationOTP = async (req, res) => {
     try {
         const { email } = req.body;
         const { _id } = req.session.user || req.user;
 
-        // Check if email already exists for another user
+        
         const existingUser = await User.findOne({ email, _id: { $ne: _id } });
         if (existingUser) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
@@ -194,17 +194,17 @@ const sendEmailVerificationOTP = async (req, res) => {
             });
         }
 
-        // Generate OTP
+        
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         
-        // Store OTP in session temporarily
+        
         req.session.emailVerificationOTP = {
             otp: otp,
             email: email,
-            expires: Date.now() + 10 * 60 * 1000 // 10 minutes
+            expires: Date.now() + 10 * 60 * 1000 
         };
 
-        // Send OTP via email
+        
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             port: 587,
@@ -276,10 +276,10 @@ const verifyEmailOTP = async (req, res) => {
             });
         }
 
-        // Update user email
+        
         await User.findByIdAndUpdate(_id, { email: email });
 
-        // Clear OTP from session
+        
         delete req.session.emailVerificationOTP;
 
         res.status(HTTP_STATUS.OK).json({ 
@@ -295,29 +295,29 @@ const verifyEmailOTP = async (req, res) => {
     }
 };
 
-// Change password functionality
+
 const changePassword = async (req, res) => {
     try {
         let { currentPassword, newPassword } = req.body;
         const { _id } = req.session.user || req.user;
 
-        // Trim inputs
+        
         currentPassword = currentPassword?.trim();
         newPassword = newPassword?.trim();
 
-        // Comprehensive validation
+        
         const errors = [];
 
-        // Required fields
+        
         if (!currentPassword) errors.push("Current password is required");
         if (!newPassword) errors.push("New password is required");
 
-        // Current password validation
+        
         if (currentPassword && currentPassword.length < 6) {
             errors.push("Current password must be at least 6 characters");
         }
 
-        // New password validation
+        
         if (newPassword) {
             if (newPassword.length < 8) {
                 errors.push("New password must be at least 8 characters long");
@@ -339,12 +339,12 @@ const changePassword = async (req, res) => {
             }
         }
 
-        // Check if new password is same as current
+        
         if (currentPassword && newPassword && currentPassword === newPassword) {
             errors.push("New password must be different from current password");
         }
 
-        // Return errors if any
+        
         if (errors.length > 0) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
                 success: false, 
@@ -360,7 +360,7 @@ const changePassword = async (req, res) => {
             });
         }
 
-        // Check if user has a password (not Google user)
+        
         if (!user.password) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
                 success: false, 
@@ -368,7 +368,7 @@ const changePassword = async (req, res) => {
             });
         }
 
-        // Verify current password
+        
         const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
         if (!isCurrentPasswordValid) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
@@ -377,11 +377,11 @@ const changePassword = async (req, res) => {
             });
         }
 
-        // Hash new password
+        
         const saltRounds = 10;
         const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-        // Update password
+        
         await User.findByIdAndUpdate(_id, { password: hashedNewPassword });
 
         res.status(HTTP_STATUS.OK).json({ 
@@ -397,7 +397,7 @@ const changePassword = async (req, res) => {
     }
 };
 
-// Address Management
+
 const getAddresses = async (req, res) => {
     try {
         const { _id } = req.session.user || req.user;
@@ -421,7 +421,7 @@ const addAddress = async (req, res) => {
         const { _id } = req.session.user || req.user;
         let { addressType, name, city, landmark, state, phone, altPhone } = req.body;
 
-        // Trim all string inputs
+        
         addressType = addressType?.trim();
         name = name?.trim();
         city = city?.trim();
@@ -430,10 +430,10 @@ const addAddress = async (req, res) => {
         phone = phone?.trim();
         altPhone = altPhone?.trim();
 
-        // Comprehensive validation
+
         const errors = [];
 
-        // Required fields validation
+        
         if (!addressType) errors.push("Address type is required");
         if (!name) errors.push("Name is required");
         if (!city) errors.push("City is required");
@@ -441,12 +441,12 @@ const addAddress = async (req, res) => {
         if (!state) errors.push("State is required");
         if (!phone) errors.push("Phone number is required");
 
-        // Address type validation
+        
         if (addressType && !['Home', 'Work', 'Other'].includes(addressType)) {
             errors.push("Invalid address type");
         }
 
-        // Name validation
+        
         if (name) {
             if (name.length < 3 || name.length > 50) {
                 errors.push("Name must be between 3 and 50 characters");
@@ -456,14 +456,14 @@ const addAddress = async (req, res) => {
             }
         }
 
-        // Landmark validation
+        
         if (landmark) {
             if (landmark.length < 3 || landmark.length > 100) {
                 errors.push("Landmark must be between 3 and 100 characters");
             }
         }
 
-        // City validation
+
         if (city) {
             if (city.length < 2 || city.length > 50) {
                 errors.push("City must be between 2 and 50 characters");
@@ -473,7 +473,7 @@ const addAddress = async (req, res) => {
             }
         }
 
-        // State validation
+        
         if (state) {
             if (state.length < 2 || state.length > 50) {
                 errors.push("State must be between 2 and 50 characters");
@@ -483,14 +483,14 @@ const addAddress = async (req, res) => {
             }
         }
 
-        // Phone validation (Indian mobile number)
+        
         if (phone) {
             if (!/^[6-9]\d{9}$/.test(phone)) {
                 errors.push("Phone must be a valid 10-digit Indian mobile number starting with 6-9");
             }
         }
 
-        // Alternative phone validation (optional)
+        
         if (altPhone) {
             if (!/^[6-9]\d{9}$/.test(altPhone)) {
                 errors.push("Alternative phone must be a valid 10-digit Indian mobile number starting with 6-9");
@@ -500,9 +500,9 @@ const addAddress = async (req, res) => {
             }
         }
 
-        // Return errors if any
+        
         if (errors.length > 0) {
-            return res.status(400).json({ 
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
                 success: false, 
                 message: errors.join('. ')
             });
@@ -531,10 +531,10 @@ const addAddress = async (req, res) => {
             await userAddress.save();
         }
 
-        res.status(200).json({ success: true, message: "Address added successfully" });
+        res.status(HTTP_STATUS.OK).json({ success: true, message: SUCCESS_MESSAGES.ADDRESS.ADDED });
     } catch (error) {
         console.error('Error adding address:', error);
-        res.status(500).json({ success: false, message: "Failed to add address" });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR });
     }
 };
 
@@ -544,7 +544,7 @@ const editAddress = async (req, res) => {
         const { addressId } = req.params;
         let { addressType, name, city, landmark, state, phone, altPhone } = req.body;
 
-        // Trim all string inputs
+        
         addressType = addressType?.trim();
         name = name?.trim();
         city = city?.trim();
@@ -553,10 +553,10 @@ const editAddress = async (req, res) => {
         phone = phone?.trim();
         altPhone = altPhone?.trim();
 
-        // Comprehensive validation
+
         const errors = [];
 
-        // Required fields validation
+        
         if (!addressType) errors.push("Address type is required");
         if (!name) errors.push("Name is required");
         if (!city) errors.push("City is required");
@@ -564,12 +564,12 @@ const editAddress = async (req, res) => {
         if (!state) errors.push("State is required");
         if (!phone) errors.push("Phone number is required");
 
-        // Address type validation
+        
         if (addressType && !['Home', 'Work', 'Other'].includes(addressType)) {
             errors.push("Invalid address type");
         }
 
-        // Name validation
+        
         if (name) {
             if (name.length < 3 || name.length > 50) {
                 errors.push("Name must be between 3 and 50 characters");
@@ -579,14 +579,14 @@ const editAddress = async (req, res) => {
             }
         }
 
-        // Landmark validation
+        
         if (landmark) {
             if (landmark.length < 3 || landmark.length > 100) {
                 errors.push("Landmark must be between 3 and 100 characters");
             }
         }
 
-        // City validation
+        
         if (city) {
             if (city.length < 2 || city.length > 50) {
                 errors.push("City must be between 2 and 50 characters");
@@ -596,7 +596,7 @@ const editAddress = async (req, res) => {
             }
         }
 
-        // State validation
+        
         if (state) {
             if (state.length < 2 || state.length > 50) {
                 errors.push("State must be between 2 and 50 characters");
@@ -606,14 +606,14 @@ const editAddress = async (req, res) => {
             }
         }
 
-        // Phone validation (Indian mobile number)
+        
         if (phone) {
             if (!/^[6-9]\d{9}$/.test(phone)) {
                 errors.push("Phone must be a valid 10-digit Indian mobile number starting with 6-9");
             }
         }
 
-        // Alternative phone validation (optional)
+        
         if (altPhone) {
             if (!/^[6-9]\d{9}$/.test(altPhone)) {
                 errors.push("Alternative phone must be a valid 10-digit Indian mobile number starting with 6-9");
@@ -623,9 +623,9 @@ const editAddress = async (req, res) => {
             }
         }
 
-        // Return errors if any
+        
         if (errors.length > 0) {
-            return res.status(400).json({ 
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
                 success: false, 
                 message: errors.join('. ')
             });
@@ -680,20 +680,20 @@ const deleteAddress = async (req, res) => {
 
         const userAddress = await Address.findOne({ userId: _id });
         if (!userAddress) {
-            return res.status(404).json({ success: false, message: "Address not found" });
+            return res.status(HTTP_STATUS.NOT_FOUND).json({ success: false, message: ERROR_MESSAGES.ADDRESS.NOT_FOUND });
         }
 
         userAddress.address = userAddress.address.filter(addr => addr._id.toString() !== addressId);
         await userAddress.save();
 
-        res.status(200).json({ success: true, message: "Address deleted successfully" });
+        res.status(HTTP_STATUS.OK).json({ success: true, message: SUCCESS_MESSAGES.ADDRESS.DELETED });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Failed to delete address" });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR });
     }
 };
 
-// Get order details
+
 const getOrderDetails = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -703,7 +703,7 @@ const getOrderDetails = async (req, res) => {
             .populate('orderItems.product');
 
         if (!order) {
-            return res.status(404).render('pageNotFound');
+            return res.status(HTTP_STATUS.NOT_FOUND).render('pageNotFound');
         }
 
         res.render('orderDetails', {
@@ -713,11 +713,11 @@ const getOrderDetails = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        res.status(500).render('pageNotFound');
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('pageNotFound');
     }
 };
 
-// Cancel order functionality
+
 const cancelOrder = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -726,11 +726,11 @@ const cancelOrder = async (req, res) => {
 
         const order = await Order.findOne({ _id: orderId, userId: _id });
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found" });
+            return res.status(HTTP_STATUS.NOT_FOUND).json({ success: false, message: ERROR_MESSAGES.ORDER.NOT_FOUND });
         }
 
         if (order.status === 'Delivered' || order.status === 'cancelled') {
-            return res.status(400).json({ success: false, message: "Cannot cancel this order" });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.ORDER.CANNOT_CANCEL });
         }
 
         await Order.findByIdAndUpdate(orderId, { 
@@ -739,10 +739,10 @@ const cancelOrder = async (req, res) => {
             cancelledAt: new Date()
         });
 
-        res.status(200).json({ success: true, message: "Order cancelled successfully" });
+        res.status(HTTP_STATUS.OK).json({ success: true, message: SUCCESS_MESSAGES.ORDER.CANCELLED });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Failed to cancel order" });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR });
     }
 };
 

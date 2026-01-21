@@ -37,18 +37,18 @@ const createBrand = async (req, res) => {
         const __dirname = path.dirname(__filename)
         const brandName = req.body.name.trim();
         
-        // Validate brand name
+
         if (!brandName || brandName.length < 2 || brandName.length > 40) {
             return res.redirect("/admin/createBrand?error=invalid");
         }
 
-        // Check if brand already exists (case-insensitive)
+
         const ishas = await Brand.findOne({ name: { $regex: new RegExp(`^${brandName}$`, 'i') } });
         if (ishas) {
             return res.redirect("/admin/createBrand?brandadded=exists");
         }
 
-        // Process image
+
         const fileName = Date.now() + "-" + req.file.originalname.split(" ").join("-");
         const outputPath = path.join(__dirname, "../../public/uploads/re-images", fileName);
 
@@ -60,7 +60,7 @@ const createBrand = async (req, res) => {
             .toFormat('webp', { quality: 90 })
             .toFile(outputPath);
         
-        // Create new brand
+
         const newData = new Brand({ 
             name: brandName, 
             BrandImage: fileName,
@@ -88,37 +88,84 @@ const loadCreateBrand = (req, res) => {
 const blockBrand = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page || 1
         await Brand.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        res.redirect(`/admin/brands?page=${page}&status=success&action=blocked`)
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: SUCCESS_MESSAGES.BRAND.BLOCKED 
+            });
+        }
+        
+        const page = req.query.page || 1;
+        res.redirect(`/admin/brands?page=${page}&status=success&action=blocked`);
     } catch (error) {
-        res.redirect("/admin/pageError");
         console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
+        res.redirect("/admin/pageError");
     }
 }
 
 const unBlockBrand = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page || 1
         await Brand.updateOne({ _id: id }, { $set: { isBlocked: false } });
-        res.redirect(`/admin/brands?page=${page}&status=success&action=unblocked`)
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: SUCCESS_MESSAGES.BRAND.UNBLOCKED 
+            });
+        }
+        
+        const page = req.query.page || 1;
+        res.redirect(`/admin/brands?page=${page}&status=success&action=unblocked`);
     } catch (error) {
-        res.redirect("/admin/pageError")
         console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
+        res.redirect("/admin/pageError");
     }
 }
 
 const deleteBrand = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page;
         await Brand.deleteOne({ _id: id });
-        res.redirect(`/admin/brands?page=${page}&status=success&action=deleted`)
-
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: SUCCESS_MESSAGES.BRAND.DELETED 
+            });
+        }
+        
+        const page = req.query.page || 1;
+        res.redirect(`/admin/brands?page=${page}&status=success&action=deleted`);
     } catch (error) {
-        res.redirect('/admin/pageError');
         console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
+        res.redirect('/admin/pageError');
     }
 }
 

@@ -13,7 +13,7 @@
                 <input type="hidden" id="couponId" value="<%= coupon._id %>">
                 
                 <div class="row">
-                    <!-- Active/Inactive Toggle -->
+                
                     <div class="col-12 mb-4">
                         <div class="card bg-light p-3">
                             <div class="d-flex justify-content-between align-items-center">
@@ -111,7 +111,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // Character counter for description
+
     const descriptionField = document.getElementById('description');
     const charCount = document.getElementById('descCharCount');
     
@@ -119,13 +119,16 @@
         charCount.textContent = this.value.length;
     });
 
-    // Set minimum date for expiry
+
     const expireOnField = document.getElementById('expireOn');
+    const currentExpiry = new Date('<%= coupon.expireOn %>');
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    expireOnField.min = tomorrow.toISOString().split('T')[0];
+    
+    const minDate = currentExpiry < tomorrow ? currentExpiry : tomorrow;
+    expireOnField.min = minDate.toISOString().split('T')[0];
 
-    // Dynamic validation for discount value based on type
+
     const discountTypeField = document.getElementById('discountType');
     const discountValueField = document.getElementById('discountValue');
     
@@ -139,7 +142,7 @@
         }
     });
 
-    // Toggle status label when switch changes
+
     document.getElementById('isActive').addEventListener('change', function() {
         const label = document.getElementById('statusLabel');
         if (this.checked) {
@@ -154,7 +157,7 @@
         
         const couponId = document.getElementById('couponId').value;
         
-        // Collect form data
+ 
         const couponData = {
             expireOn: document.getElementById('expireOn').value,
             discountType: document.getElementById('discountType').value,
@@ -165,9 +168,9 @@
             isActive: document.getElementById('isActive').checked
         };
 
-        // Comprehensive Validation
+ 
         
-        // 1. Expiry Date Validation
+     
         const expireDate = new Date(couponData.expireOn);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -182,7 +185,7 @@
             return;
         }
 
-        // 2. Discount Type Validation
+  
         if (!couponData.discountType) {
             showError("Please select a discount type.");
             return;
@@ -193,7 +196,7 @@
             return;
         }
 
-        // 3. Discount Value Validation
+
         if (isNaN(couponData.discountValue) || couponData.discountValue <= 0) {
             showError("Discount value must be greater than zero.");
             return;
@@ -209,7 +212,7 @@
             return;
         }
 
-        // 4. Minimum Price Validation
+      
         if (isNaN(couponData.minimumPrice) || couponData.minimumPrice < 0) {
             showError("Minimum price must be zero or greater.");
             return;
@@ -220,7 +223,7 @@
             return;
         }
 
-        // 5. Usage Limit Validation
+      
         if (isNaN(couponData.usageLimit) || couponData.usageLimit < 1) {
             showError("Usage limit must be at least 1.");
             return;
@@ -231,13 +234,13 @@
             return;
         }
 
-        // 6. Description Validation
+ 
         if (couponData.description.length > 500) {
             showError("Description must not exceed 500 characters.");
             return;
         }
 
-        // Show loading
+      
         Swal.fire({
             title: 'Updating Coupon...',
             text: 'Please wait',
@@ -248,7 +251,7 @@
         });
 
         try {
-            // Send AJAX request
+            
             const response = await fetch(`/admin/editCoupon/${couponId}`, {
                 method: 'PUT',
                 headers: {
@@ -270,7 +273,7 @@
 
                 document.getElementById("errorBox").innerHTML = '';
 
-                // Redirect after 2 seconds
+                
                 setTimeout(() => {
                     window.location.href = '/admin/loadCoupon';
                 }, 2000);

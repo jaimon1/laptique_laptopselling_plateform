@@ -57,7 +57,7 @@ const userSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    // New referral system fields
+    
     referralCode: {
         type: String,
         unique: true,

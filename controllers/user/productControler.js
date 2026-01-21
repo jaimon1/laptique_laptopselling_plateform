@@ -101,7 +101,7 @@ const branding = async (req, res) => {
         const paginatedProducts = products.slice(skip, skip + limit);
         const totalPages = Math.ceil(products.length / limit);
 
-        // Get user's wishlist items for current logged-in user
+        
         const userId = req.session.user?._id || req.user?._id;
         let wishlistProductIds = [];
         if (userId) {
@@ -182,6 +182,7 @@ const getProductDetails = async (req, res) => {
         if (!product || product.isBlocked) {
             return res.status(HTTP_STATUS.NOT_FOUND).render('pageNotFound');
         }
+
         const productMinPrice = Math.min(...product.variants.map(v => v.salePrice));
         const productMaxPrice = Math.max(...product.variants.map(v => v.salePrice));
         const priceRange = {
@@ -189,20 +190,23 @@ const getProductDetails = async (req, res) => {
             max: productMaxPrice * 1.3
         };
 
-
         let relatedProducts = [];
-        const sameCategoryProducts = await Product.find({
-            category: product.category._id,
-            _id: { $ne: productId },
-            isBlocked: false,
-            status: { $ne: 'Discontinued' }
-        })
-            .populate('category')
-            .populate('brand')
-            .limit(6);
+        
+        if (product.category && product.category._id) {
+            const sameCategoryProducts = await Product.find({
+                category: product.category._id,
+                _id: { $ne: productId },
+                isBlocked: false,
+                status: { $ne: 'Discontinued' }
+            })
+                .populate('category')
+                .populate('brand')
+                .limit(6);
 
-        relatedProducts = [...sameCategoryProducts];
-        if (relatedProducts.length < 8) {
+            relatedProducts = [...sameCategoryProducts];
+        }
+
+        if (relatedProducts.length < 8 && product.brand && product.brand._id) {
             const sameBrandProducts = await Product.find({
                 brand: product.brand._id,
                 _id: {

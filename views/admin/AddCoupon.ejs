@@ -38,9 +38,17 @@
                         <div class="col-md-6 mb-4">
                             <label class="form-label">Discount Value *</label>
                             <input type="number" class="form-control" name="discountValue" id="discountValue" 
-                                   placeholder="10" min="0.01" step="0.01" max="999999"  />
-                            <small class="text-muted">For percentage: 1-100. For fixed: any positive amount</small>
+                                   placeholder="100" min="0.01" step="0.01" max="50"  />
+                            <small class="text-muted" id="discountValueHint">For percentage: 1-50%. For fixed: max ₹5,000</small>
                             <div class="invalid-feedback">Please enter a valid discount value</div>
+                        </div>
+
+                        <div class="col-md-6 mb-4" id="maxDiscountField" style="display: none;">
+                            <label class="form-label">Maximum Discount Cap *</label>
+                            <input type="number" class="form-control" name="maxDiscountAmount" id="maxDiscountAmount" 
+                                   placeholder="3000" min="0" step="1" max="10000" />
+                            <small class="text-muted">Maximum discount amount (recommended: ₹3,000)</small>
+                            <div class="invalid-feedback">Please enter a valid maximum discount amount</div>
                         </div>
 
                         <div class="col-md-6 mb-4">
@@ -89,7 +97,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Character counter for description
+
         const descriptionField = document.getElementById('description');
         const charCount = document.getElementById('descCharCount');
         
@@ -97,29 +105,43 @@
             charCount.textContent = this.value.length;
         });
 
-        // Auto-uppercase coupon code
+
         const couponNameField = document.getElementById('couponName');
         couponNameField.addEventListener('input', function() {
             this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
         });
 
-        // Set minimum date for expiry
+
         const expireOnField = document.getElementById('expireOn');
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         expireOnField.min = tomorrow.toISOString().split('T')[0];
 
-        // Dynamic validation for discount value based on type
+
         const discountTypeField = document.querySelector('select[name="discountType"]');
         const discountValueField = document.getElementById('discountValue');
+        const maxDiscountField = document.getElementById('maxDiscountField');
+        const maxDiscountAmountField = document.getElementById('maxDiscountAmount');
+        const discountValueHint = document.getElementById('discountValueHint');
         
         discountTypeField.addEventListener('change', function() {
             if (this.value === 'percentage') {
-                discountValueField.max = 100;
-                discountValueField.placeholder = '10 (1-100%)';
+                discountValueField.max = 50;
+                discountValueField.placeholder = '10 (1-50%)';
+                discountValueHint.textContent = 'Percentage: 1-50% only';
+                maxDiscountField.style.display = 'block';
+                maxDiscountAmountField.required = true;
+                maxDiscountAmountField.value = '3000'; 
             } else if (this.value === 'fixed') {
-                discountValueField.max = 999999;
-                discountValueField.placeholder = '100 (Fixed amount in ₹)';
+                discountValueField.max = 5000;
+                discountValueField.placeholder = '100 (Max ₹5,000)';
+                discountValueHint.textContent = 'Fixed amount: Max ₹5,000';
+                maxDiscountField.style.display = 'none';
+                maxDiscountAmountField.required = false;
+                maxDiscountAmountField.value = '';
+            } else {
+                maxDiscountField.style.display = 'none';
+                maxDiscountAmountField.required = false;
             }
         });
 
@@ -128,20 +150,21 @@
 
             const form = e.target;
 
-            // Collect form data
+
             const couponData = {
                 name: form.querySelector('input[name="name"]').value.trim().toUpperCase(),
                 expireOn: form.querySelector('input[name="expireOn"]').value,
                 discountType: form.querySelector('select[name="discountType"]').value,
                 discountValue: parseFloat(form.querySelector('input[name="discountValue"]').value),
+                maxDiscountAmount: form.querySelector('input[name="maxDiscountAmount"]').value ? parseFloat(form.querySelector('input[name="maxDiscountAmount"]').value) : null,
                 minimumPrice: parseFloat(form.querySelector('input[name="minimumPrice"]').value),
                 usageLimit: parseInt(form.querySelector('input[name="usageLimit"]').value) || 100,
                 description: form.querySelector('textarea[name="description"]').value.trim()
             };
 
-            // Comprehensive Validation
+ 
             
-            // 1. Coupon Code Validation
+       
             if (!couponData.name) {
                 showError("Coupon code is required.");
                 return;
@@ -157,7 +180,7 @@
                 return;
             }
 
-            // 2. Expiry Date Validation
+
             const expireDate = new Date(couponData.expireOn);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -172,7 +195,7 @@
                 return;
             }
 
-            // 3. Discount Type Validation
+          
             if (!couponData.discountType) {
                 showError("Please select a discount type.");
                 return;
@@ -183,23 +206,38 @@
                 return;
             }
 
-            // 4. Discount Value Validation
+       
             if (isNaN(couponData.discountValue) || couponData.discountValue <= 0) {
                 showError("Discount value must be greater than zero.");
                 return;
             }
 
-            if (couponData.discountType === 'percentage' && couponData.discountValue > 100) {
-                showError("Percentage discount cannot exceed 100%.");
+            if (couponData.discountType === 'percentage') {
+                if (couponData.discountValue < 1 || couponData.discountValue > 50) {
+                    showError("Percentage discount must be between 1% and 50%.");
+                    return;
+                }
+            }
+
+            if (couponData.discountType === 'fixed' && couponData.discountValue > 5000) {
+                showError("Fixed discount cannot exceed ₹5,000.");
                 return;
             }
 
-            if (couponData.discountValue > 999999) {
-                showError("Discount value is too large.");
-                return;
+
+            if (couponData.discountType === 'percentage') {
+                if (!couponData.maxDiscountAmount || isNaN(couponData.maxDiscountAmount) || couponData.maxDiscountAmount <= 0) {
+                    showError("Please set a maximum discount cap for percentage-based coupons.");
+                    return;
+                }
+                
+                if (couponData.maxDiscountAmount > 10000) {
+                    showError("Maximum discount cap cannot exceed ₹10,000.");
+                    return;
+                }
             }
 
-            // 5. Minimum Price Validation
+
             if (isNaN(couponData.minimumPrice) || couponData.minimumPrice < 0) {
                 showError("Minimum price must be zero or greater.");
                 return;
@@ -210,7 +248,13 @@
                 return;
             }
 
-            // 6. Usage Limit Validation
+           
+            if (couponData.discountType === 'fixed' && couponData.minimumPrice > 0 && couponData.discountValue >= couponData.minimumPrice) {
+                showError("Fixed discount amount must be less than minimum purchase amount.");
+                return;
+            }
+
+
             if (isNaN(couponData.usageLimit) || couponData.usageLimit < 1) {
                 showError("Usage limit must be at least 1.");
                 return;
@@ -221,13 +265,13 @@
                 return;
             }
 
-            // 7. Description Validation
+ 
             if (couponData.description.length > 500) {
                 showError("Description must not exceed 500 characters.");
                 return;
             }
 
-            // Show loading
+
             Swal.fire({
                 title: 'Creating Coupon...',
                 text: 'Please wait',
@@ -238,7 +282,7 @@
             });
 
             try {
-                // Send AJAX request
+          
                 const response = await fetch('/admin/createCoupon', {
                     method: 'POST',
                     headers: {
@@ -258,11 +302,11 @@
                         showConfirmButton: false
                     });
 
-                    // Reset form
+              
                     form.reset();
                     document.getElementById("errorBox").innerHTML = '';
 
-                    // Redirect after 2 seconds
+        
                     setTimeout(() => {
                         window.location.href = '/admin/loadCoupon';
                     }, 2000);

@@ -51,24 +51,55 @@ const userPage = async (req, res) => {
 const blockUsers = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page || 1;
         await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: SUCCESS_MESSAGES.USER.BLOCKED 
+            });
+        }
+        
+        const page = req.query.page || 1;
         res.redirect(`/admin/users?page=${page}`);
-
     } catch (error) {
         console.log(error);
-        res.redirect('/pageError')
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
+        res.redirect('/pageError');
     }
 }
 
 const unBlockUsers = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page || 1;
         await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: SUCCESS_MESSAGES.USER.UNBLOCKED 
+            });
+        }
+        
+        const page = req.query.page || 1;
         res.redirect(`/admin/users?page=${page}`);
     } catch (error) {
         console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
         res.redirect('/pageError');
     }
 }

@@ -15,7 +15,7 @@
     
     <div class="wishlist-content-wrapper">
         <div style="margin-top: 70px;"></div>
-        <!-- Wishlist Header -->
+       
         <div class="wishlist-header">
             <div class="container">
                 <div class="row align-items-center">
@@ -55,13 +55,13 @@
                                         </div>
                                         <% } %>
 
-                                            <!-- Product Image -->
+                                        
                                             <div class="me-3">
                                                 <img src="/Uploads/re-images/<%= item.productId.ProductImages[0] %>"
                                                     alt="<%= item.productId.productName %>" class="product-image">
                                             </div>
 
-                                            <!-- Product Details -->
+                                      
                                             <div class="flex-grow-1">
                                                 <a href="/product/<%= item.productId._id %>" class="product-title h5">
                                                     <%= item.productId.productName %>
@@ -75,7 +75,7 @@
                                                     Category: <%= item.productId.category.name %>
                                                 </div>
 
-                                                <!-- Price -->
+                                                
                                                 <div class="product-price">
                                                     ₹<%= item.minPrice.toLocaleString() %>
                                                         <% if (item.minPrice !==item.maxPrice) { %>
@@ -99,7 +99,7 @@
                                                                                     <% } %>
                                                 </div>
 
-                                                <!-- Stock Info -->
+                                             
                                                 <div class="stock-info">
                                                     <% if (item.totalStock===0) { %>
                                                         <span class="stock-out">
@@ -117,7 +117,7 @@
                                                                 <% } %>
                                                 </div>
 
-                                                <!-- Variant Selector -->
+                                      
                                                 <% if (item.productId.variants.length> 1) { %>
                                                     <div class="variant-selector">
                                                         <small class="text-muted d-block mb-2">Select Storage:</small>
@@ -133,14 +133,14 @@
                                                     </div>
                                                     <% } %>
 
-                                                        <!-- Added Date -->
+                                                      
                                                         <div class="added-date">
                                                             <i class="fas fa-calendar-plus me-1"></i>
                                                             Added on <%= new Date(item.addOn).toLocaleDateString() %>
                                                         </div>
                                             </div>
 
-                                            <!-- Action Buttons -->
+                                           
                                             <div class="action-buttons">
                                                 <button class="btn-move-cart" <%=!item.inStock ? 'disabled' : '' %>
                                                     data-product-id="<%= item.productId._id %>"
@@ -167,7 +167,7 @@
                                 </div>
                                 <% }) %>
 
-                                    <!-- Clear Wishlist Button -->
+                                 
                                     <div class="text-end mt-3">
                                         <button class="btn btn-outline-danger" id="clearWishlistBtn">
                                             <i class="fas fa-trash me-2"></i>Clear Wishlist
@@ -177,7 +177,7 @@
                     </div>
                 </div>
                 <% } else { %>
-                    <!-- Empty Wishlist -->
+                
                     <div class="wishlist-card">
                         <div class="empty-wishlist">
                             <i class="fas fa-heart-broken"></i>
@@ -196,19 +196,19 @@
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            // Global variables to track selected variants
+           
             const selectedVariants = window.selectedVariants || {};
 
-            // Initialize selected variants
+        
             document.addEventListener('DOMContentLoaded', function () {
-                // Set default variants for each product
+          
                 document.querySelectorAll('.wishlist-item').forEach(item => {
                     const productId = item.dataset.productId;
                     const firstVariant = item.querySelector('.variant-option.active');
                     if (firstVariant) {
                         selectedVariants[productId] = firstVariant.dataset.variantId;
                     } else {
-                        // If no variants, use the first available variant from the product
+                      
                         const firstAvailableVariant = item.querySelector('.variant-option');
                         if (firstAvailableVariant) {
                             selectedVariants[productId] = firstAvailableVariant.dataset.variantId;
@@ -216,27 +216,26 @@
                     }
                 });
 
-                // Clear wishlist button
+  
                 document.getElementById('clearWishlistBtn')?.addEventListener('click', () => {
                     confirmClearWishlist();
                 });
             });
 
-            // Select variant function
+    
             function selectVariant(element, productId) {
                 if (element.classList.contains('disabled')) return;
 
-                // Remove active class from siblings
                 const siblings = element.parentNode.querySelectorAll('.variant-option');
                 siblings.forEach(sibling => sibling.classList.remove('active'));
 
-                // Add active class to selected
+             
                 element.classList.add('active');
 
-                // Update selected variant
+           
                 selectedVariants[productId] = element.dataset.variantId;
 
-                // Update move to cart button based on stock
+  
                 const quantity = parseInt(element.dataset.quantity);
                 const moveBtn = document.querySelector(`[data-product-id="${productId}"].btn-move-cart`);
 
@@ -251,18 +250,15 @@
                 }
             }
 
-            // Move to cart function
-            // selectedVariants should map productId -> chosenVariantStorage (you likely already have this)
-             // keep current behavior
+
 
             async function moveToCart(productId, buttonElement) {
-                // read data-attributes set in EJS
+                
                 const variantsCount = Number(buttonElement.dataset.variantsCount || 0);
                 const defaultVariantStorage = buttonElement.dataset.defaultVariantStorage || null;
 
-                // try explicit selection first
-                let variantId = selectedVariants[productId]; // this is the storage string in your app
-                // fallback: if there is only one variant, use the default variant storage
+             
+                let variantId = selectedVariants[productId]; 
                 if (!variantId) {
                     if (variantsCount === 1 && defaultVariantStorage) {
                         variantId = defaultVariantStorage;
@@ -281,7 +277,7 @@
                     const response = await fetch('/wishlist/move-to-cart', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ productId, variantId }) // variantId is the storage string
+                        body: JSON.stringify({ productId, variantId }) 
                     });
 
                     const data = await response.json();
@@ -290,17 +286,17 @@
                         const wishlistItem = buttonElement.closest('.wishlist-item');
                         if (wishlistItem) wishlistItem.remove();
 
-                        // update header counts (you already have this)
+                       
                         updateHeaderCounts(data.cartCount, data.wishlistCount);
                         updateWishlistHeader(data.wishlistCount);
 
-                        // Update localStorage
+                        
                         removeFromWishlistStorage(productId);
                         
-                        // Trigger storage event for other tabs
+                        
                         localStorage.setItem('wishlistUpdate', Date.now().toString());
 
-                        // Show success message
+                  
                         Swal.fire({
                             icon: 'success',
                             title: 'Moved to Cart!',
@@ -338,7 +334,7 @@
             }
 
 
-            // Confirm clear wishlist with SweetAlert
+         
             async function confirmClearWishlist() {
                 const result = await Swal.fire({
                     title: 'Clear Wishlist?',
@@ -357,7 +353,7 @@
                 });
 
                 if (result.isConfirmed) {
-                    // Show loading
+                
                     Swal.fire({
                         title: 'Clearing Wishlist...',
                         html: 'Please wait while we clear your wishlist.',
@@ -372,7 +368,7 @@
                 }
             }
 
-            // Remove from wishlist function
+            
             async function removeFromWishlist(productId, buttonElement) {
                 const result = await Swal.fire({
                     title: 'Remove from Wishlist?',
@@ -397,13 +393,12 @@
                 const originalText = buttonElement.innerHTML;
 
                 try {
-                    // Show loading state
                     buttonElement.disabled = true;
                     buttonElement.classList.add('btn-loading');
                     buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Removing...';
 
                     const response = await fetch('/wishlist/remove', {
-                        method: 'POST',
+                        method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -415,23 +410,17 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        // Remove item from wishlist display
                         const wishlistItem = buttonElement.closest('.wishlist-item');
                         wishlistItem.remove();
 
-                        // Update wishlist count
                         updateHeaderWishlistCount(data.wishlistCount);
 
-                        // Update header text
                         updateWishlistHeader(data.wishlistCount);
 
-                        // Update localStorage
                         removeFromWishlistStorage(productId);
                         
-                        // Trigger storage event for other tabs
                         localStorage.setItem('wishlistUpdate', Date.now().toString());
 
-                        // Show success message
                         Swal.fire({
                             icon: 'success',
                             title: 'Removed!',
@@ -440,7 +429,6 @@
                             showConfirmButton: false
                         });
 
-                        // Check if wishlist is empty
                         if (data.wishlistCount === 0) {
                             setTimeout(() => {
                                 location.reload();
@@ -463,18 +451,16 @@
                         confirmButtonColor: '#ef4444'
                     });
                 } finally {
-                    // Reset button state
                     buttonElement.disabled = false;
                     buttonElement.classList.remove('btn-loading');
                     buttonElement.innerHTML = originalText;
                 }
             }
 
-            // Clear wishlist function
             async function clearWishlist() {
                 try {
                     const response = await fetch('/wishlist/clear', {
-                        method: 'POST',
+                        method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         }
@@ -511,13 +497,13 @@
                 }
             }
 
-            // Update header counts
+        
             function updateHeaderCounts(cartCount, wishlistCount) {
                 updateHeaderCartCount(cartCount);
                 updateHeaderWishlistCount(wishlistCount);
             }
 
-            // Update header cart count
+          
             function updateHeaderCartCount(count) {
                 const cartCountElements = document.querySelectorAll('.cart-count');
                 cartCountElements.forEach(element => {
@@ -526,7 +512,7 @@
                 });
             }
 
-            // Update header wishlist count
+      
             function updateHeaderWishlistCount(count) {
                 const wishlistCountElements = document.querySelectorAll('.wishlist-count');
                 wishlistCountElements.forEach(element => {
@@ -535,7 +521,7 @@
                 });
             }
 
-            // Update wishlist header text
+   
             function updateWishlistHeader(count) {
                 const headerText = document.querySelector('.wishlist-header p');
                 if (headerText) {
@@ -547,13 +533,13 @@
                 }
             }
 
-            // Show alert function
+      
             function showAlert(message, type) {
-                // Remove existing alerts
+              
                 const existingAlerts = document.querySelectorAll('.custom-alert');
                 existingAlerts.forEach(alert => alert.remove());
 
-                // Create alert element
+                
                 const alertDiv = document.createElement('div');
                 alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show custom-alert`;
                 alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
@@ -565,7 +551,6 @@
 
                 document.body.appendChild(alertDiv);
 
-                // Auto remove after 5 seconds
                 setTimeout(() => {
                     if (alertDiv.parentNode) {
                         alertDiv.remove();
@@ -573,7 +558,7 @@
                 }, 5000);
             }
 
-            // LocalStorage helper functions
+    
             function removeFromWishlistStorage(productId) {
                 try {
                     const wishlist = JSON.parse(localStorage.getItem('userWishlist') || '[]');

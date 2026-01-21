@@ -14,7 +14,7 @@
      <div style="margin-top: 70px;"></div>
     <div class="success-container">
         <div class="success-card">
-            <!-- Celebration Animation -->
+       
             <div class="celebration-animation">
                 <div class="confetti" style="left: 10%; animation-delay: 0s;"></div>
                 <div class="confetti" style="left: 20%; animation-delay: -0.3s;"></div>
@@ -27,12 +27,12 @@
                 <div class="confetti" style="left: 90%; animation-delay: -2.4s;"></div>
             </div>
 
-            <!-- Success Icon -->
+         
             <div class="success-icon">
                 <i class="fas fa-check"></i>
             </div>
 
-            <!-- Success Message -->
+         
             <h1 class="success-title">Order Placed Successfully!</h1>
             
             <div class="thank-you-text">
@@ -45,12 +45,12 @@
                 You will receive a confirmation email shortly with your order details.
             </p>
 
-            <!-- Illustration -->
+         
             <div class="illustration">
                 <i class="fas fa-shipping-fast" style="font-size: 4rem; color: var(--primary-color); opacity: 0.7;"></i>
             </div>
 
-            <!-- Order Details -->
+       
             <div class="order-details">
                 <h5><i class="fas fa-receipt me-2"></i>Order Details</h5>
                 
@@ -121,7 +121,7 @@
                 <% } %>
             </div>
 
-            <!-- Delivery Information -->
+            
             <div class="delivery-info">
                 <h6><i class="fas fa-map-marker-alt me-2"></i>Delivery Address</h6>
                 <div class="delivery-address">
@@ -135,7 +135,7 @@
                 </div>
             </div>
 
-            <!-- Order Timeline -->
+    
             <div class="order-timeline">
                 <h6 class="text-center mb-3" style="color: var(--primary-color);">
                     <i class="fas fa-route me-2"></i>Order Timeline
@@ -182,7 +182,7 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
+     
             <div class="action-buttons">
                 <a href="/order/<%= order._id %>" class="btn-primary-custom">
                     <i class="fas fa-list-alt me-2"></i>
@@ -194,7 +194,7 @@
                 </a>
             </div>
 
-            <!-- Additional Information -->
+         
             <div class="mt-4 pt-3" style="border-top: 1px solid #e9ecef;">
                 <p class="text-muted mb-2">
                     <i class="fas fa-info-circle me-2"></i>
@@ -209,9 +209,9 @@
     </div>
 
     <script>
-        // Add some interactive effects
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Animate the success icon
+      
             setTimeout(() => {
                 const successIcon = document.querySelector('.success-icon');
                 successIcon.style.transform = 'scale(1.1)';
@@ -220,10 +220,10 @@
                 }, 200);
             }, 500);
 
-            // Add click effects to buttons
+    
             document.querySelectorAll('.btn-primary-custom, .btn-success-custom').forEach(btn => {
                 btn.addEventListener('click', function(e) {
-                    // Create ripple effect
+                
                     const ripple = document.createElement('span');
                     const rect = this.getBoundingClientRect();
                     const size = Math.max(rect.width, rect.height);
@@ -253,7 +253,7 @@
                 });
             });
 
-            // Auto-scroll to center the card on mobile
+            
             if (window.innerWidth <= 768) {
                 setTimeout(() => {
                     document.querySelector('.success-card').scrollIntoView({
@@ -264,7 +264,7 @@
             }
         });
 
-        // Add ripple animation CSS
+   
         const style = document.createElement('style');
         style.textContent = `
             @keyframes ripple {

@@ -5,20 +5,20 @@ import Order from '../../models/orderSchema.js';
 import * as walletService from '../../services/walletService.js';
 import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
 
-// Load referrals overview page
+
 const loadReferralsPage = async (req, res) => {
     try {
-        // Get all users who have made referrals
+       
         const referrers = await User.find({
             'referrals.0': { $exists: true }
         }).select('name email referralCode referrals createdOn').lean();
 
-        // Calculate stats for each referrer
+
         const referralStats = await Promise.all(referrers.map(async (referrer) => {
             const totalReferred = referrer.referrals.length;
             const rewardsGiven = referrer.referrals.filter(r => r.rewardGiven).length;
             const pendingRewards = totalReferred - rewardsGiven;
-            const totalRewardsEarned = rewardsGiven * 100; // ₹100 per referral
+            const totalRewardsEarned = rewardsGiven * 100; 
 
             return {
                 _id: referrer._id,
@@ -33,10 +33,10 @@ const loadReferralsPage = async (req, res) => {
             };
         }));
 
-        // Sort by total referred (descending)
+
         referralStats.sort((a, b) => b.totalReferred - a.totalReferred);
 
-        // Get referral settings
+
         const settings = await ReferralSettings.getSettings();
 
         res.render('adminReferrals', {
@@ -51,7 +51,7 @@ const loadReferralsPage = async (req, res) => {
     }
 };
 
-// Load referral details for a specific user
+
 const loadReferralDetails = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -67,7 +67,7 @@ const loadReferralDetails = async (req, res) => {
             return res.status(HTTP_STATUS.NOT_FOUND).json({ success: false, message: ERROR_MESSAGES.USER.NOT_FOUND });
         }
 
-        // Get order details for each referred user
+
         const referralDetails = await Promise.all(user.referrals.map(async (referral) => {
             const orders = await Order.find({ userId: referral.userId._id })
                 .select('orderId finalAmount createdOn status')
@@ -107,7 +107,7 @@ const loadReferralDetails = async (req, res) => {
     }
 };
 
-// Manually credit referral reward
+
 const manualCreditReward = async (req, res) => {
     try {
         const { referrerId, referredUserId } = req.body;
@@ -119,7 +119,7 @@ const manualCreditReward = async (req, res) => {
             return res.status(HTTP_STATUS.NOT_FOUND).json({ success: false, message: ERROR_MESSAGES.USER.NOT_FOUND });
         }
 
-        // Check if reward already given
+   
         const referralEntry = referrer.referrals.find(
             r => r.userId.toString() === referredUserId.toString()
         );
@@ -132,10 +132,10 @@ const manualCreditReward = async (req, res) => {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.REFERRAL.ALREADY_REWARDED });
         }
 
-        // Get settings
+  
         const settings = await ReferralSettings.getSettings();
 
-        // Credit wallet
+       
         await walletService.credit(referrerId, settings.rewardAmount, {
             source: 'REFERRAL_REWARD',
             referenceModel: 'User',
@@ -149,7 +149,7 @@ const manualCreditReward = async (req, res) => {
             }
         });
 
-        // Generate coupon
+       
         const couponCode = `REF${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 30);
@@ -169,7 +169,7 @@ const manualCreditReward = async (req, res) => {
 
         await newCoupon.save();
 
-        // Mark as rewarded
+        
         await User.findOneAndUpdate(
             { _id: referrerId, 'referrals.userId': referredUserId },
             { $set: { 'referrals.$.rewardGiven': true } }
@@ -187,7 +187,7 @@ const manualCreditReward = async (req, res) => {
     }
 };
 
-// Revoke referral reward
+
 const revokeReward = async (req, res) => {
     try {
         const { referrerId, referredUserId, reason } = req.body;
@@ -199,7 +199,7 @@ const revokeReward = async (req, res) => {
             return res.status(HTTP_STATUS.NOT_FOUND).json({ success: false, message: ERROR_MESSAGES.USER.NOT_FOUND });
         }
 
-        // Check if reward was given
+        
         const referralEntry = referrer.referrals.find(
             r => r.userId.toString() === referredUserId.toString()
         );
@@ -208,10 +208,10 @@ const revokeReward = async (req, res) => {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.REFERRAL.NO_REWARD_TO_REVOKE });
         }
 
-        // Get settings
+        
         const settings = await ReferralSettings.getSettings();
 
-        // Debit wallet (if sufficient balance)
+        
         try {
             await walletService.debit(referrerId, settings.rewardAmount, {
                 source: 'ADJUSTMENT',
@@ -231,7 +231,7 @@ const revokeReward = async (req, res) => {
             });
         }
 
-        // Mark as not rewarded
+        
         await User.findOneAndUpdate(
             { _id: referrerId, 'referrals.userId': referredUserId },
             { $set: { 'referrals.$.rewardGiven': false } }
@@ -248,7 +248,7 @@ const revokeReward = async (req, res) => {
     }
 };
 
-// Update referral settings
+
 const updateSettings = async (req, res) => {
     try {
         const {
@@ -286,7 +286,7 @@ const updateSettings = async (req, res) => {
     }
 };
 
-// Get referral statistics
+
 const getReferralStats = async (req, res) => {
     try {
         const totalReferrers = await User.countDocuments({ 'referrals.0': { $exists: true } });

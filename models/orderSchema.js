@@ -52,7 +52,7 @@ const orderSchema = new Schema({
             enum: ["None", "Requested", "Approved", "Rejected", "Completed"],
             default: "None"
         },
-        // Refund tracking fields
+   
         itemTotal: {
             type: Number,
             default: 0,

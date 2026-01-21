@@ -1,6 +1,6 @@
 <%- include("../../views/parsuals/user/header") %>
 
-    <!-- Hero Section -->
+ 
     <section id="home" class="hero-section">
         <div class="container">
             <div class="row align-items-center">
@@ -51,21 +51,21 @@
         </div>
     </section>
 
-    <!-- Featured Laptops Section -->
+
     <section id="shop" class="section-padding">
         <div class="container">
             <h2 class="section-title">Featured Products</h2>
             <p class="section-subtitle">Handpicked laptops designed to elevate your digital experience</p>
             <div class="row">
-                <!-- Product Grid -->
+        
                 <div class="col-12">
                     <div class="row">
-                        <!-- Product Cards -->
+              
                         <% for(let i=0; i < productData.length; i++) { %>
                             <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
                                 <div class="product-card h-100 d-flex flex-column">
 
-                                    <!-- Product Image -->
+                           
                                     <div class="product-image position-relative">
                                         <img src="/Uploads/re-images/<%= productData[i].ProductImages[0] %>"
                                             alt="<%= productData[i].productName %>">
@@ -82,7 +82,7 @@
                                             <div class="product-badge">Popular</div>
                                         <% } %>
                                         
-                                        <!-- Wishlist Heart Button -->
+                                
                                         <button class="wishlist-btn"
                                             onclick="handleAddToWishlist(event, '<%= productData[i]._id %>')"
                                             title="Add to Wishlist">
@@ -90,7 +90,7 @@
                                         </button>
                                     </div>
 
-                                    <!-- Product Info -->
+                                  
                                     <div class="product-info d-flex flex-column flex-grow-1">
                                         <a href="javascript:void(0)"
                                             class="product-title text-truncate"
@@ -102,7 +102,7 @@
                                             <%= productData[i].shortDescription %>
                                         </p>
 
-                                        <!-- Price -->
+                                    
                                         <div class="price-container">
                                             <% 
                                             const variant = productData[i].variants[0];
@@ -117,7 +117,7 @@
                                             <% } %>
                                         </div>
 
-                                        <!-- Add to Cart Button -->
+                                      
                                         <div class="mt-auto">
                                             <button class="btn btn-product"
                                                 data-product-id="<%= productData[i]._id %>"
@@ -132,7 +132,7 @@
                             <% } %>
 
                     </div>
-                    <!-- Pagination -->
+                
                     <nav aria-label="Product pagination">
                         <ul class="pagination">
 
@@ -165,7 +165,7 @@
         </div>
     </section>
 
-    <!-- Why Choose Us Section -->
+
     <section class="why-choose-section section-padding">
         <div class="container">
             <h2 class="section-title">Why Choose LAPTIQUE</h2>
@@ -217,10 +217,10 @@
 
 
     <script>
-        // Check if user is logged in
+       
         const isUserLoggedIn = <%= user ? 'true' : 'false' %>;
 
-        // Function to check authentication before any action
+      
         function checkAuthentication() {
             if (!isUserLoggedIn) {
                 window.location.href = '/login';
@@ -229,16 +229,16 @@
             return true;
         }
 
-        // Handle product click
+       
         function handleProductClick(productId) {
             if (checkAuthentication()) {
                 window.location.href = `/product/${productId}`;
             }
         }
 
-        // Handle add to cart
+        
         async function handleAddToCart(event, buttonEl) {
-            event.stopPropagation(); // Prevent triggering product click
+            event.stopPropagation(); 
             if (!checkAuthentication()) return;
 
             const originalText = buttonEl.innerHTML;
@@ -252,7 +252,7 @@
                     return;
                 }
 
-                // Loading state
+               
                 buttonEl.disabled = true;
                 buttonEl.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
 
@@ -273,17 +273,17 @@
                 if (data.success) {
                     showAlert(data.message || 'Product added to cart', 'success');
 
-                    // Update cart count in header if exists
+           
                     if (window.updateHeaderCartCount) {
                         window.updateHeaderCartCount(data.cartCount || 0);
                     }
-                    // Product may be removed from wishlist by backend; refresh wishlist badge
+                   
                     if (window.updateHeaderWishlistCount) {
                         try {
                             const resWL = await fetch('/wishlist/count');
                             const dWL = await resWL.json();
                             window.updateHeaderWishlistCount(dWL.wishlistCount || 0);
-                        } catch (e) { /* ignore */ }
+                        } catch (e) { }
                     }
                 } else {
                     showAlert(data.message || 'Failed to add to cart', 'error');
@@ -298,7 +298,7 @@
                 console.error('Error adding to cart:', error);
                 showAlert('Failed to add item to cart. Please try again.', 'error');
             } finally {
-                // Reset button state
+    
                 if (buttonEl) {
                     buttonEl.disabled = false;
                     buttonEl.innerHTML = originalText;
@@ -306,13 +306,13 @@
             }
         }
 
-        // Show alert function
+        
         function showAlert(message, type) {
-            // Remove existing alerts
+          
             const existingAlerts = document.querySelectorAll('.custom-alert');
             existingAlerts.forEach(alert => alert.remove());
 
-            // Create alert element
+         
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show custom-alert`;
             alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
@@ -324,7 +324,7 @@
 
             document.body.appendChild(alertDiv);
 
-            // Auto remove after 4 seconds
+          
             setTimeout(() => {
                 if (alertDiv.parentNode) {
                     alertDiv.remove();
@@ -332,7 +332,7 @@
             }, 4000);
         }
 
-        // Handle add/remove wishlist (toggle)
+        
         async function handleAddToWishlist(event, productId) {
             event.stopPropagation();
             if (!checkAuthentication()) return;
@@ -342,7 +342,7 @@
             const isInWishlist = wishlistBtn.classList.contains('in-wishlist');
 
             try {
-                // Toggle: remove if already in wishlist, add if not
+                
                 const endpoint = isInWishlist ? '/wishlist/remove' : '/wishlist/add';
                 const response = await fetch(endpoint, {
                     method: 'POST',
@@ -353,14 +353,14 @@
 
                 if (data.success) {
                     if (isInWishlist) {
-                        // Remove from wishlist
+                       
                         showAlert(data.message || 'Removed from wishlist', 'success');
                         wishlistBtn.classList.remove('in-wishlist');
                         heartIcon.classList.remove('fas');
                         heartIcon.classList.add('far');
                         removeWishlistState(productId);
                     } else {
-                        // Add to wishlist
+                        
                         showAlert(data.message || 'Added to wishlist', 'success');
                         wishlistBtn.classList.add('in-wishlist');
                         heartIcon.classList.remove('far');
@@ -383,7 +383,7 @@
             }
         }
 
-        // Save wishlist state to localStorage
+        
         function saveWishlistState(productId, isInWishlist) {
             let wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
             if (isInWishlist && !wishlistItems.includes(productId)) {
@@ -392,14 +392,14 @@
             localStorage.setItem('wishlistItems', JSON.stringify(wishlistItems));
         }
 
-        // Remove wishlist state from localStorage
+        
         function removeWishlistState(productId) {
             let wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
             wishlistItems = wishlistItems.filter(id => id !== productId);
             localStorage.setItem('wishlistItems', JSON.stringify(wishlistItems));
         }
 
-        // Load wishlist states on page load
+       
         function loadWishlistStates() {
             const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
             document.querySelectorAll('.wishlist-btn').forEach(btn => {
@@ -422,12 +422,12 @@
             });
         }
 
-        // Load wishlist states when page loads
+        
         document.addEventListener('DOMContentLoaded', loadWishlistStates);
 
-        // Add click event listeners to all clickable elements for authentication check
+     
         document.addEventListener('DOMContentLoaded', function () {
-            // Add authentication check to navigation links (except login/register)
+            
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
                 if (!link.href.includes('/login') && !link.href.includes('/register')) {
@@ -440,7 +440,7 @@
                 }
             });
 
-            // Add authentication check to shop now button
+            
             const shopButton = document.querySelector('.btn-hero');
             if (shopButton) {
                 shopButton.addEventListener('click', function (e) {
@@ -451,7 +451,7 @@
                 });
             }
 
-            // Add authentication check to pagination links
+            
             const paginationLinks = document.querySelectorAll('.page-link');
             paginationLinks.forEach(link => {
                 link.addEventListener('click', function (e) {
@@ -462,7 +462,7 @@
                 });
             });
 
-            // Add authentication check to footer links
+          
             const footerLinks = document.querySelectorAll('.footer a');
             footerLinks.forEach(link => {
                 link.addEventListener('click', function (e) {

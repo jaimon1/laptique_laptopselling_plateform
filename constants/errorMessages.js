@@ -1,10 +1,7 @@
-/**
- * Error Messages Constants
- * Centralized error messages for consistency across the application
- */
+
 
 const ERROR_MESSAGES = {
-    // Authentication & Authorization
+
     AUTH: {
         LOGIN_REQUIRED: 'Please login to continue',
         UNAUTHORIZED: 'You are not authorized to perform this action',
@@ -17,7 +14,6 @@ const ERROR_MESSAGES = {
         LOGIN_FAILED: 'Login failed. Please try again'
     },
 
-    // User Related
     USER: {
         NOT_FOUND: 'User not found',
         ALREADY_EXISTS: 'User with this email already exists',
@@ -28,7 +24,7 @@ const ERROR_MESSAGES = {
         DELETE_FAILED: 'Failed to delete user'
     },
 
-    // Order Related
+
     ORDER: {
         NOT_FOUND: 'Order not found',
         CREATE_FAILED: 'Failed to create order',
@@ -47,7 +43,7 @@ const ERROR_MESSAGES = {
         INVALID_STATUS_CHANGE: 'Cannot move order backwards in the delivery process'
     },
 
-    // Product Related
+
     PRODUCT: {
         NOT_FOUND: 'Product not found',
         OUT_OF_STOCK: 'Product is out of stock',
@@ -59,7 +55,7 @@ const ERROR_MESSAGES = {
         INSUFFICIENT_STOCK: 'Insufficient stock available'
     },
 
-    // Cart Related
+
     CART: {
         EMPTY: 'Your cart is empty',
         ITEM_NOT_FOUND: 'Item not found in cart',
@@ -70,7 +66,7 @@ const ERROR_MESSAGES = {
         MAX_QUANTITY_EXCEEDED: 'Maximum quantity limit exceeded'
     },
 
-    // Address Related
+
     ADDRESS: {
         NOT_FOUND: 'Address not found',
         REQUIRED: 'Delivery address is required',
@@ -80,7 +76,7 @@ const ERROR_MESSAGES = {
         DELETE_FAILED: 'Failed to delete address'
     },
 
-    // Payment Related
+
     PAYMENT: {
         FAILED: 'Payment processing failed',
         INVALID_METHOD: 'Invalid payment method',
@@ -91,7 +87,7 @@ const ERROR_MESSAGES = {
         INCOMPLETE: 'Payment is not completed'
     },
 
-    // Return & Refund
+  
     RETURN: {
         NOT_ALLOWED: 'Returns are not allowed for this order',
         WINDOW_EXPIRED: 'Return window has expired. Returns are only allowed within 7 days of delivery',
@@ -105,7 +101,7 @@ const ERROR_MESSAGES = {
         PROCESS_FAILED: 'Failed to process return request'
     },
 
-    // Coupon Related
+
     COUPON: {
         INVALID: 'Invalid coupon code',
         EXPIRED: 'This coupon has expired',
@@ -118,7 +114,6 @@ const ERROR_MESSAGES = {
         CANNOT_DELETE: 'Cannot delete coupon that has been used by customers'
     },
 
-    // Category Related
     CATEGORY: {
         NOT_FOUND: 'Category not found',
         ALREADY_EXISTS: 'Category already exists',
@@ -127,7 +122,7 @@ const ERROR_MESSAGES = {
         DELETE_FAILED: 'Failed to delete category'
     },
 
-    // Brand Related
+   
     BRAND: {
         NOT_FOUND: 'Brand not found',
         ALREADY_EXISTS: 'Brand already exists',
@@ -136,14 +131,14 @@ const ERROR_MESSAGES = {
         DELETE_FAILED: 'Failed to delete brand'
     },
 
-    // Wallet Related
+
     WALLET: {
         INSUFFICIENT_BALANCE: 'Insufficient wallet balance',
         TRANSACTION_FAILED: 'Wallet transaction failed',
         NOT_FOUND: 'Wallet not found'
     },
 
-    // Referral Related
+
     REFERRAL: {
         NOT_FOUND: 'Referral not found',
         ALREADY_REWARDED: 'Reward already given',
@@ -151,7 +146,7 @@ const ERROR_MESSAGES = {
         INVALID_CODE: 'Invalid referral code'
     },
 
-    // Wishlist Related
+   
     WISHLIST: {
         NOT_FOUND: 'Wishlist not found',
         ALREADY_EXISTS: 'Product is already in your wishlist',
@@ -159,7 +154,7 @@ const ERROR_MESSAGES = {
         REMOVE_FAILED: 'Failed to remove item from wishlist'
     },
 
-    // Validation
+
     VALIDATION: {
         REQUIRED_FIELDS: 'Please fill in all required fields',
         REQUIRED_FIELD: 'This field is required',
@@ -171,7 +166,7 @@ const ERROR_MESSAGES = {
         INVALID_PINCODE: 'Please provide a valid pincode'
     },
 
-    // File Upload
+
     FILE: {
         UPLOAD_FAILED: 'File upload failed',
         INVALID_TYPE: 'Invalid file type. Please upload a valid image',
@@ -179,7 +174,7 @@ const ERROR_MESSAGES = {
         REQUIRED: 'Please upload at least one image'
     },
 
-    // Server Errors
+
     SERVER: {
         INTERNAL_ERROR: 'Internal server error. Please try again later',
         DATABASE_ERROR: 'Database operation failed',
@@ -188,7 +183,6 @@ const ERROR_MESSAGES = {
         TIMEOUT: 'Request timeout. Please try again'
     },
 
-    // General
     GENERAL: {
         SOMETHING_WENT_WRONG: 'Something went wrong. Please try again',
         OPERATION_FAILED: 'Operation failed. Please try again',
@@ -199,10 +193,10 @@ const ERROR_MESSAGES = {
     }
 };
 
-// Freeze the object to prevent modifications
+
 Object.freeze(ERROR_MESSAGES);
 
-// Helper function to get nested error messages
+
 export const getErrorMessage = (category, key) => {
     return ERROR_MESSAGES[category]?.[key] || ERROR_MESSAGES.GENERAL.SOMETHING_WENT_WRONG;
 };

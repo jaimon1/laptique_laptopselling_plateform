@@ -1,19 +1,20 @@
 import mongoose from 'mongoose';
+import Product from './productSchema';
 
 const { Schema } = mongoose;
 
 const brandSchema = new Schema({
-    name:{
-        type:String,
-        required:true
+    name: {
+        type: String,
+        required: true
     },
     BrandImage: {
         type: [String],
-        required:true
+        required: true
     },
     isBlocked: {
-        type:Boolean,
-        default:false
+        type: Boolean,
+        default: false
     },
     createdAt: {
         type: Date,
@@ -22,6 +23,24 @@ const brandSchema = new Schema({
 });
 
 
-const Brand = mongoose.model('Brand',brandSchema);
+const Brand = mongoose.model('Brand', brandSchema);
 
 export default Brand;
+
+const deleteProduct = async (req, res) => {
+    try {
+        const brandId = req.params.id;
+
+        await Product.deleteMany({
+            brand: brandId,
+            variants: {
+                $elemMatch: {
+                    quantity: { $gt: 15 }
+                }
+            }
+        })
+
+    } catch (error) {
+
+    }
+}

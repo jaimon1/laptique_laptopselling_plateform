@@ -27,7 +27,7 @@ async function processReferralReward(userId) {
             return;
         }
 
-        // Check if reward already given
+
         const referralEntry = referrer.referrals.find(
             ref => ref.userId.toString() === userId.toString()
         );
@@ -37,10 +37,10 @@ async function processReferralReward(userId) {
         }
 
         
-        // Import wallet service
+
         const walletService = await import('../../services/walletService.js');
         
-        // Credit ₹100 to referrer's wallet
+
         const rewardAmount = 100;
         await walletService.credit(referrer._id, rewardAmount, {
             source: 'REFERRAL_REWARD',
@@ -55,7 +55,7 @@ async function processReferralReward(userId) {
         
         
 
-        // Update referral entry to mark reward as given
+
         await User.findOneAndUpdate(
             { _id: referrer._id, 'referrals.userId': userId },
             { $set: { 'referrals.$.rewardGiven': true } },
@@ -195,7 +195,7 @@ const placeOrder = async (req, res) => {
             });
         }
 
-        // Get cart
+
         const cart = await Cart.findOne({ userId }).populate({
             path: 'items.productId',
             populate: [
@@ -210,7 +210,6 @@ const placeOrder = async (req, res) => {
             });
         }
 
-        // Validate address
         const userAddresses = await Address.findOne({ userId });
         if (!userAddresses) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -234,7 +233,7 @@ const placeOrder = async (req, res) => {
         for (const item of cart.items) {
             const product = item.productId;
 
-            // Check if product is still available
+
             if (product.isBlocked || !product.category.isListed || product.status === 'Discontinued') {
                 stockErrors.push(`${product.productName} is no longer available`);
                 continue;
@@ -246,7 +245,7 @@ const placeOrder = async (req, res) => {
                 continue;
             }
 
-            // Check stock
+
             if (variant.quantity < item.quantity) {
                 stockErrors.push(`Insufficient stock for ${product.productName}. Only ${variant.quantity} available.`);
                 continue;
@@ -280,7 +279,7 @@ const placeOrder = async (req, res) => {
             });
         }
 
-        // Block COD for orders above Rs 1000
+
         if (normalizedPaymentMethod === 'COD' && subtotal > 1000) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
                 success: false,
@@ -344,11 +343,11 @@ const placeOrder = async (req, res) => {
         const finalAmount = discountedSubtotal + tax + shippingFee;
 
         if (normalizedPaymentMethod === 'COD') {
-            // Calculate effective prices for items (for refund tracking)
+
             const { calculateItemEffectivePrices } = await import('../../services/refundService.js');
             const itemsWithEffectivePrices = calculateItemEffectivePrices(orderItems, discount, tax, shippingFee);
             
-            // Create order for COD
+
             console.log('=== Creating COD Order ===');
             console.log('User ID:', userId);
             console.log('Order Items:', orderItems);
@@ -389,16 +388,16 @@ const placeOrder = async (req, res) => {
             console.log('Order saved successfully:', order._id, 'Order ID:', order.orderId);
             console.log('========================');
 
-            // Update coupon usage if coupon was applied
+
             if (couponCode && discount > 0) {
                 const coupon = await Coupon.findOne({ name: couponCode.toUpperCase() });
                 if (coupon) {
                     const userUsedIndex = coupon.usersUsed.findIndex(u => u.userId.toString() === userId.toString());
                     if (userUsedIndex !== -1) {
-                        // User exists, increment count
+
                         coupon.usersUsed[userUsedIndex].count += 1;
                     } else {
-                        // Add new user
+    
                         coupon.usersUsed.push({ userId, count: 1 });
                     }
                     await coupon.save();
@@ -406,7 +405,6 @@ const placeOrder = async (req, res) => {
                 }
             }
 
-            // Update product stock immediately for COD to reserve items
             for (const item of orderItems) {
                 const product = await Product.findById(item.product);
                 if (!product) {
@@ -421,10 +419,10 @@ const placeOrder = async (req, res) => {
                 }
             }
 
-            // Clear cart
+
             await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
 
-            // Process referral reward if this is user's first order
+
             await processReferralReward(userId);
 
             return res.status(HTTP_STATUS.OK).json({ 
@@ -435,11 +433,11 @@ const placeOrder = async (req, res) => {
         }
 
         if (normalizedPaymentMethod === 'WALLET') {
-            // Import wallet service and refund service
+
             const walletService = await import('../../services/walletService.js');
             const { calculateItemEffectivePrices } = await import('../../services/refundService.js');
             
-            // Get wallet and check balance
+
             const wallet = await walletService.getWallet(userId);
             const needAmount = finalAmount;
             
@@ -450,7 +448,7 @@ const placeOrder = async (req, res) => {
                 });
             }
 
-            // Calculate effective prices for items (for accurate refund tracking with tax and coupon distribution)
+
             const itemsWithEffectivePrices = calculateItemEffectivePrices(orderItems, discount, tax, shippingFee);
 
             const order = new Order({
@@ -485,7 +483,7 @@ const placeOrder = async (req, res) => {
             });
             await order.save();
 
-            // Deduct from wallet using wallet service (creates proper Transaction record)
+ 
             try {
                 await walletService.debit(userId, needAmount, {
                     source: 'ORDER_PAYMENT',
@@ -493,10 +491,10 @@ const placeOrder = async (req, res) => {
                     referenceId: order._id,
                     notes: `Payment for order ${order.orderId}`
                 });
-                console.log(`✅ Wallet debited: ₹${needAmount} for order ${order.orderId}`);
+                console.log(`Wallet debited: ₹${needAmount} for order ${order.orderId}`);
             } catch (walletError) {
-                console.error('❌ Error debiting wallet:', walletError);
-                // Rollback: delete the order
+                console.error(' Error debiting wallet:', walletError);
+        
                 await Order.findByIdAndDelete(order._id);
                 return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
                     success: false, 
@@ -504,23 +502,23 @@ const placeOrder = async (req, res) => {
                 });
             }
 
-            // Update coupon usage if coupon was applied
+
             if (couponCode && discount > 0) {
                 const coupon = await Coupon.findOne({ name: couponCode.toUpperCase() });
                 if (coupon) {
                     const userUsedIndex = coupon.usersUsed.findIndex(u => u.userId.toString() === userId.toString());
                     if (userUsedIndex !== -1) {
-                        // User exists, increment count
+
                         coupon.usersUsed[userUsedIndex].count += 1;
                     } else {
-                        // Add new user
+     
                         coupon.usersUsed.push({ userId, count: 1 });
                     }
                     await coupon.save();
                 }
             }
 
-            // Decrement stock
+
             for (const item of orderItems) {
                 const product = await Product.findById(item.product);
                 if (!product) continue;
@@ -531,10 +529,10 @@ const placeOrder = async (req, res) => {
                 }
             }
 
-            // Clear cart
+            
             await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
 
-            // Process referral reward if this is user's first order
+
             await processReferralReward(userId);
 
             return res.status(HTTP_STATUS.OK).json({ 
@@ -553,7 +551,7 @@ const placeOrder = async (req, res) => {
     }
 };
 
-// Load order success page
+
 const loadOrderSuccess = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -563,7 +561,7 @@ const loadOrderSuccess = async (req, res) => {
             return res.redirect('/login');
         }
 
-        // Get order details
+
         const order = await Order.findOne({
             _id: orderId,
             userId
@@ -580,12 +578,11 @@ const loadOrderSuccess = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error loading order success:', error);
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('pageNotFound');
     }
 };
 
-// Add new address during checkout
+
 const addCheckoutAddress = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -599,7 +596,7 @@ const addCheckoutAddress = async (req, res) => {
 
         const { name, phone, altPhone, addressType, city, landmark, state, isDefault } = req.body;
 
-        // Validate required fields
+
         if (!name || !phone || !addressType || !city || !landmark || !state) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
                 success: false,
@@ -607,13 +604,11 @@ const addCheckoutAddress = async (req, res) => {
             });
         }
 
-        // Find or create address document
         let userAddresses = await Address.findOne({ userId });
         if (!userAddresses) {
             userAddresses = new Address({ userId, address: [] });
         }
 
-        // If this is set as default or it's the first address, remove default from other addresses
         const shouldBeDefault = isDefault || userAddresses.address.length === 0;
 
         if (shouldBeDefault) {
@@ -622,7 +617,6 @@ const addCheckoutAddress = async (req, res) => {
             });
         }
 
-        // Add new address
         const newAddress = {
             name,
             phone,
@@ -637,7 +631,7 @@ const addCheckoutAddress = async (req, res) => {
         userAddresses.address.push(newAddress);
         await userAddresses.save();
 
-        // Get the newly added address
+
         const addedAddress = userAddresses.address[userAddresses.address.length - 1];
 
         res.status(HTTP_STATUS.CREATED).json({
@@ -655,7 +649,6 @@ const addCheckoutAddress = async (req, res) => {
     }
 };
 
-// Edit address during checkout
 const editCheckoutAddress = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -670,7 +663,7 @@ const editCheckoutAddress = async (req, res) => {
 
         const { name, phone, altPhone, addressType, city, landmark, state, isDefault } = req.body;
 
-        // Validate required fields
+
         if (!name || !phone || !addressType || !city || !landmark || !state) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
                 success: false,
@@ -678,7 +671,7 @@ const editCheckoutAddress = async (req, res) => {
             });
         }
 
-        // Find user addresses
+
         const userAddresses = await Address.findOne({ userId });
         if (!userAddresses) {
             return res.status(HTTP_STATUS.NOT_FOUND).json({
@@ -695,7 +688,7 @@ const editCheckoutAddress = async (req, res) => {
             });
         }
 
-        // If this is set as default, remove default from other addresses
+
         if (isDefault) {
             userAddresses.address.forEach((addr, index) => {
                 if (index !== addressIndex) {
@@ -704,7 +697,7 @@ const editCheckoutAddress = async (req, res) => {
             });
         }
 
-        // Update address
+
         userAddresses.address[addressIndex] = {
             ...userAddresses.address[addressIndex]._doc,
             name,
@@ -734,7 +727,7 @@ const editCheckoutAddress = async (req, res) => {
     }
 };
 
-// Apply coupon
+
 const applyCoupon = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -754,7 +747,7 @@ const applyCoupon = async (req, res) => {
             });
         }
 
-        // Get cart
+
         const cart = await Cart.findOne({ userId }).populate('items.productId');
         if (!cart || cart.items.length === 0) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -763,7 +756,7 @@ const applyCoupon = async (req, res) => {
             });
         }
 
-        // Calculate subtotal
+
         let subtotal = 0;
         for (const item of cart.items) {
             const product = item.productId;
@@ -773,7 +766,7 @@ const applyCoupon = async (req, res) => {
             }
         }
 
-        // Find coupon
+
         const coupon = await Coupon.findOne({
             name: couponCode.toUpperCase(),
             isActive: true,
@@ -787,7 +780,7 @@ const applyCoupon = async (req, res) => {
             });
         }
 
-        // Check minimum purchase
+
         if (subtotal < coupon.minimumPrice) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
                 success: false,
@@ -795,9 +788,9 @@ const applyCoupon = async (req, res) => {
             });
         }
 
-        // Check if this is a user-specific coupon (like welcome bonus)
+
         if (coupon.usersUsed.length > 0 && coupon.usersUsed[0].count === 0) {
-            // This is a user-specific coupon (assigned but not used yet)
+
             const assignedUser = coupon.usersUsed.find(u => u.userId.toString() === userId.toString());
             if (!assignedUser) {
                 return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -807,7 +800,7 @@ const applyCoupon = async (req, res) => {
             }
         }
 
-        // Check if user already used this coupon (ONE TIME PER USER)
+
         const userUsed = coupon.usersUsed.find(u => u.userId.toString() === userId.toString());
         if (userUsed && userUsed.count > 0) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -816,7 +809,7 @@ const applyCoupon = async (req, res) => {
             });
         }
 
-        // Check if coupon usage limit reached (total users who have actually used it)
+
         const totalUsedCount = coupon.usersUsed.filter(u => u.count > 0).length;
         if (totalUsedCount >= coupon.usageLimit) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -825,7 +818,7 @@ const applyCoupon = async (req, res) => {
             });
         }
 
-        // Calculate discount
+
         let discount = 0;
         if (coupon.discountType === 'percentage') {
             discount = Math.round((subtotal * coupon.discountValue) / 100);
@@ -834,13 +827,12 @@ const applyCoupon = async (req, res) => {
         }
         discount = Math.min(discount, subtotal);
 
-        // Calculate new totals
+
         const discountedSubtotal = subtotal - discount;
         const tax = Math.round(discountedSubtotal * 0.18);
         const shippingFee = discountedSubtotal >= 500 ? 0 : 50;
         const total = discountedSubtotal + tax + shippingFee;
 
-        // Store coupon in session
         req.session.appliedCoupon = {
             code: coupon.name,
             discount: discount
@@ -871,7 +863,7 @@ const applyCoupon = async (req, res) => {
     }
 };
 
-// Remove coupon
+
 const removeCoupon = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -883,7 +875,7 @@ const removeCoupon = async (req, res) => {
             });
         }
 
-        // Get cart
+
         const cart = await Cart.findOne({ userId }).populate('items.productId');
         if (!cart || cart.items.length === 0) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -892,7 +884,7 @@ const removeCoupon = async (req, res) => {
             });
         }
 
-        // Calculate subtotal
+ 
         let subtotal = 0;
         for (const item of cart.items) {
             const product = item.productId;
@@ -902,12 +894,12 @@ const removeCoupon = async (req, res) => {
             }
         }
 
-        // Calculate totals without discount
+
         const tax = Math.round(subtotal * 0.18);
         const shippingFee = subtotal >= 500 ? 0 : 50;
         const total = subtotal + tax + shippingFee;
 
-        // Remove coupon from session
+
         delete req.session.appliedCoupon;
 
         res.status(HTTP_STATUS.OK).json({

@@ -28,7 +28,7 @@
         </div>
 
         <div class="container-fluid py-4">
-            <!-- Stats Cards -->
+            
             <div class="row mb-4" id="productStats">
                 <div class="col-md-3">
                     <div class="stats-card-mini">
@@ -305,7 +305,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* Copy all the modern styles from userListing.ejs */
+
         .stats-card-mini {
             background: white;
             border-radius: 16px;
@@ -576,7 +576,7 @@
     </style>
 
     <script>
-        // Update price when variant is selected
+     
         function updatePrice(selectElement, index) {
             const selectedOption = selectElement.options[selectElement.selectedIndex];
             const regularPrice = selectedOption.getAttribute('data-regular');
@@ -591,7 +591,7 @@
             quantityElement.innerHTML = `<span class="stock-badge ${stockClass}">${quantity}</span>`;
         }
 
-        // Load page without refresh
+
         async function loadProductPage(pageNumber) {
             const searchValue = document.getElementById('searchInput').value.trim();
             const searchParam = searchValue ? `&search=${encodeURIComponent(searchValue)}` : '';
@@ -628,7 +628,7 @@
                     const newPagination = doc.querySelector('#productPagination');
                     if (newPagination) document.querySelector('#productPagination').innerHTML = newPagination.innerHTML;
 
-                    // Update search input value from response
+                  
                     const newSearchInput = doc.querySelector('#searchInput');
                     if (newSearchInput) {
                         document.getElementById('searchInput').value = newSearchInput.value;
@@ -653,7 +653,7 @@
             }
         }
 
-        // Perform search
+       
         function performSearch() {
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
@@ -662,7 +662,7 @@
             }
         }
 
-        // Clear search
+        
         function clearSearch() {
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
@@ -671,11 +671,11 @@
             }
         }
 
-        // Initialize when DOM is ready
+        
         document.addEventListener('DOMContentLoaded', function () {
             console.log('Product page loaded');
 
-            // Handle search form
+            
             const searchForm = document.getElementById('searchForm');
             if (searchForm) {
                 searchForm.addEventListener('submit', function (e) {
@@ -684,7 +684,7 @@
                 });
             }
 
-            // Handle Enter key in search input
+          
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
                 searchInput.addEventListener('keypress', function (e) {
@@ -696,7 +696,7 @@
             }
         });
 
-        // Toggle product status
+      
         async function toggleProductStatus(productId, shouldBlock, buttonElement) {
             const action = shouldBlock ? 'block' : 'unblock';
 
@@ -723,8 +723,11 @@
                     : `/admin/unblockProduct?id=${productId}&page=<%= currentPage %>`;
 
                 const response = await fetch(url, {
-                    method: 'GET',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    method: 'PATCH',
+                    headers: { 
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
                 });
 
                 if (response.ok) {
@@ -750,7 +753,7 @@
                     }
                     buttonElement.disabled = false;
 
-                    // Update stats
+             
                     const activeCount = document.getElementById('activeProductsCount');
                     const blockedCount = document.getElementById('blockedProductsCount');
                     if (activeCount && blockedCount) {
@@ -790,7 +793,6 @@
             }
         }
 
-        // Delete product
         async function deleteProduct(productId, currentPage) {
             const result = await Swal.fire({
                 title: 'Delete Product?',
@@ -804,11 +806,45 @@
             });
 
             if (result.isConfirmed) {
-                window.location.href = `/admin/deleteProduct?id=${productId}&page=${currentPage}`;
+                try {
+                    Swal.fire({
+                        title: 'Deleting...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    const response = await fetch(`/admin/deleteProduct?id=${productId}&page=${currentPage}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Product has been deleted.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        throw new Error('Failed to delete');
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to delete product.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
             }
         }
 
-        // Browser back/forward
+   
         window.addEventListener('popstate', function (event) {
             if (event.state && event.state.page) {
                 loadProductPage(event.state.page);

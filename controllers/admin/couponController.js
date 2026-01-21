@@ -59,98 +59,149 @@ const createCoupon = async (req, res) => {
             expireOn,
             discountType,
             discountValue,
+            maxDiscountAmount,
             minimumPrice,
             usageLimit,
         } = req.body;
 
-        
+      
         if (!name || !expireOn || !discountType || discountValue === undefined || minimumPrice === undefined || !usageLimit) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.REQUIRED_FIELDS });
         }
 
-        
+   
         const trimmedName = name.trim().toUpperCase();
         
         if (!trimmedName) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Coupon code cannot be empty' });
         }
 
         if (trimmedName.length > 20) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Coupon code must not exceed 20 characters' });
         }
 
         if (!/^[A-Z0-9]+$/.test(trimmedName)) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Coupon code must contain only uppercase letters and numbers' });
         }
 
-        
+
         const existingCoupon = await Coupon.findOne({ name: trimmedName });
         if (existingCoupon) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.COUPON.ALREADY_EXISTS });
         }
 
-        
+
         if (!["percentage", "fixed"].includes(discountType)) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Invalid discount type. Must be "percentage" or "fixed"' });
         }
 
-        
+       
         const numDiscountValue = parseFloat(discountValue);
         if (isNaN(numDiscountValue) || numDiscountValue <= 0) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Discount value must be greater than 0' });
         }
 
-        if (discountType === 'percentage' && numDiscountValue > 100) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+       
+        if (discountType === 'percentage') {
+            if (numDiscountValue < 1 || numDiscountValue > 50) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+                    success: false, 
+                    message: 'Percentage discount must be between 1% and 50%' 
+                });
+            }
         }
 
-        if (numDiscountValue > 999999) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+       
+        if (discountType === 'fixed') {
+            if (numDiscountValue > 5000) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+                    success: false, 
+                    message: 'Fixed discount cannot exceed ₹5,000' 
+                });
+            }
         }
 
-        
+        let numMaxDiscountAmount = null;
+        if (maxDiscountAmount !== undefined && maxDiscountAmount !== null && maxDiscountAmount !== '') {
+            numMaxDiscountAmount = parseFloat(maxDiscountAmount);
+            if (isNaN(numMaxDiscountAmount) || numMaxDiscountAmount < 0) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+                    success: false, 
+                    message: 'Maximum discount amount must be 0 or greater' 
+                });
+            }
+            
+            if (numMaxDiscountAmount > 10000) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+                    success: false, 
+                    message: 'Maximum discount amount cannot exceed ₹10,000' 
+                });
+            }
+
+
+            if (discountType === 'percentage' && !numMaxDiscountAmount) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+                    success: false, 
+                    message: 'Please set a maximum discount cap for percentage-based coupons (recommended: ₹3,000)' 
+                });
+            }
+        } else if (discountType === 'percentage') {
+           
+            numMaxDiscountAmount = 3000;
+        }
+
+     
         const numMinimumPrice = parseFloat(minimumPrice);
         if (isNaN(numMinimumPrice) || numMinimumPrice < 0) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Minimum purchase amount must be 0 or greater' });
         }
 
         if (numMinimumPrice > 999999) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Minimum purchase amount is too large' });
+        }
+
+        
+        if (discountType === 'fixed' && numMinimumPrice > 0 && numDiscountValue >= numMinimumPrice) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+                success: false, 
+                message: 'Fixed discount amount must be less than minimum purchase amount' 
+            });
         }
 
         
         const numUsageLimit = parseInt(usageLimit);
         if (isNaN(numUsageLimit) || numUsageLimit < 1) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Usage limit must be at least 1' });
         }
 
         if (numUsageLimit > 999999) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Usage limit is too large' });
         }
 
-
+        
         const currentDate = new Date();
         currentDate.setHours(0, 0, 0, 0);
         const expiryDate = new Date(expireOn);
         expiryDate.setHours(0, 0, 0, 0);
 
         if (expiryDate <= currentDate) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.COUPON.EXPIRED });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Expiry date must be in the future' });
         }
 
         
         const trimmedDescription = description ? description.trim() : '';
         if (trimmedDescription.length > 500) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.VALIDATION.INVALID_INPUT });
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: 'Description must not exceed 500 characters' });
         }
 
-
+       
         const newCoupon = new Coupon({
             name: trimmedName,
             description: trimmedDescription,
             expireOn: expiryDate,
             discountType,
             discountValue: numDiscountValue,
+            maxDiscountAmount: numMaxDiscountAmount,
             minimumPrice: numMinimumPrice,
             usageLimit: numUsageLimit
         });
@@ -165,6 +216,15 @@ const createCoupon = async (req, res) => {
 
     } catch (error) {
         console.error("Error creating coupon:", error);
+        
+        
+        if (error.name === 'ValidationError') {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+                success: false, 
+                message: error.message 
+            });
+        }
+        
         return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR });
     }
 };
@@ -347,21 +407,24 @@ const toggleCouponStatus = async (req, res) => {
             });
         }
 
-        
-        if (new Date(coupon.expireOn) < new Date()) {
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        const expiryDate = new Date(coupon.expireOn);
+        expiryDate.setHours(0, 0, 0, 0);
+
+        if (isActive && expiryDate < currentDate) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
                 success: false,
-                message: ERROR_MESSAGES.COUPON.EXPIRED
+                message: 'Cannot activate an expired coupon'
             });
         }
-
 
         coupon.isActive = isActive;
         await coupon.save();
 
         return res.status(HTTP_STATUS.OK).json({
             success: true,
-            message: SUCCESS_MESSAGES.COUPON.STATUS_UPDATED
+            message: isActive ? 'Coupon activated successfully' : 'Coupon deactivated successfully'
         });
 
     } catch (error) {

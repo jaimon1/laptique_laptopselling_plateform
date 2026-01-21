@@ -1,6 +1,6 @@
 <%-include("../../views/parsuals/admin/header")%>
 
-<!-- Main Content -->
+
 <div class="col-md-10 p-0">
     <div class="topbar-category">
         <div class="topbar-content-category">
@@ -40,7 +40,7 @@
     </div>
 
     <div class="content-wrapper-category">
-        <!-- Stats Cards -->
+ 
         <div class="stats-grid-category" id="statsGrid">
             <div class="stats-card-category">
                 <div class="stats-card-header-category">
@@ -97,7 +97,7 @@
             </div>
         </div>
 
-        <!-- Category List Card -->
+   
         <div class="professional-card-category">
             <div class="card-header-category" id="cardHeader">
                 <div class="header-left-category">
@@ -184,12 +184,12 @@
                 <% } %>
             </div>
 
-            <!-- Pagination -->
+         
             <% if(totalPages > 1) { %>
                 <div class="pagination-wrapper-category" id="paginationWrapper">
                     <nav aria-label="Category pagination">
                         <ul class="pagination-category" id="paginationList">
-                            <!-- Previous Button -->
+                        
                             <% if(currentPage > 1) { %>
                                 <li class="page-item-category">
                                     <a class="page-link-category page-prev-category" 
@@ -207,21 +207,21 @@
                                 </li>
                             <% } %>
 
-                            <!-- First Page -->
+                      
                             <% if(totalPages > 0) { %>
                                 <li class="page-item-category <%= currentPage === 1 ? 'active' : '' %>">
                                     <a class="page-link-category" href="?page=1<%= search ? '&search=' + search : '' %>">1</a>
                                 </li>
                             <% } %>
 
-                            <!-- Left Ellipsis -->
+                   
                             <% if(currentPage > 3) { %>
                                 <li class="page-item-category disabled">
                                     <span class="page-link-category">...</span>
                                 </li>
                             <% } %>
 
-                            <!-- Middle Pages -->
+              
                             <% 
                                 let startPage = Math.max(2, currentPage - 1);
                                 let endPage = Math.min(totalPages - 1, currentPage + 1);
@@ -234,14 +234,13 @@
                                 </li>
                             <% } %>
 
-                            <!-- Right Ellipsis -->
                             <% if(currentPage < totalPages - 2) { %>
                                 <li class="page-item-category disabled">
                                     <span class="page-link-category">...</span>
                                 </li>
                             <% } %>
 
-                            <!-- Last Page -->
+                 
                             <% if(totalPages > 1) { %>
                                 <li class="page-item-category <%= currentPage === totalPages ? 'active' : '' %>">
                                     <a class="page-link-category" href="?page=<%= totalPages %><%= search ? '&search=' + search : '' %>">
@@ -250,7 +249,7 @@
                                 </li>
                             <% } %>
 
-                            <!-- Next Button -->
+                    
                             <% if(currentPage < totalPages) { %>
                                 <li class="page-item-category">
                                     <a class="page-link-category page-next-category" 
@@ -270,7 +269,7 @@
                         </ul>
                     </nav>
                     
-                    <!-- Page Info -->
+            
                     <div class="page-info-category" id="pageInfo">
                         <i class="fas fa-info-circle"></i>
                         <span>Page <strong><%= currentPage %></strong> of <strong><%= totalPages %></strong></span>
@@ -285,7 +284,7 @@
 </div>
 </div>
 
-<!-- Category AJAX Script -->
+
 <script src="/js/categoryAjax.js"></script>
 
 <%-include("../../views/parsuals/admin/footer")%>

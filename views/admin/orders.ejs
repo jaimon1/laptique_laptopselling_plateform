@@ -1,7 +1,7 @@
-<%-include(".. /../views/parsuals/admin/header")%>
+<%-include("../../views/parsuals/admin/header")%>
 
     <div class="col-md-10 p-0">
-        <!-- Ultra Modern Premium Header -->
+
         <div class="premium-header">
             <div class="header-background">
                 <div class="gradient-orb orb-1"></div>
@@ -48,7 +48,7 @@
     </div>
 
     <div class="container-fluid py-4"></div>div></a>div></div>
-    <!-- Order Statistics -->
+
     <% if (orderStats && orderStats.length> 0) { %>
         <div class="row mb-4">
             <% orderStats.forEach(stat=> { %>
@@ -84,7 +84,7 @@
         </div>
         <% } %>
 
-            <!-- Filters -->
+   
             <div class="modern-card mb-4">
                 <div class="card-header-modern">
                     <h5><i class="fas fa-filter me-2"></i>Filter Orders</h5>
@@ -163,7 +163,7 @@
             </div>
             </div>
 
-            <!-- Orders Table -->
+        
             <% if (orders && orders.length> 0) { %>
                 <div class="modern-card">
                     <div class="card-header-modern">
@@ -286,7 +286,7 @@
                         </table>
                     </div>
 
-                    <!-- Mobile Order Cards (visible only on mobile) -->
+               
                     <div class="mobile-orders-container">
                         <% orders.forEach(order=> { %>
                             <div class="mobile-order-card">
@@ -361,7 +361,7 @@
                     </div>
                 </div>
 
-                <!-- Pagination -->
+      
                 <% if (totalPages> 1) { %>
                     <nav aria-label="Orders pagination">
                         <ul class="pagination justify-content-center mb-0">
@@ -404,7 +404,7 @@
                     <% } %>
 
                         <% } else { %>
-                            <!-- Empty State -->
+        
                             <div class="modern-card">
                                 <div class="empty-state text-center py-5">
                                     <i class="fas fa-shopping-bag fa-4x text-muted mb-4"></i>
@@ -428,7 +428,7 @@
                                 </div>
                                 </div>
 
-                                <!-- Status Update Modal -->
+                            
                                 <div class="modal fade" id="statusModal" tabindex="-1">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -469,7 +469,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Return Request Modal -->
+                          
                                 <div class="modal fade" id="returnModal" tabindex="-1">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -506,7 +506,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Bootstrap JS -->
+                                
                                 <script
                                     src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
                                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -521,7 +521,7 @@
                                         page: <%= currentPage || 1 %>
         };
 
-                                    // AJAX: Load orders with filters
+                                   
                                     async function loadOrders(page = 1, updateUrl = true) {
                                         const params = new URLSearchParams({
                                             page: page,
@@ -531,7 +531,7 @@
                                             sortOrder: currentFilters.sortOrder
                                         });
 
-                                        // Show loading state
+                                      
                                         showLoading();
 
                                         try {
@@ -544,35 +544,35 @@
                                                 const parser = new DOMParser();
                                                 const doc = parser.parseFromString(html, 'text/html');
 
-                                                // Update stats
+                                             
                                                 const newStats = doc.querySelector('.row.mb-4');
                                                 const currentStats = document.querySelector('.row.mb-4');
                                                 if (newStats && currentStats) {
                                                     currentStats.innerHTML = newStats.innerHTML;
                                                 }
 
-                                                // Update table
+                                            
                                                 const newTable = doc.querySelector('.table-container');
                                                 const currentTable = document.querySelector('.table-container');
                                                 if (newTable && currentTable) {
                                                     currentTable.innerHTML = newTable.innerHTML;
                                                 }
 
-                                                // Update mobile cards
+                                           
                                                 const newMobileCards = doc.querySelector('.mobile-orders-container');
                                                 const currentMobileCards = document.querySelector('.mobile-orders-container');
                                                 if (newMobileCards && currentMobileCards) {
                                                     currentMobileCards.innerHTML = newMobileCards.innerHTML;
                                                 }
 
-                                                // Update pagination
+                                          
                                                 const newPagination = doc.querySelector('nav[aria-label="Orders pagination"]');
                                                 const currentPagination = document.querySelector('nav[aria-label="Orders pagination"]');
                                                 if (newPagination && currentPagination) {
                                                     currentPagination.parentElement.innerHTML = newPagination.parentElement.innerHTML;
                                                 }
 
-                                                // Update URL
+                                            
                                                 if (updateUrl) {
                                                     const newUrl = `/admin/orders?${params.toString()}`;
                                                     window.history.pushState({ page, filters: currentFilters }, '', newUrl);
@@ -596,7 +596,7 @@
                                         }
                                     }
 
-                                    // AJAX: Apply filters
+                                  
                                     function applyFilters(event) {
                                         if (event) event.preventDefault();
 
@@ -608,13 +608,13 @@
                                         loadOrders(1);
                                     }
 
-                                    // AJAX: Pagination
+                               
                                     function goToPage(page, event) {
                                         if (event) event.preventDefault();
                                         loadOrders(page);
                                     }
 
-                                    // Update order status
+                                  
                                     function updateStatus(orderId) {
                                         currentOrderId = orderId;
                                         const modal = new bootstrap.Modal(document.getElementById('statusModal'));
@@ -635,7 +635,7 @@
                                             return;
                                         }
 
-                                        // Show loading
+                              
                                         Swal.fire({
                                             title: 'Updating...',
                                             text: 'Please wait while we update the order status',
@@ -667,7 +667,7 @@
 
                                                 bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
 
-                                                // Reload orders with AJAX
+                                               
                                                 setTimeout(() => {
                                                     loadOrders(currentFilters.page, false);
                                                 }, 2000);
@@ -690,7 +690,7 @@
                                         }
                                     }
 
-                                    // Handle return request
+                           
                                     function handleReturn(orderId) {
                                         currentOrderId = orderId;
                                         const modal = new bootstrap.Modal(document.getElementById('returnModal'));
@@ -711,7 +711,7 @@
                                             return;
                                         }
 
-                                        // Show loading
+                                  
                                         Swal.fire({
                                             title: 'Processing...',
                                             text: 'Please wait while we process the return request',
@@ -743,7 +743,7 @@
 
                                                 bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
 
-                                                // Reload orders with AJAX
+                            
                                                 setTimeout(() => {
                                                     loadOrders(currentFilters.page, false);
                                                 }, 2000);
@@ -766,7 +766,7 @@
                                         }
                                     }
 
-                                    // Loading state
+                            
                                     function showLoading() {
                                         const container = document.querySelector('.container-fluid');
                                         if (container) {
@@ -792,15 +792,15 @@
                                         if (container) container.style.opacity = '1';
                                     }
 
-                                    // Initialize on page load
+                                
                                     document.addEventListener('DOMContentLoaded', function () {
-                                        // Handle filter form submission
+                                     
                                         const filterForm = document.querySelector('form[action="/admin/orders"]');
                                         if (filterForm) {
                                             filterForm.addEventListener('submit', applyFilters);
                                         }
 
-                                        // Handle Enter key in search
+                                        
                                         const searchInput = document.getElementById('search');
                                         if (searchInput) {
                                             searchInput.addEventListener('keypress', function (e) {
@@ -811,7 +811,7 @@
                                             });
                                         }
 
-                                        // Handle pagination clicks
+                                    
                                         document.addEventListener('click', function (e) {
                                             if (e.target.closest('.pagination .page-link')) {
                                                 e.preventDefault();
@@ -825,7 +825,7 @@
                                             }
                                         });
 
-                                        // Clear forms when modals are hidden
+                                  
                                         document.getElementById('statusModal').addEventListener('hidden.bs.modal', function () {
                                             document.getElementById('statusForm').reset();
                                         });
@@ -835,7 +835,7 @@
                                         });
                                     });
 
-                                    // Handle browser back/forward
+                       
                                     window.addEventListener('popstate', function (event) {
                                         if (event.state && event.state.page) {
                                             currentFilters = event.state.filters || currentFilters;
@@ -845,7 +845,7 @@
                                 </script>
 
                                 <style>
-                                    /* Modern Stats Cards */
+                                
                                     .stats-card-mini {
                                         background: white;
                                         border-radius: 16px;
@@ -918,7 +918,7 @@
                                         font-weight: 600;
                                     }
 
-                                    /* Modern Card */
+                                  
                                     .modern-card {
                                         background: white;
                                         border-radius: 20px;
@@ -943,7 +943,7 @@
                                         color: #0f172a;
                                     }
 
-                                    /* Modern Table */
+                                
                                     .modern-table {
                                         width: 100%;
                                         border-collapse: separate;
@@ -1073,7 +1073,7 @@
                                         -webkit-overflow-scrolling: touch;
                                     }
 
-                                    /* Responsive Design */
+                             
                                     @media (max-width: 1200px) {
                                         .stats-card-mini {
                                             padding: 20px;
@@ -1152,7 +1152,7 @@
                                             font-size: 18px;
                                         }
 
-                                        /* Stack stats cards on mobile */
+                                
                                         .row.mb-4 {
                                             margin-bottom: 20px !important;
                                         }
@@ -1180,7 +1180,7 @@
                                             font-size: 12px;
                                         }
 
-                                        /* Filter form responsive */
+                                
                                         .modern-card .p-4 {
                                             padding: 20px !important;
                                         }
@@ -1200,12 +1200,12 @@
                                             padding: 10px;
                                         }
 
-                                        /* Hide table on mobile, show cards instead */
+                                 
                                         .table-container {
                                             display: none;
                                         }
 
-                                        /* Mobile order cards */
+                                 
                                         .mobile-order-card {
                                             background: white;
                                             border-radius: 16px;
@@ -1271,7 +1271,7 @@
                                             padding: 10px;
                                         }
 
-                                        /* Pagination responsive */
+                                     
                                         .pagination {
                                             flex-wrap: wrap;
                                             gap: 5px;
@@ -1283,7 +1283,7 @@
                                             margin: 2px;
                                         }
 
-                                        /* Modal responsive */
+                                      
                                         .modal-dialog {
                                             margin: 10px;
                                         }
@@ -1378,14 +1378,14 @@
                                         }
                                     }
 
-                                    /* Desktop: Show table, hide mobile cards */
+                               
                                     @media (min-width: 769px) {
                                         .mobile-orders-container {
                                             display: none;
                                         }
                                     }
 
-                                    /* Mobile: Hide table, show cards */
+                                    
                                     @media (max-width: 768px) {
                                         .table-container {
                                             display: none !important;
@@ -1397,7 +1397,6 @@
                                         }
                                     }
 
-                                    /* AJAX Loading State */
                                     .ajax-loader {
                                         position: absolute;
                                         top: 50%;
@@ -1416,7 +1415,6 @@
                                         height: 3rem;
                                     }
 
-                                    /* Smooth transitions */
                                     .modern-table tbody tr,
                                     .mobile-order-card,
                                     .stats-card-mini {
@@ -1435,7 +1433,7 @@
                                         }
                                     }
 
-                                    /* Pagination hover effects */
+                                 
                                     .pagination .page-link {
                                         transition: all 0.3s ease;
                                     }
@@ -1445,7 +1443,7 @@
                                         box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
                                     }
 
-                                    /* Modern Topbar Styles */
+                              
                                     .modern-topbar {
                                         background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
                                         padding: 40px 50px;
@@ -1619,7 +1617,7 @@
                                         transform: translateY(-1px) scale(1.02);
                                     }
 
-                                    /* Responsive Modern Topbar */
+                      
                                     @media (max-width: 768px) {
                                         .modern-topbar {
                                             padding: 20px;
@@ -1675,7 +1673,7 @@
                                         }
                                     }
 
-                                    /* ========== ULTRA PREMIUM HEADER DESIGN ========== */
+                                 
                                     .premium-header {
                                         position: relative;
                                         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -1971,7 +1969,7 @@
                                         transform: translateY(-2px) scale(1.02);
                                     }
 
-                                    /* Responsive Premium Header */
+                                   
                                     @media (max-width: 992px) {
                                         .premium-header {
                                             padding: 40px 30px;

@@ -60,7 +60,7 @@ const walletSchema = new Schema({
     }
 });
 
-// Update the updatedOn field before saving
+
 walletSchema.pre('save', function (next) {
     this.updatedOn = new Date();
     next();

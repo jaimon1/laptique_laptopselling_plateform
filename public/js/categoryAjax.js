@@ -67,7 +67,6 @@ async function loadCategories(page, search) {
 
         const url = `/admin/category?page=${page}${search ? '&search=' + encodeURIComponent(search) : ''}`;
 
-        // Fetch data
         const response = await fetch(url, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -80,28 +79,28 @@ async function loadCategories(page, search) {
 
         const html = await response.text();
         
-        // Parse HTML
+   
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        // Update stats
+        
         updateStats(doc);
 
-        // Update categories grid
+
         updateCategoriesGrid(doc);
 
-        // Update pagination
+
         updatePagination(doc);
 
-        // Update header counts
+   
         updateHeaderCounts(doc);
 
-        // Update URL
+ 
         currentPage = page;
         currentSearch = search;
         window.history.pushState({}, '', url);
 
-        // Scroll to top smoothly
+  
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (error) {
@@ -117,7 +116,7 @@ async function loadCategories(page, search) {
     }
 }
 
-// Show loading state
+
 function showLoadingState() {
     const categoriesGrid = document.getElementById('categoriesGrid');
     if (categoriesGrid) {
@@ -133,7 +132,7 @@ function showLoadingState() {
     }
 }
 
-// Hide loading state
+
 function hideLoadingState() {
     const categoriesGrid = document.getElementById('categoriesGrid');
     if (categoriesGrid) {
@@ -141,7 +140,6 @@ function hideLoadingState() {
     }
 }
 
-// Update stats
 function updateStats(doc) {
     const totalCount = doc.getElementById('totalCategoriesCount');
     const listedCount = doc.getElementById('listedCategoriesCount');
@@ -158,7 +156,7 @@ function updateStats(doc) {
     }
 }
 
-// Animate count change
+
 function animateCount(elementId, newValue) {
     const element = document.getElementById(elementId);
     if (!element) return;
@@ -183,7 +181,7 @@ function animateCount(elementId, newValue) {
     }, stepDuration);
 }
 
-// Update categories grid
+
 function updateCategoriesGrid(doc) {
     const newGrid = doc.getElementById('categoriesGrid');
     const currentGrid = document.getElementById('categoriesGrid');
@@ -193,7 +191,7 @@ function updateCategoriesGrid(doc) {
     }
 }
 
-// Update pagination
+
 function updatePagination(doc) {
     const newPagination = doc.getElementById('paginationWrapper');
     const currentPagination = document.getElementById('paginationWrapper');
@@ -210,7 +208,7 @@ function updatePagination(doc) {
     }
 }
 
-// Update header counts
+
 function updateHeaderCounts(doc) {
     const newShowingCount = doc.getElementById('showingCount');
     const newRecordsBadge = doc.getElementById('recordsBadge');
@@ -230,7 +228,7 @@ function updateHeaderCounts(doc) {
     }
 }
 
-// List category with AJAX
+
 async function listCategoryAjax(categoryId, categoryName) {
     const result = await Swal.fire({
         title: 'List Category?',
@@ -254,9 +252,10 @@ async function listCategoryAjax(categoryId, categoryName) {
             });
 
             const response = await fetch(`/admin/unList?id=${categoryId}&page=${currentPage}`, {
-                method: 'GET',
+                method: 'PATCH',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
                 }
             });
 
@@ -284,7 +283,7 @@ async function listCategoryAjax(categoryId, categoryName) {
     }
 }
 
-// Unlist category with AJAX
+
 async function unlistCategoryAjax(categoryId, categoryName) {
     const result = await Swal.fire({
         title: 'Unlist Category?',
@@ -308,9 +307,10 @@ async function unlistCategoryAjax(categoryId, categoryName) {
             });
 
             const response = await fetch(`/admin/List?id=${categoryId}&page=${currentPage}`, {
-                method: 'GET',
+                method: 'PATCH',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
                 }
             });
 
@@ -338,7 +338,7 @@ async function unlistCategoryAjax(categoryId, categoryName) {
     }
 }
 
-// Delete category with AJAX
+
 async function deleteCategoryAjax(categoryId, categoryName) {
     const result = await Swal.fire({
         title: 'Delete Category?',
@@ -363,9 +363,10 @@ async function deleteCategoryAjax(categoryId, categoryName) {
             });
 
             const response = await fetch(`/admin/deleteCategory?id=${categoryId}&page=${currentPage}`, {
-                method: 'GET',
+                method: 'DELETE',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
                 }
             });
 
@@ -393,7 +394,7 @@ async function deleteCategoryAjax(categoryId, categoryName) {
     }
 }
 
-// Handle browser back/forward
+
 window.addEventListener('popstate', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const page = parseInt(urlParams.get('page')) || 1;

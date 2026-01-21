@@ -6,7 +6,7 @@ import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/i
 async function creditWallet(userId, amount, description, orderId) {
     if (!amount || amount <= 0) return;
 
-        // Use wallet service to properly credit wallet and create transaction
+
         const { credit } = await import('../../services/walletService.js');
         
         await credit(userId, amount, {
@@ -17,7 +17,7 @@ async function creditWallet(userId, amount, description, orderId) {
         });
 }
 
-// Load orders listing page
+
 const loadOrders = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
@@ -31,7 +31,7 @@ const loadOrders = async (req, res) => {
         const skip = (page - 1) * limit;
         const search = req.query.search || '';
 
-        // Build search query - show all orders including failed payments
+
         let searchQuery = { 
             userId
         };
@@ -46,7 +46,7 @@ const loadOrders = async (req, res) => {
             });
         }
 
-        // Get orders with pagination
+
         const orders = await Order.find(searchQuery)
             .populate('orderItems.product')
             .sort({ createdOn: -1 })
@@ -67,12 +67,12 @@ const loadOrders = async (req, res) => {
         });
 
     }catch (error) {
-        console.error('Error loading orders:', error);
+
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('pageNotFound');
     }
 };
 
-// Get order details
+
 const getOrderDetails = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -99,12 +99,12 @@ const getOrderDetails = async (req, res) => {
             title: 'Order Details'
         });
     } catch (error) {
-        console.error('Error loading order details:', error);
+    
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('pageNotFound');
     }
 };
 
-// Cancel entire order
+
 const cancelOrder = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -118,7 +118,7 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-        // Use refund service to cancel order
+        
         const result = await refundService.cancelOrder(orderId, userId, reason || 'Cancelled by user');
 
         if (!result.success) {
@@ -128,7 +128,7 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-        // Credit wallet if refund amount > 0
+        
         if (result.refundAmount > 0) {
             await creditWallet(userId, result.refundAmount, `Refund for cancelled order ${result.order.orderId}`, result.order._id);
         }
@@ -149,7 +149,7 @@ const cancelOrder = async (req, res) => {
     }
 };
 
-// Cancel specific product in order
+
 const cancelOrderItem = async (req, res) => {
     try {
         const { orderId, itemId } = req.params;
@@ -163,7 +163,7 @@ const cancelOrderItem = async (req, res) => {
             });
         }
 
-        // Use refund service to cancel item
+
         const result = await refundService.cancelItem(orderId, itemId, userId, reason || 'Cancelled by user');
 
         if (!result.success) {
@@ -173,7 +173,7 @@ const cancelOrderItem = async (req, res) => {
             });
         }
 
-        // Credit wallet if refund amount > 0
+
         if (result.refundAmount > 0) {
             await creditWallet(userId, result.refundAmount, `Refund for cancelled item in order ${result.order.orderId}`, result.order._id);
         }
@@ -186,7 +186,7 @@ const cancelOrderItem = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error cancelling order item:', error);
+
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
             success: false, 
             message: ERROR_MESSAGES.ORDER.CANCEL_FAILED
@@ -194,7 +194,6 @@ const cancelOrderItem = async (req, res) => {
     }
 };
 
-// Request return for entire order
 const requestOrderReturn = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -236,7 +235,7 @@ const requestOrderReturn = async (req, res) => {
             });
         }
 
-        // Check if return window is still open (7 days)
+
         const deliveredDate = new Date(order.deliveredOn);
         const currentDate = new Date();
         const daysDifference = Math.floor((currentDate - deliveredDate) / (1000 * 60 * 60 * 24));
@@ -248,13 +247,13 @@ const requestOrderReturn = async (req, res) => {
             });
         }
 
-        // Update order return status
+
         order.status = 'Return Request';
         order.returnStatus = 'Requested';
         order.returnReason = reason.trim();
         order.returnRequestedOn = new Date();
 
-        // Update all active items return status
+
         order.orderItems.forEach(item => {
             if (item.status === 'Active') {
                 item.returnStatus = 'Requested';
@@ -262,7 +261,7 @@ const requestOrderReturn = async (req, res) => {
             }
         });
 
-        // Add to status history
+
         order.statusHistory.push({
             status: 'Return Request',
             updatedBy: userId,
@@ -383,7 +382,7 @@ const requestItemReturn = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error requesting item return:', error);
+
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
             success: false, 
             message: ERROR_MESSAGES.RETURN.REQUEST_FAILED
@@ -391,7 +390,7 @@ const requestItemReturn = async (req, res) => {
     }
 };
 
-// Download invoice
+
 const downloadInvoice = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -418,14 +417,14 @@ const downloadInvoice = async (req, res) => {
             });
         }
 
-        // Calculate active (delivered) and cancelled/returned items totals
-        let activeItemsSubtotal = 0;  // Only delivered items
-        let cancelledReturnedSubtotal = 0;  // Cancelled + Returned items
+     
+        let activeItemsSubtotal = 0;  
+        let cancelledReturnedSubtotal = 0; 
         
         order.orderItems.forEach(item => {
             const itemTotal = item.price * item.quantity;
-            // Only count as active if status is Active or Delivered
-            // Exclude Cancelled, Returned, and Return Requested items
+  
+         
             if (item.status === 'Cancelled' || item.status === 'Returned' || item.returnStatus === 'Approved') {
                 cancelledReturnedSubtotal += itemTotal;
             } else {
@@ -433,63 +432,63 @@ const downloadInvoice = async (req, res) => {
             }
         });
 
-        // Calculate proportional amounts for active (delivered) items only
+        
         const originalTotal = order.totalPrice;
         const hasCancelledOrReturned = cancelledReturnedSubtotal > 0;
         
-        // Proportional discount (only for delivered items)
+       
         const discountRatio = originalTotal > 0 ? order.discount / originalTotal : 0;
         const currentDiscount = Math.round(activeItemsSubtotal * discountRatio);
         
-        // Proportional tax (only for delivered items)
+
         const taxRatio = originalTotal > 0 ? (order.tax || 0) / originalTotal : 0;
         const currentTax = Math.round(activeItemsSubtotal * taxRatio);
         
-        // Proportional coupon (only for delivered items)
+
         let currentCouponDiscount = 0;
         if (order.couponApplied && order.couponDetails) {
             const couponRatio = originalTotal > 0 ? order.couponDetails.discount / originalTotal : 0;
             currentCouponDiscount = Math.round(activeItemsSubtotal * couponRatio);
         }
         
-        // Calculate current final amount (only for delivered items)
+
         const currentFinalAmount = activeItemsSubtotal - currentDiscount - currentCouponDiscount + currentTax + (order.shippingFee || 0);
 
-        // Create PDF document
+
         const doc = new PDFDocument({ margin: 50 });
         
-        // Set response headers
+
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.orderId}.pdf`);
         
-        // Pipe PDF to response
+
         doc.pipe(res);
 
-        // Add company header
+      
         doc.fontSize(20).text('LapTique', 50, 50);
         doc.fontSize(10).text('Premium Laptop Store', 50, 75);
         doc.text('Email: laptiqueLaptop@gmail.com', 50, 90);
         doc.text('Phone: +91 9061587964', 50, 105);
 
-        // Add invoice title
+  
         doc.fontSize(16).text('INVOICE', 400, 50);
         doc.fontSize(10).text(`Invoice #: ${order.orderId}`, 400, 75);
         doc.text(`Date: ${new Date(order.createdOn).toLocaleDateString()}`, 400, 90);
         doc.text(`Status: ${order.status}`, 400, 105);
 
-        // Add customer details
+
         doc.fontSize(12).text('Bill To:', 50, 150);
         doc.fontSize(10).text(`${order.address.name}`, 50, 170);
         doc.text(`${order.address.landmark}`, 50, 185);
         doc.text(`${order.address.city}, ${order.address.state}`, 50, 200);
         doc.text(`Phone: ${order.address.phone}`, 50, 215);
 
-        // Add order items table
+
         let yPosition = 260;
         doc.fontSize(12).text('Order Items:', 50, yPosition);
         yPosition += 20;
 
-        // Table headers
+   
         doc.fontSize(10);
         doc.text('Product', 50, yPosition);
         doc.text('Variant', 200, yPosition);
@@ -498,20 +497,20 @@ const downloadInvoice = async (req, res) => {
         doc.text('Total', 450, yPosition);
         doc.text('Status', 500, yPosition);
         
-        // Draw line under headers
+
         yPosition += 15;
         doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
         yPosition += 10;
 
-        // Add items (both active and cancelled)
+
         order.orderItems.forEach(item => {
             const itemTotal = item.price * item.quantity;
             
-            // Set color based on status
+
             if (item.status === 'Cancelled') {
-                doc.fillColor('#999999'); // Gray for cancelled
+                doc.fillColor('#999999'); 
             } else {
-                doc.fillColor('#000000'); // Black for active
+                doc.fillColor('#000000'); 
             }
             
             doc.text(item.product.productName.substring(0, 25), 50, yPosition);
@@ -523,11 +522,11 @@ const downloadInvoice = async (req, res) => {
             
             yPosition += 20;
             
-            // Reset color
+      
             doc.fillColor('#000000');
         });
 
-        // Show cancelled/returned items summary if any
+
         if (hasCancelledOrReturned) {
             yPosition += 10;
             doc.fontSize(9).fillColor('#dc3545');
@@ -536,12 +535,12 @@ const downloadInvoice = async (req, res) => {
             yPosition += 15;
         }
 
-        // Add totals
+
         yPosition += 10;
         doc.moveTo(350, yPosition).lineTo(550, yPosition).stroke();
         yPosition += 15;
 
-        // Show original total if items were cancelled or returned
+
         if (hasCancelledOrReturned) {
             doc.fontSize(9).fillColor('#666666');
             doc.text('Original Order Total:', 350, yPosition);
@@ -579,7 +578,7 @@ const downloadInvoice = async (req, res) => {
             yPosition += 15;
         }
 
-        // Show refunded amount if any
+   
         if (order.totalRefunded && order.totalRefunded > 0) {
             doc.fillColor('#28a745');
             doc.text('Refunded:', 350, yPosition);
@@ -588,7 +587,7 @@ const downloadInvoice = async (req, res) => {
             yPosition += 15;
         }
 
-        // Final total
+        
         yPosition += 5;
         doc.moveTo(350, yPosition).lineTo(550, yPosition).stroke();
         yPosition += 10;
@@ -597,13 +596,13 @@ const downloadInvoice = async (req, res) => {
         doc.text(`${hasCancelledOrReturned ? 'Current' : ''} Total Amount:`, 350, yPosition);
         doc.text(`₹${(hasCancelledOrReturned ? currentFinalAmount : parseInt(order.finalAmount)).toLocaleString()}`, 450, yPosition);
 
-        // Add payment method
+   
         yPosition += 30;
         doc.fontSize(10);
         doc.text(`Payment Method: ${order.paymentMethod === 'COD' ? 'Cash on Delivery' : order.paymentMethod}`, 50, yPosition);
         doc.text(`Payment Status: ${order.paymentStatus}`, 50, yPosition + 15);
 
-        // Add note about cancelled/returned items
+        
         if (hasCancelledOrReturned) {
             yPosition += 40;
             doc.fontSize(9).fillColor('#666666');
@@ -613,13 +612,13 @@ const downloadInvoice = async (req, res) => {
             doc.fillColor('#000000');
         }
 
-        // Add footer
+        
         yPosition += 40;
         doc.fontSize(10);
         doc.text('Thank you for shopping with LapTique!', 50, yPosition);
         doc.text('For any queries, contact us at support@laptique.com', 50, yPosition + 15);
 
-        // Finalize PDF
+        
         doc.end();
 
     } catch (error) {

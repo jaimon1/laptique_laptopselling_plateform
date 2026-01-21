@@ -61,10 +61,10 @@ const addCategory = async (req, res) => {
     console.log(id, categoryName, description)
     try {
         if (id) {
-            // Check if another category (not the current one) has the same name
+          
             let isHas = await Category.findOne({ 
                 name: categoryName,
-                _id: { $ne: id } // Exclude current category from check
+                _id: { $ne: id } 
             });
             if (isHas) {
                 return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: ERROR_MESSAGES.CATEGORY.ALREADY_EXISTS });
@@ -92,23 +92,55 @@ const addCategory = async (req, res) => {
 const listCategory = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page || 1;
         await Category.updateOne({ _id: id }, { $set: { isListed: false } });
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: SUCCESS_MESSAGES.CATEGORY.UNLISTED 
+            });
+        }
+        
+        const page = req.query.page || 1;
         res.redirect(`/admin/category?page=${page}&status=success&action=unlisted`);
     } catch (error) {
         console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
         res.redirect('/admin/pageError');
     }
 }
 
 const unlistCategory = async (req, res) => {
     try {
-        const page = req.query.page || 1;
         const id = req.query.id;
         await Category.updateOne({ _id: id }, { $set: { isListed: true } });
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: SUCCESS_MESSAGES.CATEGORY.LISTED 
+            });
+        }
+        
+        const page = req.query.page || 1;
         res.redirect(`/admin/category?page=${page}&status=success&action=listed`);
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
         res.redirect('/admin/pageError');
     }
 }
@@ -116,11 +148,27 @@ const unlistCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
     try {
         const id = req.query.id;
-        const page = req.query.page || 1;
         await Category.deleteOne({ _id: id });
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.OK).json({ 
+                success: true, 
+                message: SUCCESS_MESSAGES.CATEGORY.DELETED 
+            });
+        }
+        
+        const page = req.query.page || 1;
         res.redirect(`/admin/category?page=${page}&status=success&action=deleted`);
     } catch (error) {
         console.log(error);
+        
+        if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
+                success: false, 
+                message: ERROR_MESSAGES.SERVER.INTERNAL_ERROR 
+            });
+        }
+        
         res.redirect('/admin/pageError');
     }
 }
@@ -142,18 +190,18 @@ const addCategoryOffer = async (req, res) => {
             return res.status(HTTP_STATUS.NOT_FOUND).json({ status: false, message: ERROR_MESSAGES.CATEGORY.NOT_FOUND });
         }
         
-        // Update category offer
+   
         category.categoryOffer = offerPercentage;
         await category.save();
         
-        // Update all products in this category
+
         const products = await Product.find({ category: categoryId });
         
         for (const product of products) {
-            // Calculate best offer (product offer vs category offer)
+
             const bestOffer = Math.max(product.productOffer || 0, offerPercentage);
             
-            // Update sale prices for all variants
+      
             product.variants.forEach(variant => {
                 const discount = (variant.regularPrice * bestOffer) / 100;
                 variant.salePrice = Math.round(variant.regularPrice - discount);
@@ -181,15 +229,15 @@ const removeCategoryOffer = async (req, res) => {
             return res.status(HTTP_STATUS.NOT_FOUND).json({ status: false, message: ERROR_MESSAGES.CATEGORY.NOT_FOUND });
         }
         
-        // Remove category offer
+       
         category.categoryOffer = 0;
         await category.save();
         
-        // Update all products in this category
+        
         const products = await Product.find({ category: categoryId });
         
         for (const product of products) {
-            // Recalculate with product offer only
+           
             const productOffer = product.productOffer || 0;
             
             product.variants.forEach(variant => {

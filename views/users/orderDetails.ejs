@@ -13,7 +13,7 @@
 <body>
     <%-include("../../views/parsuals/user/header")%>
         <div style="margin-top: 120px;"></div>
-        <!-- Order Header -->
+        
         <div class="order-header">
             <div class="containers">
                 <div class="row align-items-center">
@@ -35,7 +35,7 @@
         <div class="container
     +
     ">
-            <!-- Payment Failed/Pending Alert -->
+            
             <% if (order.paymentMethod !=='COD' && (order.paymentStatus==='Failed' || order.paymentStatus==='Pending' )
                 && (order.status==='Pending' || order.status==='Failed' )) { %>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -58,7 +58,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
 
-                <!-- Prominent Retry Payment Card -->
+                
                 <div class="card border-danger mb-4" style="box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);">
                     <div class="card-body text-center py-4">
                         <div class="mb-3">
@@ -82,7 +82,7 @@
                 </div>
                 <% } %>
 
-                    <!-- Return Rejected Alert -->
+                    
                     <% if (order.returnStatus === 'Rejected' && order.returnRejectionReason) { %>
                         <div class="alert alert-warning alert-dismissible fade show" role="alert">
                             <div class="d-flex align-items-start">
@@ -104,9 +104,9 @@
                     <% } %>
 
                     <div class="row">
-                        <!-- Left Column - Order Info -->
+                        
                         <div class="col-lg-8">
-                            <!-- Order Summary -->
+                          
                             <div class="order-card">
                                 <h4 class="section-title">
                                     <i class="fas fa-info-circle me-2"></i>Order Information
@@ -225,7 +225,7 @@
                                     <% } %>
                             </div>
 
-                            <!-- Order Timeline -->
+                          
                             <div class="order-card">
                                 <h4 class="section-title">
                                     <i class="fas fa-route me-2"></i>Order Timeline
@@ -239,7 +239,7 @@
                                 %>
 
                                 <% if (isPaymentFailed) { %>
-                                    <!-- Payment Failed Timeline - Don't show "Order Placed" -->
+                                   
                                     <div class="order-timeline">
                                         <div class="timeline-item active">
                                             <div class="timeline-icon" style="background: #ef4444; color: white; box-shadow: 0 0 0 4px #fee2e2, 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
@@ -312,7 +312,7 @@
                                         </div>
                                     </div>
                                 <% } else if (order.status === 'Cancelled' || order.status === 'Failed') { %>
-                                    <!-- Cancelled/Failed Order Timeline -->
+                                    
                                     <div class="order-timeline">
                                         <div class="timeline-item active">
                                             <div class="timeline-icon active">
@@ -345,7 +345,7 @@
                                         </div>
                                     </div>
                                 <% } else if (order.status === 'Returned' || order.status === 'Return Request' || order.returnStatus === 'Rejected') { %>
-                                    <!-- Return Timeline -->
+                                 
                                     <div class="order-timeline">
                                         <div class="timeline-item active">
                                             <div class="timeline-icon active">
@@ -402,7 +402,7 @@
                                         </div>
 
                                         <% if (order.returnStatus === 'Rejected') { %>
-                                            <!-- Return Rejected Timeline -->
+                                      
                                             <div class="timeline-item active">
                                                 <div class="timeline-icon active">
                                                     <i class="fas fa-undo"></i>
@@ -455,7 +455,7 @@
                                         <% } %>
                                     </div>
                                 <% } else { %>
-                                    <!-- Normal Order Timeline -->
+                                  
                                     <div class="order-timeline">
                                         <div class="timeline-item active">
                                             <div class="timeline-icon active">
@@ -523,7 +523,7 @@
                                 <% } %>   
                             </div>
 
-                            <!-- Products List -->
+                   
                             <div class="order-card">
                                 <h4 class="section-title">
                                     <i class="fas fa-box me-2"></i>Ordered Items
@@ -581,7 +581,8 @@
                                                             <i class="fas fa-ban me-1"></i>Cancelled
                                                         </button>
                                                         <% } else if ((order.status==='Pending' ||
-                                                            order.status==='Processing' ) && item.status!=='Cancelled' )
+                                                            order.status==='Processing' ) && item.status!=='Cancelled' &&
+                                                            !(order.paymentMethod !=='COD' && (order.paymentStatus==='Failed' || order.paymentStatus==='Pending' )))
                                                             { %>
                                                             <button class="btn btn-sm btn-outline-danger"
                                                                 onclick="cancelOrderItem('<%= order._id %>','<%= item._id %>')">
@@ -603,7 +604,7 @@
                                             <% }) %>
                             </div>
 
-                            <!-- Delivery Address -->
+                            
                             <div class="order-card">
                                 <h4 class="section-title">
                                     <i class="fas fa-map-marker-alt me-2"></i>Delivery Address
@@ -629,9 +630,9 @@
                             </div>
                         </div>
 
-                        <!-- Right Column - Price Summary & Actions -->
+                     
                         <div class="col-lg-4">
-                            <!-- Price Summary -->
+                         
                             <div class="order-card">
                                 <h4 class="section-title">
                                     <i class="fas fa-calculator me-2"></i>Price Summary
@@ -679,7 +680,7 @@
                                 </div>
                             </div>
 
-                            <!-- Action Buttons -->
+                       
                             <div class="order-card">
                                 <h4 class="section-title">
                                     <i class="fas fa-cogs me-2"></i>Actions
@@ -702,7 +703,7 @@
                                                     Cancelled
                                                 </button>
                                                 <% } else if (order.status==='Failed' ) { %>
-                                                    <!-- For failed orders, only show retry payment, no cancel button -->
+                                           
                                                     <% if (order.paymentMethod !=='COD' ) { %>
                                                         <button class="btn-primary-custom" onclick="retryPayment('<%= order._id %>')"
                                                             style="background: #dc3545; border: none;">
@@ -711,7 +712,7 @@
                                                         </button>
                                                     <% } %>
                                                 <% } else if (order.status==='Pending' || order.status==='Processing' ) { %>
-                                                    <!-- Only show cancel if payment is not failed/pending -->
+                                                    
                                                     <% if (!(order.paymentMethod !=='COD' && (order.paymentStatus==='Failed' || order.paymentStatus==='Pending'))) { %>
                                                         <button class="btn-danger-custom"
                                                             onclick="cancelOrder('<%= order._id %>')">
@@ -750,15 +751,15 @@
         </div>
 
 
-        <!-- SweetAlert2 -->
+       
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <!-- Razorpay SDK -->
+      
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
         <script>
-            // Replace the old cancelOrder with this SweetAlert2 based function:
+            
             async function cancelOrder(orderId) {
                 try {
                     const { value: reason } = await Swal.fire({
@@ -775,7 +776,7 @@
                         focusCancel: true
                     });
 
-                    // If user closed dialog without confirming
+                 
                     if (reason === undefined) return;
 
                     Swal.fire({
@@ -803,7 +804,7 @@
                     Swal.close();
 
                     if (data.success) {
-                        // Show success with refund info
+                       
                         let message = data.message || 'Order cancelled successfully';
                         if (data.refunded && data.refundAmount > 0) {
                             message += `\n\n₹${data.refundAmount.toLocaleString()} has been refunded to your wallet!`;
@@ -850,7 +851,7 @@
                     const data = await res.json();
                     Swal.close();
                     if (data.success) {
-                        // Show success with refund info
+                        
                         let message = data.message || 'Item cancelled successfully';
                         if (data.refunded && data.refundAmount > 0) {
                             message += `\n\n₹${data.refundAmount.toLocaleString()} has been refunded to your wallet!`;
@@ -1082,7 +1083,7 @@
                 }, 5000);
             }
 
-            // Retry payment function for failed orders
+            
             async function retryPayment(orderId) {
                 try {
                     Swal.fire({
@@ -1092,7 +1093,7 @@
                         didOpen: () => Swal.showLoading()
                     });
 
-                    // Call retry payment endpoint
+                  
                     const response = await fetch(`/payment/razorpay/retry/${orderId}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' }
@@ -1106,7 +1107,7 @@
                         return;
                     }
 
-                    // Initialize Razorpay payment
+                    
                     const options = {
                         key: data.keyId,
                         amount: data.amount,
@@ -1190,9 +1191,9 @@
                 }
             }
 
-            // Add some interactive effects
+     
             document.addEventListener('DOMContentLoaded', function () {
-                // Add hover effects to product items
+  
                 document.querySelectorAll('.product-item').forEach(item => {
                     item.addEventListener('mouseenter', function () {
                         this.style.transform = 'translateY(-2px)';
@@ -1203,10 +1204,10 @@
                     });
                 });
 
-                // Add click effects to buttons
+              
                 document.querySelectorAll('.btn-primary-custom, .btn-danger-custom, .btn-success-custom').forEach(btn => {
                     btn.addEventListener('click', function (e) {
-                        // Create ripple effect
+                       
                         const ripple = document.createElement('span');
                         const rect = this.getBoundingClientRect();
                         const size = Math.max(rect.width, rect.height);
@@ -1237,7 +1238,7 @@
                 });
             });
 
-            // Add ripple animation CSS
+     
             const style = document.createElement('style');
             style.textContent = `
             @keyframes ripple {

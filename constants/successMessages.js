@@ -1,10 +1,7 @@
-/**
- * Success Messages Constants
- * Centralized success messages for consistency across the application
- */
+
 
 const SUCCESS_MESSAGES = {
-    // Authentication
+
     AUTH: {
         LOGIN_SUCCESS: 'Login successful',
         LOGOUT_SUCCESS: 'Logout successful',
@@ -14,7 +11,6 @@ const SUCCESS_MESSAGES = {
         EMAIL_VERIFIED: 'Email verified successfully'
     },
 
-    // User
     USER: {
         PROFILE_UPDATED: 'Profile updated successfully',
         ACCOUNT_CREATED: 'Account created successfully',
@@ -22,7 +18,7 @@ const SUCCESS_MESSAGES = {
         PREFERENCES_SAVED: 'Preferences saved successfully'
     },
 
-    // Order
+  
     ORDER: {
         CREATED: 'Order placed successfully',
         UPDATED: 'Order updated successfully',
@@ -31,7 +27,7 @@ const SUCCESS_MESSAGES = {
         INVOICE_GENERATED: 'Invoice generated successfully'
     },
 
-    // Product
+
     PRODUCT: {
         ADDED: 'Product added successfully',
         UPDATED: 'Product updated successfully',
@@ -39,7 +35,7 @@ const SUCCESS_MESSAGES = {
         STOCK_UPDATED: 'Stock updated successfully'
     },
 
-    // Cart
+   
     CART: {
         ITEM_ADDED: 'Item added to cart',
         ITEM_REMOVED: 'Item removed from cart',
@@ -47,13 +43,13 @@ const SUCCESS_MESSAGES = {
         CLEARED: 'Cart cleared successfully'
     },
 
-    // Wishlist
+
     WISHLIST: {
         ITEM_ADDED: 'Item added to wishlist',
         ITEM_REMOVED: 'Item removed from wishlist'
     },
 
-    // Wishlist Errors
+
     WISHLIST_ERROR: {
         NOT_FOUND: 'Wishlist not found',
         ALREADY_EXISTS: 'Product is already in your wishlist',
@@ -94,14 +90,14 @@ const SUCCESS_MESSAGES = {
         STATUS_UPDATED: 'Coupon status updated successfully'
     },
 
-    // Category
+
     CATEGORY: {
         ADDED: 'Category added successfully',
         UPDATED: 'Category updated successfully',
         DELETED: 'Category deleted successfully'
     },
 
-    // Brand
+
     BRAND: {
         ADDED: 'Brand added successfully',
         UPDATED: 'Brand updated successfully',
@@ -110,20 +106,19 @@ const SUCCESS_MESSAGES = {
         UNBLOCKED: 'Brand unblocked successfully'
     },
 
-    // Offer
     OFFER: {
         APPLIED: 'Offer applied successfully',
         REMOVED: 'Offer removed successfully',
         UPDATED: 'Offer updated successfully'
     },
 
-    // Referral
+
     REFERRAL: {
         REWARD_CREDITED: 'Reward credited successfully',
         REWARD_REVOKED: 'Reward revoked successfully'
     },
 
-    // Settings
+
     SETTINGS: {
         UPDATED: 'Settings updated successfully'
     },

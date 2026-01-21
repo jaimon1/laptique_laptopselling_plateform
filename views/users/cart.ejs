@@ -16,7 +16,7 @@
     
     <div class="cart-content-wrapper">
         <div style="margin-top: 70px;"></div>
-        <!-- Cart Header -->
+      
         <div class="cart-header">
             <div class="container">
                 <div class="row align-items-center">
@@ -44,7 +44,7 @@
         <div class="container">
             <% if (cartItems && cartItems.length> 0) { %>
                 <div class="row">
-                    <!-- Cart Items -->
+               
                     <div class="col-lg-8">
                         <div class="cart-card">
                             <% cartItems.forEach((item, index)=> { %>
@@ -57,7 +57,7 @@
                                         </div>
                                         <% } %>
 
-                                            <!-- Product Image -->
+                                 
                                             <div class="me-3">
                                                 <a href="/product/<%= item.productId._id %>" class="d-inline-block">
                                                     <img src="/uploads/re-images/<%= item.productId.ProductImages[0] %>"
@@ -65,7 +65,7 @@
                                                 </a>
                                             </div>
 
-                                            <!-- Product Details -->
+                                  
                                             <div class="flex-grow-1">
                                                 <h5 class="product-title">
                                                     <a href="/product/<%= item.productId._id %>"
@@ -109,7 +109,7 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Quantity Controls -->
+                                         
                                             <div class="me-3">
                                                 <div class="quantity-controls">
                                                     <button class="quantity-btn decrease-btn" <%=item.quantity <=1 ||
@@ -130,7 +130,7 @@
                                                 </small>
                                             </div>
 
-                                            <!-- Item Total -->
+                                          
                                             <div class="me-3 text-end">
                                                 <div class="fw-bold text-primary">
                                                     ₹<span class="item-total">
@@ -139,7 +139,7 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Remove Button -->
+                                           
                                             <div>
                                                 <button class="remove-btn" title="Remove item">
                                                     <i class="fas fa-trash"></i>
@@ -148,7 +148,7 @@
                                 </div>
                                 <% }) %>
 
-                                    <!-- Clear Cart Button -->
+                          
                                     <div class="text-end mt-3">
                                         <button class="btn btn-outline-danger" id="clearCartBtn">
                                             <i class="fas fa-trash me-2"></i>Clear Cart
@@ -157,7 +157,7 @@
                         </div>
                     </div>
 
-                    <!-- Cart Summary -->
+                
                     <div class="col-lg-4">
                         <div class="cart-summary">
                             <h4 class="mb-3">
@@ -211,7 +211,7 @@
                     </div>
                 </div>
                 <% } else { %>
-                    <!-- Empty Cart -->
+                 
                     <div class="cart-card">
                         <div class="empty-cart">
                             <i class="fas fa-shopping-cart"></i>
@@ -233,7 +233,7 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                // Quantity controls
+             
                 document.querySelectorAll('.cart-item').forEach(item => {
                     const productId = item.dataset.productId;
                     const variantId = item.dataset.variantId;
@@ -242,7 +242,7 @@
                     const quantityInput = item.querySelector('.quantity-input');
                     const removeBtn = item.querySelector('.remove-btn');
 
-                    // Decrease quantity
+                    
                     decreaseBtn?.addEventListener('click', () => {
                         const currentQuantity = parseInt(quantityInput.value);
                         if (currentQuantity > 1) {
@@ -250,7 +250,7 @@
                         }
                     });
 
-                    // Increase quantity
+                 
                     increaseBtn?.addEventListener('click', () => {
                         const currentQuantity = parseInt(quantityInput.value);
                         const maxQuantity = parseInt(quantityInput.max);
@@ -259,7 +259,7 @@
                         }
                     });
 
-                    // Direct input change
+                  
                     quantityInput?.addEventListener('change', () => {
                         const newQuantity = parseInt(quantityInput.value);
                         const maxQuantity = parseInt(quantityInput.max);
@@ -275,7 +275,7 @@
                         }
                     });
 
-                    // Remove item
+                  
                     removeBtn?.addEventListener('click', () => {
                         Swal.fire({
                             title: 'Remove Item?',
@@ -300,7 +300,7 @@
                     });
                 });
 
-                // Clear cart
+      
                 document.getElementById('clearCartBtn')?.addEventListener('click', () => {
                     Swal.fire({
                         title: 'Are you sure?',
@@ -324,27 +324,26 @@
 
                 });
 
-                // Checkout button
+            
                 document.getElementById('checkoutBtn')?.addEventListener('click', () => {
-                    // Check for out of stock items
+             
                     const outOfStockItems = document.querySelectorAll('.disabled-item');
                     if (outOfStockItems.length > 0) {
                         showAlert('Please remove out of stock items before proceeding to checkout', 'warning');
                         return;
                     }
 
-                    // Proceed to checkout
+                
                     window.location.href = '/checkout';
                 });
             });
 
-            // Update quantity function
             async function updateQuantity(productId, variantId, quantity, itemElement) {
                 try {
                     itemElement.classList.add('loading');
 
                     const response = await fetch('/cart/update', {
-                        method: 'POST',
+                        method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -358,26 +357,20 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        // Update item total
                         const itemTotal = itemElement.querySelector('.item-total');
                         itemTotal.textContent = data.itemTotal.toLocaleString();
 
-                        // Update quantity input
                         const quantityInput = itemElement.querySelector('.quantity-input');
                         quantityInput.value = quantity;
 
-                        // Update button states
                         updateButtonStates(itemElement, quantity);
 
-                        // Update cart totals
                         updateCartTotals(data.cartTotal, data.cartCount);
 
-                        // Update header cart count
                         updateHeaderCartCount(data.cartCount);
 
                     } else {
                         showAlert(data.message, 'error');
-                        // Revert quantity input
                         location.reload();
                     }
                 } catch (error) {
@@ -389,13 +382,12 @@
                 }
             }
 
-            // Remove from cart function
             async function removeFromCart(productId, variantId, itemElement) {
                 try {
                     itemElement.classList.add('loading');
 
                     const response = await fetch('/cart/remove', {
-                        method: 'POST',
+                        method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -408,16 +400,12 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        // Remove item from DOM
                         itemElement.remove();
 
-                        // Update cart totals
                         updateCartTotals(data.cartTotal, data.cartCount);
 
-                        // Update header cart count
                         updateHeaderCartCount(data.cartCount);
 
-                        // Check if cart is empty
                         if (data.cartCount === 0) {
                             location.reload();
                         }
@@ -434,11 +422,10 @@
                 }
             }
 
-            // Clear cart function
             async function clearCart() {
                 try {
                     const response = await fetch('/cart/clear', {
-                        method: 'POST',
+                        method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                         }
@@ -457,7 +444,6 @@
                 }
             }
 
-            // Update button states
             function updateButtonStates(itemElement, quantity) {
                 const decreaseBtn = itemElement.querySelector('.decrease-btn');
                 const increaseBtn = itemElement.querySelector('.increase-btn');
@@ -466,9 +452,7 @@
 
                 decreaseBtn.disabled = quantity <= 1;
                 increaseBtn.disabled = quantity >= maxQuantity;
-            }
-
-            // Update cart totals
+            }       
             function updateCartTotals(cartTotal, cartCount) {
                 const subtotalElement = document.getElementById('cartSubtotal');
                 const taxElement = document.getElementById('cartTax');
@@ -488,14 +472,13 @@
                     totalElement.textContent = total.toLocaleString();
                 }
 
-                // Update item count in header
                 const headerText = document.querySelector('.cart-header p');
                 if (headerText && cartCount > 0) {
                     headerText.textContent = `${cartCount} item${cartCount > 1 ? 's' : ''} in your cart`;
                 }
             }
 
-            // Update header cart count
+    
             function updateHeaderCartCount(count) {
                 const cartCountElements = document.querySelectorAll('.cart-count');
                 cartCountElements.forEach(element => {
@@ -504,9 +487,9 @@
                 });
             }
 
-            // Show alert function
+          
             function showAlert(message, type) {
-                // Create alert element
+   
                 const alertDiv = document.createElement('div');
                 alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
                 alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
@@ -517,7 +500,7 @@
 
                 document.body.appendChild(alertDiv);
 
-                // Auto remove after 5 seconds
+
                 setTimeout(() => {
                     if (alertDiv.parentNode) {
                         alertDiv.remove();
