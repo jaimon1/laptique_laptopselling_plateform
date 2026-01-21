@@ -122,6 +122,12 @@
                                         <span>ID</span>
                                     </div>
                                 </th>
+                                <th class="th-id">
+                                    <div class="th-content">
+                                        <i class="fas fa-hashtag"></i>
+                                        <span>Orders</span>
+                                    </div>
+                                </th>
                                 <th class="th-user">
                                     <div class="th-content">
                                         <i class="fas fa-user"></i>
@@ -171,6 +177,11 @@
                                         <td class="td-id">
                                             <div class="id-wrapper">
                                                 <span class="id-badge-pro">#<%= i+1 %></span>
+                                            </div>
+                                        </td>
+                                        <td class="td-id">
+                                            <div class="id-wrapper">
+                                                <span class="id-badge-pro"><% if(Orders) {%></span>
                                             </div>
                                         </td>
                                         <td class="td-user">

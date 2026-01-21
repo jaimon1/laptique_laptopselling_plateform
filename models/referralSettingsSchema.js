@@ -44,7 +44,7 @@ const referralSettingsSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Ensure only one settings document exists
+
 referralSettingsSchema.statics.getSettings = async function () {
     let settings = await this.findOne();
     if (!settings) {
