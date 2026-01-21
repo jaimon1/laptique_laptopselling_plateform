@@ -4,3 +4,4 @@ node_modules/
 .DS_Store
 test-css-loading.js
 verify-admin-css.js
+public/uploads/
