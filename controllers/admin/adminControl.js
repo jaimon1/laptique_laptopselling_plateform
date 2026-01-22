@@ -1,6 +1,6 @@
 import User from '../../models/userSchema.js';
 import bcrypt from 'bcrypt';
-import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
+import { ERROR_MESSAGES } from '../../constants/index.js';
 
 
 

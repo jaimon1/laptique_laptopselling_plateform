@@ -1,6 +1,7 @@
 node_modules/
 .env
 *.log
+logs/
 .DS_Store
 test-css-loading.js
 verify-admin-css.js

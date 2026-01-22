@@ -1,7 +1,7 @@
 import Order from '../../models/orderSchema.js';
 import User from '../../models/userSchema.js';
 import Product from '../../models/productSchema.js';
-import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
+import { HTTP_STATUS, ERROR_MESSAGES } from '../../constants/index.js';
 
 
 const getDashboardStats = async (req, res) => {

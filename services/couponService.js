@@ -183,8 +183,7 @@ class CouponService {
                 }
             };
 
-        } catch (error) {
-            
+        } catch (_error) {
             return { success: false, message: 'Error fetching coupon details' };
         }
     }

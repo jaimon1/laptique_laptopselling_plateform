@@ -66,8 +66,7 @@ const loadOrders = async (req, res) => {
             title: 'My Orders'
         });
 
-    }catch (error) {
-
+    }catch (_error) {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('pageNotFound');
     }
 };
@@ -98,8 +97,7 @@ const getOrderDetails = async (req, res) => {
             order,
             title: 'Order Details'
         });
-    } catch (error) {
-    
+    } catch (_error) {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('pageNotFound');
     }
 };
@@ -185,8 +183,7 @@ const cancelOrderItem = async (req, res) => {
             refundAmount: result.refundAmount
         });
 
-    } catch (error) {
-
+    } catch (_error) {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
             success: false, 
             message: ERROR_MESSAGES.ORDER.CANCEL_FAILED
@@ -381,8 +378,7 @@ const requestItemReturn = async (req, res) => {
             message: SUCCESS_MESSAGES.RETURN.REQUEST_SUBMITTED
         });
 
-    } catch (error) {
-
+    } catch (_error) {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
             success: false, 
             message: ERROR_MESSAGES.RETURN.REQUEST_FAILED

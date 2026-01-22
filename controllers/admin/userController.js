@@ -1,6 +1,5 @@
 import User from '../../models/userSchema.js';
 import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
-import Order from '../../models/orderSchema.js';
 
 
 const notFound = (req, res) => {
@@ -27,10 +26,6 @@ const userPage = async (req, res) => {
             ]
         }).limit(limit * 1).skip((page - 1) * limit).exec();
 
-        
-        const user = await Order.find({userId : userData._id})
-        console.log(user)
-
         const count = await User.find({
             isAdmin:false,
             $or: [
@@ -40,7 +35,6 @@ const userPage = async (req, res) => {
         }).countDocuments();
 
         res.render('userListing', {
-            orders: user,
             data: userData,
             totalPages: Math.ceil(count / limit),
             currentPage: page,

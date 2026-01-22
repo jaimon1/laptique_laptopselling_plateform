@@ -10,6 +10,9 @@ import passport from './config/passport.js';
 import { dbConnect } from './config/db.js';
 import MongoStore from 'connect-mongo';
 import nocache from 'nocache';
+import logger from './config/logger.js';
+import requestLogger from './middilwares/requestLogger.js';
+import errorLogger from './middilwares/errorLogger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +22,9 @@ const app = express();
 app.set('etag', false);
 
 dbConnect();
+
+app.use(requestLogger);
+
 app.use(nocache());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -97,8 +103,11 @@ app.use('/admin', adminSession, adminRouter);
 
 app.use('/', userSession, passport.initialize(), passport.session(), router);
 
+app.use(errorLogger);
+
 const PORT = process.env.PORT || 3003;
 
 app.listen(PORT, () => {
-    console.log(`Server Running at http://localhost:${PORT}`);
+    logger.info(`Server started successfully on port ${PORT}`);
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });

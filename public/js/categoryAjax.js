@@ -272,7 +272,7 @@ async function listCategoryAjax(categoryId, categoryName) {
             } else {
                 throw new Error('Failed to list category');
             }
-        } catch (error) {
+        } catch (_error) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
@@ -327,7 +327,7 @@ async function unlistCategoryAjax(categoryId, categoryName) {
             } else {
                 throw new Error('Failed to unlist category');
             }
-        } catch (error) {
+        } catch (_error) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
@@ -383,7 +383,7 @@ async function deleteCategoryAjax(categoryId, categoryName) {
             } else {
                 throw new Error('Failed to delete category');
             }
-        } catch (error) {
+        } catch (_error) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
@@ -394,6 +394,9 @@ async function deleteCategoryAjax(categoryId, categoryName) {
     }
 }
 
+window.listCategoryAjax = listCategoryAjax;
+window.unlistCategoryAjax = unlistCategoryAjax;
+window.deleteCategoryAjax = deleteCategoryAjax;
 
 window.addEventListener('popstate', function() {
     const urlParams = new URLSearchParams(window.location.search);

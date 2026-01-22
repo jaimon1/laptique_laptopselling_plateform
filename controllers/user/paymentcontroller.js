@@ -6,7 +6,7 @@ import Address from '../../models/addressSchema.js';
 import Order from '../../models/orderSchema.js';
 import Coupon from '../../models/couponSchema.js';
 import User from '../../models/userSchema.js';
-import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
+import { HTTP_STATUS, ERROR_MESSAGES } from '../../constants/index.js';
 
 
 async function processReferralReward(userId) {

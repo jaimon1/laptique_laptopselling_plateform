@@ -577,7 +577,7 @@ const loadOrderSuccess = async (req, res) => {
             title: 'Order Placed Successfully'
         });
 
-    } catch (error) {
+    } catch (_error) {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('pageNotFound');
     }
 };

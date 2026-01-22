@@ -276,7 +276,7 @@ async function blockBrandAjax(brandId, brandName) {
             } else {
                 throw new Error('Failed to block brand');
             }
-        } catch (error) {
+        } catch (_error) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
@@ -387,7 +387,7 @@ async function deleteBrandAjax(brandId, brandName) {
             } else {
                 throw new Error('Failed to delete brand');
             }
-        } catch (error) {
+        } catch (_error) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
@@ -435,6 +435,9 @@ function checkUrlMessages() {
     }
 }
 
+window.blockBrandAjax = blockBrandAjax;
+window.unblockBrandAjax = unblockBrandAjax;
+window.deleteBrandAjax = deleteBrandAjax;
 
 window.addEventListener('popstate', function() {
     const urlParams = new URLSearchParams(window.location.search);

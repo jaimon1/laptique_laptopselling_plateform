@@ -1,7 +1,7 @@
 import Order from '../../models/orderSchema.js';
 import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
-import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/index.js';
+import { HTTP_STATUS, ERROR_MESSAGES } from '../../constants/index.js';
 
 
 export const loadSalesReport = async (req, res) => {
