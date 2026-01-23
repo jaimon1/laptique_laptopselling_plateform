@@ -37,24 +37,36 @@ router.get("/shop", productController.branding)
 router.get('/product/:id', productController.getProductDetails)
 
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }));
-router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login?error=google_blocked' }), (req, res) => {
-    if (req.user) {
-        req.session.user = {
-            _id: req.user._id,
-            name: req.user.name,
-            email: req.user.email,
-            isBlocked: req.user.isBlocked
-        };
-        req.session.save((err) => {
-            if (err) {
-                return res.redirect('/login?error=session_error');
+router.get('/auth/google/callback', 
+    passport.authenticate('google', { 
+        failureRedirect: '/login?error=google_blocked',
+        failureMessage: true 
+    }), 
+    (req, res) => {
+        try {
+            if (req.user) {
+                req.session.user = {
+                    _id: req.user._id,
+                    name: req.user.name,
+                    email: req.user.email,
+                    isBlocked: req.user.isBlocked
+                };
+                req.session.save((err) => {
+                    if (err) {
+                        console.error('Session save error:', err);
+                        return res.redirect('/login?error=session_error');
+                    }
+                    res.redirect('/');
+                });
+            } else {
+                res.redirect('/login?error=google_blocked');
             }
-            res.redirect('/');
-        });
-    } else {
-        res.redirect('/login?error=google_blocked');
+        } catch (error) {
+            console.error('Google callback error:', error);
+            res.redirect('/login?error=authentication_failed');
+        }
     }
-})
+)
 
 router.get('/profile',profileController.loadProfile);
 router.get('/editProfile',profileController.loadEditProfile);
