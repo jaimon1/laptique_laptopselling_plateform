@@ -30,24 +30,27 @@ const registerLogin = async (req, res) => {
         const comparePassword = await bcrypt.compare(password, user.password);
         
         if (comparePassword) {
+            // Store admin in session (same approach as user login)
+            req.session.admin = user._id;
             
-            req.session.regenerate((err) => {
+            // Force session save
+            req.session.save((err) => {
                 if (err) {
-                    console.error('Admin session regeneration error:', err);
+                    console.error('Admin session save error:', err);
                     return res.render('adminLogin', { msg: ERROR_MESSAGES.AUTH.LOGIN_FAILED });
                 }
                 
-                
-                req.session.admin = user._id;
-                
-                
-                req.session.save((err) => {
-                    if (err) {
-                        console.error('Admin session save error:', err);
-                        return res.render('adminLogin', { msg: ERROR_MESSAGES.AUTH.LOGIN_FAILED });
-                    }
-                    return res.redirect('/admin');
+                // Explicitly set cookie (same as user login)
+                const cookieValue = `s:${req.sessionID}`;
+                res.cookie('admin.sid', cookieValue, {
+                    httpOnly: true,
+                    secure: false,
+                    sameSite: 'lax',
+                    maxAge: 24 * 60 * 60 * 1000,
+                    path: '/admin'
                 });
+                
+                return res.redirect('/admin');
             });
         } else {
             return res.render('adminLogin', { msg: ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS });

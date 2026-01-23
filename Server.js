@@ -73,18 +73,18 @@ const adminSession = session({
     name: 'admin.sid',
     secret: process.env.SESSION_ADMIN_SECRET || process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, // Same as user session
     store: adminSessionStore,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Same as user session
         httpOnly: true, 
         sameSite: 'lax',
         maxAge: 24 * 60 * 60 * 1000,
-        path: '/admin', 
-        domain: undefined 
+        path: '/admin'
     },
     rolling: true,
-    unset: 'destroy' 
+    unset: 'destroy',
+    proxy: true // Same as user session
 });
 
 

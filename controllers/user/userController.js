@@ -254,33 +254,33 @@ const verifyOtp = async function (req, res) {
                 }
             }
 
-         
-            req.session.regenerate((err) => {
+            // Store user in session (same as Google login)
+            req.session.user = newUser;
+
+            // Force session save
+            req.session.save((err) => {
                 if (err) {
-                    console.error('Session regeneration error:', err);
+                    console.error('Session save error:', err);
                     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
                         success: false, 
                         msg: ERROR_MESSAGES.AUTH.SESSION_EXPIRED
                     });
                 }
-
-          
-                req.session.user = newUser;
-
-      
-                req.session.save((err) => {
-                    if (err) {
-                        console.error('Session save error:', err);
-                        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ 
-                            success: false, 
-                            msg: ERROR_MESSAGES.AUTH.SESSION_EXPIRED
-                        });
-                    }
-                    res.status(HTTP_STATUS.OK).json({ 
-                        success: true, 
-                        message: SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS, 
-                        redirectUrl: "/" 
-                    });
+                
+                // Explicitly set cookie (same as Google login)
+                const cookieValue = `s:${req.sessionID}`;
+                res.cookie('user.sid', cookieValue, {
+                    httpOnly: true,
+                    secure: false,
+                    sameSite: 'lax',
+                    maxAge: 72 * 60 * 60 * 1000,
+                    path: '/'
+                });
+                
+                res.status(HTTP_STATUS.OK).json({ 
+                    success: true, 
+                    message: SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS, 
+                    redirectUrl: "/" 
                 });
             });
         } else {
@@ -369,23 +369,27 @@ const loginRegister = async (req, res) => {
             return res.render('login', { msg: "Password Not Match", success: null });
         }
 
-        req.session.regenerate((err) => {
+        // Store user in session (same as Google login)
+        req.session.user = findUser;
+
+        // Force session save
+        req.session.save((err) => {
             if (err) {
-                console.error('Session regeneration error:', err);
+                console.error('Session save error:', err);
                 return res.render('login', { msg: "Login failed. Please try again.", success: null });
             }
-
             
-            req.session.user = findUser;
-
-       
-            req.session.save((err) => {
-                if (err) {
-                    console.error('Session save error:', err);
-                    return res.render('login', { msg: "Login failed. Please try again.", success: null });
-                }
-                res.redirect('/');
+            // Explicitly set cookie (same as Google login)
+            const cookieValue = `s:${req.sessionID}`;
+            res.cookie('user.sid', cookieValue, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 72 * 60 * 60 * 1000,
+                path: '/'
             });
+            
+            res.redirect('/');
         });
     } catch (error) {
         console.error('Login Error', error);
