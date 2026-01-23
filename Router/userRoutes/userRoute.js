@@ -46,55 +46,43 @@ router.get('/auth/google/callback',
     (req, res) => {
         console.log('=== GOOGLE CALLBACK DEBUG ===');
         console.log('1. User from Passport:', req.user ? 'EXISTS' : 'MISSING');
-        console.log('2. Session ID:', req.sessionID);
-        console.log('3. Session before save:', JSON.stringify(req.session, null, 2));
-        console.log('4. Cookie settings:', req.session.cookie);
+        console.log('2. User object:', req.user);
+        console.log('3. Session ID:', req.sessionID);
         
         try {
-            if (req.user) {
-                // Regenerate session for security and to ensure fresh session
-                const userData = {
-                    _id: req.user._id,
-                    name: req.user.name,
-                    email: req.user.email,
-                    isBlocked: req.user.isBlocked
-                };
-                
-                req.session.regenerate((err) => {
-                    if (err) {
-                        console.error('❌ Session regeneration error:', err);
-                        return res.redirect('/login?error=session_error');
-                    }
-                    
-                    // Store user data in the new session
-                    req.session.user = userData;
-                    
-                    // Re-establish passport session
-                    req.login(req.user, (loginErr) => {
-                        if (loginErr) {
-                            console.error('❌ Passport login error:', loginErr);
-                            return res.redirect('/login?error=session_error');
-                        }
-                        
-                        console.log('5. User data set in session:', req.session.user);
-                        
-                        // Force session save
-                        req.session.save((saveErr) => {
-                            if (saveErr) {
-                                console.error('❌ Session save error:', saveErr);
-                                return res.redirect('/login?error=session_error');
-                            }
-                            console.log('✅ Session saved successfully');
-                            console.log('6. New Session ID:', req.sessionID);
-                            console.log('7. Redirecting to homepage...');
-                            res.redirect('/');
-                        });
-                    });
-                });
-            } else {
+            if (!req.user) {
                 console.error('❌ No user found after authentication');
-                res.redirect('/login?error=google_blocked');
+                return res.redirect('/login?error=google_blocked');
             }
+            
+            // Store user data directly in session (don't regenerate)
+            req.session.user = {
+                _id: req.user._id,
+                name: req.user.name,
+                email: req.user.email,
+                isBlocked: req.user.isBlocked
+            };
+            
+            console.log('4. User data set in session:', req.session.user);
+            console.log('5. Session data:', JSON.stringify(req.session, null, 2));
+            
+            // Force session save and wait for it
+            req.session.save((err) => {
+                if (err) {
+                    console.error('❌ Session save error:', err);
+                    return res.redirect('/login?error=session_error');
+                }
+                
+                console.log('✅ Session saved successfully');
+                console.log('6. Final Session ID:', req.sessionID);
+                console.log('7. Session cookie:', req.session.cookie);
+                console.log('8. Response will set cookie:', res.getHeader('Set-Cookie'));
+                console.log('9. Redirecting to homepage...');
+                
+                // Redirect to homepage
+                res.redirect('/');
+            });
+            
         } catch (error) {
             console.error('❌ Google callback error:', error);
             res.redirect('/login?error=authentication_failed');
