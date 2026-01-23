@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Trust proxy for production (required for secure cookies behind reverse proxy)
+
 if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
@@ -54,18 +54,18 @@ const userSession = session({
     name: 'user.sid', 
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, 
     store: userSessionStore,
     cookie: {
         secure: process.env.NODE_ENV === 'production', 
         httpOnly: true, 
         sameSite: 'lax',
         maxAge: 72 * 60 * 60 * 1000,
-        path: '/',
-        domain: undefined 
+        path: '/'
     },
     rolling: true,
-    unset: 'destroy' 
+    unset: 'destroy',
+    proxy: process.env.NODE_ENV === 'production' 
 });
 
 
