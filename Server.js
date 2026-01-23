@@ -20,9 +20,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 
-if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', 1);
-}
+
+    app.set('trust proxy', true);
+
 
 app.set('etag', false);
 
@@ -57,16 +57,15 @@ const userSession = session({
     saveUninitialized: true, // MUST be true for OAuth to work
     store: userSessionStore,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', 
+        secure: false, // TEMPORARILY DISABLED for testing
         httpOnly: true, 
-        sameSite: 'lax', // 'lax' works for OAuth redirects from Google
+        sameSite: 'lax',
         maxAge: 72 * 60 * 60 * 1000,
         path: '/'
-        // No domain - let browser handle it automatically
     },
     rolling: true,
     unset: 'destroy',
-    proxy: process.env.NODE_ENV === 'production'
+    proxy: true // Always trust proxy
 });
 
 

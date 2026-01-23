@@ -76,7 +76,18 @@ router.get('/auth/google/callback',
                 console.log('✅ Session saved successfully');
                 console.log('6. Final Session ID:', req.sessionID);
                 console.log('7. Session cookie:', req.session.cookie);
-                console.log('8. Response will set cookie:', res.getHeader('Set-Cookie'));
+                
+                // Explicitly set cookie in response
+                const cookieValue = `s:${req.sessionID}`;
+                res.cookie('user.sid', cookieValue, {
+                    httpOnly: true,
+                    secure: false, // Temporarily disabled
+                    sameSite: 'lax',
+                    maxAge: 72 * 60 * 60 * 1000,
+                    path: '/'
+                });
+                
+                console.log('8. Explicitly set cookie in response');
                 console.log('9. Redirecting to homepage...');
                 
                 // Redirect to homepage
