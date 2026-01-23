@@ -39,7 +39,18 @@ router.get('/product/:id', productController.getProductDetails)
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }));
 router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login?error=google_blocked' }), (req, res) => {
     if (req.user) {
-        res.redirect('/');
+        req.session.user = {
+            _id: req.user._id,
+            name: req.user.name,
+            email: req.user.email,
+            isBlocked: req.user.isBlocked
+        };
+        req.session.save((err) => {
+            if (err) {
+                return res.redirect('/login?error=session_error');
+            }
+            res.redirect('/');
+        });
     } else {
         res.redirect('/login?error=google_blocked');
     }

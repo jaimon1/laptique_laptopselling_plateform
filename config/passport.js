@@ -14,7 +14,7 @@ passport.use(new GoogleStrategy({
         try {
             let user = await User.findOne({ googleId: profile.id });
             if (user) {
-                // Check if user is blocked
+                
                 if (user.isBlocked) {
                     return done(null, false, { message: 'Your account has been blocked by the administrator.' });
                 }
