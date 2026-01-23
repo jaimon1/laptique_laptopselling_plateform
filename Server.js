@@ -61,8 +61,8 @@ const userSession = session({
         httpOnly: true, 
         sameSite: 'lax', // 'lax' works for OAuth redirects from Google
         maxAge: 72 * 60 * 60 * 1000,
-        path: '/',
-        domain: process.env.NODE_ENV === 'production' ? '.laptique.online' : undefined
+        path: '/'
+        // No domain - let browser handle it automatically
     },
     rolling: true,
     unset: 'destroy',
