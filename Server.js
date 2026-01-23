@@ -54,18 +54,18 @@ const userSession = session({
     name: 'user.sid', 
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true, 
+    saveUninitialized: true, // MUST be true for OAuth to work
     store: userSessionStore,
     cookie: {
         secure: process.env.NODE_ENV === 'production', 
         httpOnly: true, 
-        sameSite: 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 72 * 60 * 60 * 1000,
         path: '/'
     },
     rolling: true,
     unset: 'destroy',
-    proxy: process.env.NODE_ENV === 'production' 
+    proxy: process.env.NODE_ENV === 'production'
 });
 
 

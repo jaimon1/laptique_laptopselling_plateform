@@ -37,32 +37,47 @@ router.get("/shop", productController.branding)
 router.get('/product/:id', productController.getProductDetails)
 
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }));
+
 router.get('/auth/google/callback', 
     passport.authenticate('google', { 
         failureRedirect: '/login?error=google_blocked',
         failureMessage: true 
     }), 
     (req, res) => {
+        console.log('=== GOOGLE CALLBACK DEBUG ===');
+        console.log('1. User from Passport:', req.user ? 'EXISTS' : 'MISSING');
+        console.log('2. Session ID:', req.sessionID);
+        console.log('3. Session before save:', JSON.stringify(req.session, null, 2));
+        console.log('4. Cookie settings:', req.session.cookie);
+        
         try {
             if (req.user) {
+                // Store user data in session
                 req.session.user = {
                     _id: req.user._id,
                     name: req.user.name,
                     email: req.user.email,
                     isBlocked: req.user.isBlocked
                 };
+                
+                console.log('5. User data set in session:', req.session.user);
+                
+                // Force session save
                 req.session.save((err) => {
                     if (err) {
-                        console.error('Session save error:', err);
+                        console.error('❌ Session save error:', err);
                         return res.redirect('/login?error=session_error');
                     }
+                    console.log('✅ Session saved successfully');
+                    console.log('6. Redirecting to homepage...');
                     res.redirect('/');
                 });
             } else {
+                console.error('❌ No user found after authentication');
                 res.redirect('/login?error=google_blocked');
             }
         } catch (error) {
-            console.error('Google callback error:', error);
+            console.error('❌ Google callback error:', error);
             res.redirect('/login?error=authentication_failed');
         }
     }
