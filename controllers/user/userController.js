@@ -21,6 +21,13 @@ const pageNotFound = async (req, res) => {
 
 const loadHomepage = async (req, res) => {
     try {
+        console.log('=== HOMEPAGE DEBUG ===');
+        console.log('1. Session ID:', req.sessionID);
+        console.log('2. Session user:', req.session.user);
+        console.log('3. Passport user:', req.user);
+        console.log('4. Session data:', JSON.stringify(req.session, null, 2));
+        console.log('5. Cookies:', req.headers.cookie);
+        
         const brandData = await Brand.find({
             isBlocked: false,
         })
@@ -47,6 +54,7 @@ const loadHomepage = async (req, res) => {
 
 
         if (req.session.user || req.user) {
+            console.log('✅ User is logged in, rendering with user data');
             res.render('index', {
                 user: req.session.user || req.user,
                 totalPages: totalPages,
@@ -58,6 +66,7 @@ const loadHomepage = async (req, res) => {
 
             });
         } else {
+            console.log('❌ User is NOT logged in, rendering without user data');
             res.render('index', {
                 user: false,
                 brandData: brandData,

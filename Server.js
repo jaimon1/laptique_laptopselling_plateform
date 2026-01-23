@@ -59,7 +59,7 @@ const userSession = session({
     cookie: {
         secure: process.env.NODE_ENV === 'production', 
         httpOnly: true, 
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: 'lax', // 'lax' works for OAuth redirects from Google
         maxAge: 72 * 60 * 60 * 1000,
         path: '/'
     },

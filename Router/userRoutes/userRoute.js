@@ -52,25 +52,44 @@ router.get('/auth/google/callback',
         
         try {
             if (req.user) {
-                // Store user data in session
-                req.session.user = {
+                // Regenerate session for security and to ensure fresh session
+                const userData = {
                     _id: req.user._id,
                     name: req.user.name,
                     email: req.user.email,
                     isBlocked: req.user.isBlocked
                 };
                 
-                console.log('5. User data set in session:', req.session.user);
-                
-                // Force session save
-                req.session.save((err) => {
+                req.session.regenerate((err) => {
                     if (err) {
-                        console.error('❌ Session save error:', err);
+                        console.error('❌ Session regeneration error:', err);
                         return res.redirect('/login?error=session_error');
                     }
-                    console.log('✅ Session saved successfully');
-                    console.log('6. Redirecting to homepage...');
-                    res.redirect('/');
+                    
+                    // Store user data in the new session
+                    req.session.user = userData;
+                    
+                    // Re-establish passport session
+                    req.login(req.user, (loginErr) => {
+                        if (loginErr) {
+                            console.error('❌ Passport login error:', loginErr);
+                            return res.redirect('/login?error=session_error');
+                        }
+                        
+                        console.log('5. User data set in session:', req.session.user);
+                        
+                        // Force session save
+                        req.session.save((saveErr) => {
+                            if (saveErr) {
+                                console.error('❌ Session save error:', saveErr);
+                                return res.redirect('/login?error=session_error');
+                            }
+                            console.log('✅ Session saved successfully');
+                            console.log('6. New Session ID:', req.sessionID);
+                            console.log('7. Redirecting to homepage...');
+                            res.redirect('/');
+                        });
+                    });
                 });
             } else {
                 console.error('❌ No user found after authentication');
